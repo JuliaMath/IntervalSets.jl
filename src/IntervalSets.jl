@@ -1,3 +1,5 @@
+__precompile__()
+
 module IntervalSets
 
 # package code goes here
