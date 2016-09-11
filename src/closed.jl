@@ -5,9 +5,20 @@ mathematical notation, the constructed range is `[left, right]`.
 immutable ClosedInterval{T}
     left::T
     right::T
+
+    ClosedInterval(l::T, r::T) = new(l, r)
 end
 
-ClosedInterval(left, right) = ClosedInterval(promote(left, right)...)
+ClosedInterval{T}(left::T, right::T) = ClosedInterval{T}(left, right)
+(::Type{ClosedInterval{T}}){T}(left, right) =
+    ClosedInterval{T}(checked_conversion(T, left, right)...)
+
+function ClosedInterval(left, right)
+    # Defining this as ClosedInterval(promote(left, right)...) has one problem:
+    # if left and right do not promote to a common type, it triggers a StackOverflow.
+    T = promote_type(typeof(left), typeof(right))
+    ClosedInterval{T}(checked_conversion(T, left, right)...)
+end
 
 ..(x, y) = ClosedInterval(x, y)
 

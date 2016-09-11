@@ -8,6 +8,7 @@ using Base.Test
     @test ordered(Float16(1), 2) == (1, 2)
 
     @testset "Closed Sets" begin
+        @test_throws ArgumentError :a .. "b"
         I = 0..3
         print(io, I)
         @test String(io) == "0..3"
