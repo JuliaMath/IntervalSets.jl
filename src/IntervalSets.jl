@@ -4,11 +4,23 @@ module IntervalSets
 
 # package code goes here
 
-import Base: show, in, length, isempty, isequal, issubset, ==, union, intersect
+using Base: @pure
+import Base: eltype, convert, show, in, length, isempty, isequal, issubset, ==, hash, union, intersect, minimum, maximum
 
-export ClosedInterval, ⊇, .., ±, ordered
+export AbstractInterval, ClosedInterval, ⊇, .., ±, ordered
+
+abstract AbstractInterval{T}
 
 include("closed.jl")
+
+eltype{T}(::Type{AbstractInterval{T}}) = T
+@pure eltype{I<:AbstractInterval}(::Type{I}) = eltype(supertype(I))
+
+convert{I<:AbstractInterval}(::Type{I}, i::I) = i
+function convert{I<:AbstractInterval}(::Type{I}, i::AbstractInterval)
+    T = eltype(I)
+    I(convert(T, i.left), convert(T, i.right))
+end
 
 ordered{T}(a::T, b::T) = ifelse(a < b, (a, b), (b, a))
 ordered(a, b) = ordered(promote(a, b)...)
