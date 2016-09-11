@@ -8,19 +8,27 @@ using Base.Test
     @test ordered(Float16(1), 2) == (1, 2)
 
     @testset "Closed Sets" begin
+        @test_throws ArgumentError :a .. "b"
         I = 0..3
         print(io, I)
-        @test String(io) == "0..3"
+        @test takebuf_string(io) == "0..3"
         J = 3..2
         K = 5..4
         L = 3 ± 2
         M = ClosedInterval(2, 5.0)
-        takebuf_array(io)
         print(io, M)
-        @test String(io) == "2.0..5.0"
+        @test takebuf_string(io) == "2.0..5.0"
         N = ClosedInterval(UInt8(255), 300)
         O = CartesianIndex(1, 2, 3, 4) ± 2
         @test O == (-1..3, 0..4, 1..5, 2..6)
+
+        @test eltype(I) == Int
+        @test eltype(M) == Float64
+        @test convert(ClosedInterval{Float64}, I) === 0.0..3.0
+        @test !(convert(ClosedInterval{Float64}, I) === 0..3)
+        @test ClosedInterval{Float64}(1,3) === 1.0..3.0
+        @test ClosedInterval(0.5..2.5) === 0.5..2.5
+        @test ClosedInterval{Int}(1.0..3.0) === 1..3
 
         @test !isempty(I)
         @test isempty(J)
@@ -33,9 +41,13 @@ using Base.Test
         @test isequal(J, K)
 
         @test typeof(M.left) == typeof(M.right) && typeof(M.left) == Float64
-        @test typeof(N.left) == typeof(N.right) && typeof(N.left) == Int 
+        @test typeof(N.left) == typeof(N.right) && typeof(N.left) == Int
+
+        @test maximum(I) === 3
+        @test minimum(I) === 0
 
         @test 2 in I
+        @test 1..2 in 0.5..2.5
 
         @test I ∪ L == ClosedInterval(0, 5)
         @test I ∩ L == ClosedInterval(1, 3)
@@ -59,5 +71,7 @@ using Base.Test
         @test (ClosedInterval(7, 9) ⊆ I) == false
         @test I ⊇ I
         @test I ⊇ ClosedInterval(1, 2)
+
+        @test hash(1..3) == hash(1.0..3.0)
     end
 end
