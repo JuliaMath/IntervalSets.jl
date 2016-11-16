@@ -7,7 +7,7 @@ module IntervalSets
 using Base: @pure
 import Base: eltype, convert, show, in, length, isempty, isequal, issubset, ==, hash, union, intersect, minimum, maximum
 
-export AbstractInterval, ClosedInterval, ⊇, .., ±, ordered
+export AbstractInterval, ClosedInterval, ⊇, .., ±, ordered, width
 
 abstract AbstractInterval{T}
 
