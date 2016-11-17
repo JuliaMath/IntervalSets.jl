@@ -73,5 +73,11 @@ using Base.Test
         @test I ⊇ ClosedInterval(1, 2)
 
         @test hash(1..3) == hash(1.0..3.0)
+
+        let A = Date(1990, 1, 1), B = Date(1990, 3, 1)
+            @test width(ClosedInterval(A, B)) == Base.Dates.Day(59)
+            @test width(ClosedInterval(B, A)) == Base.Dates.Day(0)
+            @test isempty(ClosedInterval(B, A))
+        end
     end
 end
