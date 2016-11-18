@@ -79,5 +79,8 @@ using Base.Test
             @test width(ClosedInterval(B, A)) == Base.Dates.Day(0)
             @test isempty(ClosedInterval(B, A))
         end
+
+        @test width(ClosedInterval(3,7)) ≡ 4
+        @test width(ClosedInterval(4.0,8.0)) ≡ 4.0
     end
 end
