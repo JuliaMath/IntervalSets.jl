@@ -71,3 +71,8 @@ end
 issubset(A::ClosedInterval, B::ClosedInterval) = ((A.left in B) && (A.right in B)) || isempty(A)
 
 ⊇(A::ClosedInterval, B::ClosedInterval) = issubset(B, A)
+
+function width{T}(A::ClosedInterval{T})
+    _width = A.right - A.left
+    max(zero(_width), _width)   # this works when T is a Date
+end
