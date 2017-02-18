@@ -2,7 +2,6 @@ using IntervalSets
 using Base.Test
 
 @testset "IntervalSets" begin
-    io = IOBuffer()
     @test ordered(2, 1) == (1, 2)
     @test ordered(1, 2) == (1, 2)
     @test ordered(Float16(1), 2) == (1, 2)
@@ -10,14 +9,12 @@ using Base.Test
     @testset "Closed Sets" begin
         @test_throws ArgumentError :a .. "b"
         I = 0..3
-        print(io, I)
-        @test takebuf_string(io) == "0..3"
+        @test string(I) == "0..3"
         J = 3..2
         K = 5..4
         L = 3 ± 2
         M = ClosedInterval(2, 5.0)
-        print(io, M)
-        @test takebuf_string(io) == "2.0..5.0"
+        @test string(M) == "2.0..5.0"
         N = ClosedInterval(UInt8(255), 300)
         O = CartesianIndex(1, 2, 3, 4) ± 2
         @test O == (-1..3, 0..4, 1..5, 2..6)

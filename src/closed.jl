@@ -6,7 +6,7 @@ immutable ClosedInterval{T} <: AbstractInterval{T}
     left::T
     right::T
 
-    ClosedInterval(l::T, r::T) = new(l, r)
+    (::Type{ClosedInterval{T}}){T}(l::T, r::T) = new{T}(l, r)
 end
 
 ClosedInterval{T}(left::T, right::T) = ClosedInterval{T}(left, right)

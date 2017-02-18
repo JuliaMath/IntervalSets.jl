@@ -7,9 +7,11 @@ module IntervalSets
 using Base: @pure
 import Base: eltype, convert, show, in, length, isempty, isequal, issubset, ==, hash, union, intersect, minimum, maximum
 
+using Compat
+
 export AbstractInterval, ClosedInterval, ⊇, .., ±, ordered, width
 
-abstract AbstractInterval{T}
+@compat abstract type AbstractInterval{T} end
 
 include("closed.jl")
 
@@ -27,6 +29,7 @@ ordered(a, b) = ordered(promote(a, b)...)
 
 checked_conversion{T}(::Type{T}, a, b) = _checked_conversion(T, convert(T, a), convert(T, b))
 _checked_conversion{T}(::Type{T}, a::T, b::T) = a, b
+_checked_conversion(::Type{Any}, a, b) = throw(ArgumentError("$a and $b promoted to type Any"))
 _checked_conversion{T}(::Type{T}, a, b) = throw(ArgumentError("$a and $b are not both of type $T"))
 
 end # module
