@@ -22,6 +22,7 @@ using Base.Test
         @test eltype(I) == Int
         @test eltype(M) == Float64
         @test convert(ClosedInterval{Float64}, I) === 0.0..3.0
+        @test convert(ClosedInterval{Float64}, 0:3) === 0.0..3.0
         @test !(convert(ClosedInterval{Float64}, I) === 0..3)
         @test ClosedInterval{Float64}(1,3) === 1.0..3.0
         @test ClosedInterval(0.5..2.5) === 0.5..2.5
@@ -81,3 +82,5 @@ using Base.Test
         @test width(ClosedInterval(4.0,8.0)) ≡ 4.0
     end
 end
+
+nothing
