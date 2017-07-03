@@ -10,22 +10,22 @@ using Base.Test
         @test_throws ArgumentError :a .. "b"
         I = 0..3
         @test string(I) == "0..3"
-        @test convert(UnitRange, I) === 0:3
-        @test range(I) === 0:3
-        @test convert(UnitRange{Int16}, I) === Int16(0):Int16(3)
+        @test @inferred(convert(UnitRange, I)) === 0:3
+        @test @inferred(range(I)) === 0:3
+        @test @inferred(convert(UnitRange{Int16}, I)) === Int16(0):Int16(3)
         J = 3..2
         K = 5..4
         L = 3 ± 2
-        M = ClosedInterval(2, 5.0)
+        M = @inferred(ClosedInterval(2, 5.0))
         @test string(M) == "2.0..5.0"
-        N = ClosedInterval(UInt8(255), 300)
-        O = CartesianIndex(1, 2, 3, 4) ± 2
+        N = @inferred(ClosedInterval(UInt8(255), 300))
+        O = @inferred(CartesianIndex(1, 2, 3, 4) ± 2)
         @test O == (-1..3, 0..4, 1..5, 2..6)
 
         @test eltype(I) == Int
         @test eltype(M) == Float64
-        @test convert(ClosedInterval{Float64}, I) === 0.0..3.0
-        @test convert(ClosedInterval{Float64}, 0:3) === 0.0..3.0
+        @test @inferred(convert(ClosedInterval{Float64}, I)) === 0.0..3.0
+        @test @inferred(convert(ClosedInterval{Float64}, 0:3)) === 0.0..3.0
         @test !(convert(ClosedInterval{Float64}, I) === 0..3)
         @test ClosedInterval{Float64}(1,3) === 1.0..3.0
         @test ClosedInterval(0.5..2.5) === 0.5..2.5
@@ -50,8 +50,8 @@ using Base.Test
         @test 2 in I
         @test 1..2 in 0.5..2.5
 
-        @test I ∪ L == ClosedInterval(0, 5)
-        @test I ∩ L == ClosedInterval(1, 3)
+        @test @inferred(I ∪ L) == ClosedInterval(0, 5)
+        @test @inferred(I ∩ L) == ClosedInterval(1, 3)
         @test isempty(J ∩ K)
         @test isempty((2..5) ∩ (7..10))
         @test isempty((1..10) ∩ (7..2))
