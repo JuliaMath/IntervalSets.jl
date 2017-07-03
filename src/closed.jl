@@ -76,3 +76,9 @@ function width{T}(A::ClosedInterval{T})
     _width = A.right - A.left
     max(zero(_width), _width)   # this works when T is a Date
 end
+
+function convert{R<:AbstractUnitRange,I<:Integer}(::Type{R}, i::ClosedInterval{I})
+    R(minimum(i), maximum(i))
+end
+
+range{I<:Integer}(i::ClosedInterval{I}) = convert(UnitRange{I}, i)

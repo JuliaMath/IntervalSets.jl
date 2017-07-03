@@ -11,6 +11,7 @@ using Base.Test
         I = 0..3
         @test string(I) == "0..3"
         @test convert(UnitRange, I) === 0:3
+        @test range(I) === 0:3
         @test convert(UnitRange{Int16}, I) === Int16(0):Int16(3)
         J = 3..2
         K = 5..4

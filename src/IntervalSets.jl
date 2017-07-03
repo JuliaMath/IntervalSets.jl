@@ -5,7 +5,7 @@ module IntervalSets
 # package code goes here
 
 using Base: @pure
-import Base: eltype, convert, show, in, length, isempty, isequal, issubset, ==, hash, union, intersect, minimum, maximum
+import Base: eltype, convert, show, in, length, isempty, isequal, issubset, ==, hash, union, intersect, minimum, maximum, range
 
 using Compat
 
@@ -26,9 +26,6 @@ end
 function convert{I<:AbstractInterval}(::Type{I}, r::Range)
     T = eltype(I)
     I(convert(T, minimum(r)), convert(T, maximum(r)))
-end
-function convert{R<:AbstractUnitRange,I<:Integer}(::Type{R}, i::AbstractInterval{I})
-    R(minimum(i), maximum(i))
 end
 
 ordered{T}(a::T, b::T) = ifelse(a < b, (a, b), (b, a))
