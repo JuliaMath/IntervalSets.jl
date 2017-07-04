@@ -11,8 +11,8 @@ are defined as being members of the interval.
 
 This package is intended to implement a "minimal" foundation for
 intervals upon which other packages might build. In particular, we
-*encourage* "type-piracy" (developing new operations for the interval
-types defined here), for the reason that only one interval package can
+*encourage* [type-piracy](https://docs.julialang.org/en/stable/manual/style-guide/#Avoid-type-piracy-1)
+for the reason that only one interval package can
 unambiguously define the `..` and `±` operators (see below).
 
 Currently this package defines one concrete type, `ClosedInterval`.
