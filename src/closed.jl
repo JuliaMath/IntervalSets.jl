@@ -82,3 +82,5 @@ function convert{R<:AbstractUnitRange,I<:Integer}(::Type{R}, i::ClosedInterval{I
 end
 
 range{I<:Integer}(i::ClosedInterval{I}) = convert(UnitRange{I}, i)
+
+Base.promote_rule{T1,T2}(::Type{ClosedInterval{T1}}, ::Type{ClosedInterval{T2}}) = ClosedInterval{promote_type(T1, T2)}
