@@ -83,6 +83,8 @@ using Base.Test
 
         @test width(ClosedInterval(3,7)) ≡ 4
         @test width(ClosedInterval(4.0,8.0)) ≡ 4.0
+
+        @test promote(1..2, 1.0..2.0) === (1.0..2.0, 1.0..2.0)
     end
 end
 
