@@ -6,6 +6,9 @@ module IntervalSets
 
 using Base: @pure
 import Base: eltype, convert, show, in, length, isempty, isequal, issubset, ==, hash, union, intersect, minimum, maximum, range
+if isdefined(Main, :⊇)
+    import Base: ⊇
+end
 
 using Compat
 
