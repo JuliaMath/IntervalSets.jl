@@ -23,8 +23,19 @@ end
 ClosedInterval(i::AbstractInterval) = convert(ClosedInterval{eltype(i)}, i)
 (::Type{ClosedInterval{T}}){T}(i::AbstractInterval) = convert(ClosedInterval{T}, i)
 
+"""
+    iv = l..r
+
+Construct a ClosedInterval `iv` spanning the region from `l` to `r`.
+"""
 ..(x, y) = ClosedInterval(x, y)
 
+"""
+    iv = center±halfwidth
+
+Construct a ClosedInterval `iv` spanning the region from
+`center - halfwidth` to `center + halfwidth`.
+"""
 ±(x, y) = ClosedInterval(x - y, x + y)
 ±(x::CartesianIndex, y) = map(ClosedInterval, (x - y).I, (x + y).I)
 
@@ -72,6 +83,12 @@ issubset(A::ClosedInterval, B::ClosedInterval) = ((A.left in B) && (A.right in B
 
 ⊇(A::ClosedInterval, B::ClosedInterval) = issubset(B, A)
 
+"""
+    w = width(iv)
+
+Calculate the width (max-min) of interval `iv`. Note that for integers
+`l` and `r`, `width(l..r) = length(l:r) - 1`.
+"""
 function width{T}(A::ClosedInterval{T})
     _width = A.right - A.left
     max(zero(_width), _width)   # this works when T is a Date
