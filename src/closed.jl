@@ -94,10 +94,9 @@ function width{T}(A::ClosedInterval{T})
     max(zero(_width), _width)   # this works when T is a Date
 end
 
-@compat function length{T <: Union{<: Integer, Date}}(A::ClosedInterval{T})
-    _width = A.right - A.left
-    max(zero(_width), _width + oneunit(_width))
-end
+length{T <: Integer}(A::ClosedInterval{T}) = max(0, Int(A.right - A.left) + 1)
+
+length(A::ClosedInterval{Date}) = max(0, Dates.days(A.right - A.left) + 1)
 
 function convert{R<:AbstractUnitRange,I<:Integer}(::Type{R}, i::ClosedInterval{I})
     R(minimum(i), maximum(i))
