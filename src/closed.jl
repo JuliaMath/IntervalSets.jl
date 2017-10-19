@@ -94,6 +94,11 @@ function width{T}(A::ClosedInterval{T})
     max(zero(_width), _width)   # this works when T is a Date
 end
 
+@compat function length{T <: Union{<: Integer, Date}}(A::ClosedInterval{T})
+    _width = A.right - A.left
+    max(zero(_width), _width + oneunit(_width))
+end
+
 function convert{R<:AbstractUnitRange,I<:Integer}(::Type{R}, i::ClosedInterval{I})
     R(minimum(i), maximum(i))
 end
@@ -101,3 +106,4 @@ end
 range{I<:Integer}(i::ClosedInterval{I}) = convert(UnitRange{I}, i)
 
 Base.promote_rule{T1,T2}(::Type{ClosedInterval{T1}}, ::Type{ClosedInterval{T2}}) = ClosedInterval{promote_type(T1, T2)}
+
