@@ -90,6 +90,8 @@ using Base.Test
 
         @test length(I) == 4
         @test length(J) == 0
+        # length deliberately not defined for non-integer intervals
+        @test_throws MethodError length(1.2..2.4)
     end
 end
 
