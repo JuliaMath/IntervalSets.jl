@@ -46,6 +46,7 @@ using Base.Test
 
         @test maximum(I) === 3
         @test minimum(I) === 0
+        @test extrema(I) === (0, 3)
 
         @test 2 in I
         @test 1..2 in 0.5..2.5

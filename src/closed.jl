@@ -56,6 +56,7 @@ hash(I::ClosedInterval, h::UInt) = hash(I.left, hash(I.right, hash(_closed_inter
 
 minimum(I::ClosedInterval) = I.left
 maximum(I::ClosedInterval) = I.right
+extrema(I::ClosedInterval) = (minimum(I), maximum(I))
 
 function intersect(A::ClosedInterval, B::ClosedInterval)
     left = max(A.left, B.left)
@@ -105,4 +106,3 @@ end
 range{I<:Integer}(i::ClosedInterval{I}) = convert(UnitRange{I}, i)
 
 Base.promote_rule{T1,T2}(::Type{ClosedInterval{T1}}, ::Type{ClosedInterval{T2}}) = ClosedInterval{promote_type(T1, T2)}
-

@@ -5,7 +5,7 @@ module IntervalSets
 # package code goes here
 
 using Base: @pure
-import Base: eltype, convert, show, in, length, isempty, isequal, issubset, ==, hash, union, intersect, minimum, maximum, range
+import Base: eltype, convert, show, in, length, isempty, isequal, issubset, ==, hash, union, intersect, minimum, maximum, extrema, range
 if isdefined(Main, :⊇)
     import Base: ⊇
 end
