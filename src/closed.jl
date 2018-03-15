@@ -8,7 +8,7 @@ struct ClosedInterval{T} <: AbstractInterval{T}
 
     ClosedInterval{T}(l::T, r::T) where {T} = new{T}(l, r)
     ClosedInterval{T}(l, r) where {T} = ((a, b) = checked_conversion(T, l, r); new{T}(a, b))
-    ClosedInterval{T}(i::AbstractInterval) = convert(ClosedInterval{T}, i)
+    ClosedInterval{T}(i::AbstractInterval) where {T} = convert(ClosedInterval{T}, i)
 end
 
 function ClosedInterval(left, right)
@@ -34,7 +34,7 @@ Construct a ClosedInterval `iv` spanning the region from
 `center - halfwidth` to `center + halfwidth`.
 """
 ±(x, y) = ClosedInterval(x - y, x + y)
-±(x::CartesianIndex, y) = map(ClosedInterval, (x - y).I, (x + y).I)
+±(x::CartesianIndex, y) = (xy = y * one(x); map(ClosedInterval, (x - xy).I, (x + xy).I))
 
 show(io::IO, I::ClosedInterval) = print(io, I.left, "..", I.right)
 
