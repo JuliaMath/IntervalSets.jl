@@ -7,7 +7,7 @@ struct ClosedInterval{T} <: AbstractInterval{T}
     right::T
 
     ClosedInterval{T}(l::T, r::T) where {T} = new{T}(l, r)
-    ClosedInterval{T}(l, r) where {T} = new{T}(checked_conversion(T, l, r)...)
+    ClosedInterval{T}(l, r) where {T} = ((a, b) = checked_conversion(T, l, r); new{T}(a, b))
     ClosedInterval{T}(i::AbstractInterval) = convert(ClosedInterval{T}, i)
 end
 
