@@ -1,5 +1,7 @@
 using IntervalSets
-using Base.Test
+using Compat
+using Compat.Test
+using Compat.Dates
 
 @testset "IntervalSets" begin
     @test ordered(2, 1) == (1, 2)
@@ -77,8 +79,8 @@ using Base.Test
         @test hash(1..3) == hash(1.0..3.0)
 
         let A = Date(1990, 1, 1), B = Date(1990, 3, 1)
-            @test width(ClosedInterval(A, B)) == Base.Dates.Day(59)
-            @test width(ClosedInterval(B, A)) == Base.Dates.Day(0)
+            @test width(ClosedInterval(A, B)) == Dates.Day(59)
+            @test width(ClosedInterval(B, A)) == Dates.Day(0)
             @test isempty(ClosedInterval(B, A))
             @test length(ClosedInterval(A, B)) ≡ 60
             @test length(ClosedInterval(B, A)) ≡ 0

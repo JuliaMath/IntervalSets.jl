@@ -2,16 +2,14 @@
 A `ClosedInterval(left, right)` is an interval set that includes both its upper and lower bounds. In
 mathematical notation, the constructed range is `[left, right]`.
 """
-immutable ClosedInterval{T} <: AbstractInterval{T}
+struct ClosedInterval{T} <: AbstractInterval{T}
     left::T
     right::T
 
-    (::Type{ClosedInterval{T}}){T}(l::T, r::T) = new{T}(l, r)
+    ClosedInterval{T}(l::T, r::T) where {T} = new{T}(l, r)
+    ClosedInterval{T}(l, r) where {T} = ((a, b) = checked_conversion(T, l, r); new{T}(a, b))
+    ClosedInterval{T}(i::AbstractInterval) where {T} = convert(ClosedInterval{T}, i)
 end
-
-ClosedInterval{T}(left::T, right::T) = ClosedInterval{T}(left, right)
-(::Type{ClosedInterval{T}}){T}(left, right) =
-    ClosedInterval{T}(checked_conversion(T, left, right)...)
 
 function ClosedInterval(left, right)
     # Defining this as ClosedInterval(promote(left, right)...) has one problem:
@@ -21,7 +19,6 @@ function ClosedInterval(left, right)
 end
 
 ClosedInterval(i::AbstractInterval) = convert(ClosedInterval{eltype(i)}, i)
-(::Type{ClosedInterval{T}}){T}(i::AbstractInterval) = convert(ClosedInterval{T}, i)
 
 """
     iv = l..r
@@ -37,7 +34,7 @@ Construct a ClosedInterval `iv` spanning the region from
 `center - halfwidth` to `center + halfwidth`.
 """
 ±(x, y) = ClosedInterval(x - y, x + y)
-±(x::CartesianIndex, y) = map(ClosedInterval, (x - y).I, (x + y).I)
+±(x::CartesianIndex, y) = (xy = y * one(x); map(ClosedInterval, (x - xy).I, (x + xy).I))
 
 show(io::IO, I::ClosedInterval) = print(io, I.left, "..", I.right)
 
@@ -64,7 +61,7 @@ function intersect(A::ClosedInterval, B::ClosedInterval)
     ClosedInterval(left, right)
 end
 
-function union{T<:AbstractFloat}(A::ClosedInterval{T}, B::ClosedInterval{T})
+function union(A::ClosedInterval{T}, B::ClosedInterval{T}) where T<:AbstractFloat
     max(A.left, B.left) <= nextfloat(min(A.right, B.right)) || throw(ArgumentError("Cannot construct union of disjoint sets."))
     _union(A, B)
 end
@@ -90,19 +87,19 @@ issubset(A::ClosedInterval, B::ClosedInterval) = ((A.left in B) && (A.right in B
 Calculate the width (max-min) of interval `iv`. Note that for integers
 `l` and `r`, `width(l..r) = length(l:r) - 1`.
 """
-function width{T}(A::ClosedInterval{T})
+function width(A::ClosedInterval{T}) where T
     _width = A.right - A.left
     max(zero(_width), _width)   # this works when T is a Date
 end
 
-length{T <: Integer}(A::ClosedInterval{T}) = max(0, Int(A.right - A.left) + 1)
+length(A::ClosedInterval{T}) where {T<:Integer} = max(0, Int(A.right - A.left) + 1)
 
 length(A::ClosedInterval{Date}) = max(0, Dates.days(A.right - A.left) + 1)
 
-function convert{R<:AbstractUnitRange,I<:Integer}(::Type{R}, i::ClosedInterval{I})
+function convert(::Type{R}, i::ClosedInterval{I}) where {R<:AbstractUnitRange,I<:Integer}
     R(minimum(i), maximum(i))
 end
 
-range{I<:Integer}(i::ClosedInterval{I}) = convert(UnitRange{I}, i)
+range(i::ClosedInterval{I}) where {I<:Integer} = convert(UnitRange{I}, i)
 
-Base.promote_rule{T1,T2}(::Type{ClosedInterval{T1}}, ::Type{ClosedInterval{T2}}) = ClosedInterval{promote_type(T1, T2)}
+Base.promote_rule(::Type{ClosedInterval{T1}}, ::Type{ClosedInterval{T2}}) where {T1,T2} = ClosedInterval{promote_type(T1, T2)}
