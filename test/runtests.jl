@@ -1,5 +1,6 @@
 using IntervalSets
-using Base.Test
+using Compat
+using Compat.Test
 
 @testset "IntervalSets" begin
     @test ordered(2, 1) == (1, 2)
