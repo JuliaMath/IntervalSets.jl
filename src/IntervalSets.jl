@@ -16,10 +16,10 @@ abstract type AbstractInterval{T} <: AbstractInfiniteSet{T} end
 
 
 "The left endpoint of the interval."
-leftendpoint(d::AbstractInterval) = d.a
+leftendpoint(d::AbstractInterval) = d.left
 
 "The right endpoint of the interval."
-rightendpoint(d::AbstractInterval) = d.b
+rightendpoint(d::AbstractInterval) = d.right
 
 "A tuple containing the left and right endpoints of the interval."
 endpoints(d::AbstractInterval) = (leftendpoint(d), rightendpoint(d))
@@ -63,7 +63,7 @@ median(d::AbstractInterval) = mean(d)
 
 
 
-include("closed.jl")
+include("interval.jl")
 
 eltype(::Type{AbstractInterval{T}}) where {T} = T
 @pure eltype(::Type{I}) where {I<:AbstractInterval} = eltype(supertype(I))

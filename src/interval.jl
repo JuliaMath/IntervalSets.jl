@@ -1,11 +1,4 @@
 """
-A general interval with endpoints `a` and `b`. The interval can be open or
-closed at each endpoint. This is determined by the `L` and `R` type parameters,
-which may be `:open` or `:closed`.
-"""
-
-
-"""
 An `Interval{L,R}(left, right)` where L,R are :open or :closed
 is an interval set containg `x` such that
 1. `left ≤ x ≤ right` if `L == R == :closed`
@@ -45,8 +38,8 @@ Interval(left, right) = ClosedInterval(left, right)
 
 
 # Interval(::AbstractInterval) allows open/closed intervals to be changed
-Interval{L,R}(i::AbstractInterval) = Interval{L,R}(endpoints(i)...)
-convert(::{Interval}, i::Interval) = i
+Interval{L,R}(i::AbstractInterval) where {L,R} = Interval{L,R}(endpoints(i)...)
+convert(::Type{Interval}, i::Interval) = i
 
 function convert(::ClosedInterval, i::AbstractInterval)
     isclosed(i) ||  throw(InexactError())
@@ -77,7 +70,7 @@ end
 
 
 # the following is not typestable
-function convert(::{Interval}, i::AbstractInterval)
+function convert(::Type{Interval}, i::AbstractInterval)
     isopen(i) && return convert(OpenInterval, i)
     isclosed(i) && return convert(ClosedInterval, i)
     isleftopen(i) && return convert(Interval{:open,:closed}, i)
@@ -145,10 +138,10 @@ isrightclosed(d::Interval{L,:closed}) where {L} = true
 isrightclosed(d::Interval{L,:open}) where {L} = false
 
 # The following are not typestable for mixed endpoint types
-_left_intersect_type(::Val{:open}, ::Val{L2}, a1, a2) where L2 = a1 < a2 ? (a2,L2) : (a1,:open)
-_left_intersect_type(::Val{:closed}, ::Val{L2}, a1, a2) where L2 = a1 ≤ a2 ? (a2,L2) : (a1,:closed)
-_right_intersect_type(::Val{:open}, ::Val{R2}, b1, b2) where R2 = b1 > b2 ? (b2,R2) : (b1,:open)
-_right_intersect_type(::Val{:closed}, ::Val{R2}, b1, b2) where R2 = b1 ≥ b2 ? (b2,R2) : (b1,:closed)
+_left_intersect_type(::Type{Val{:open}}, ::Type{Val{L2}}, a1, a2) where L2 = a1 < a2 ? (a2,L2) : (a1,:open)
+_left_intersect_type(::Type{Val{:closed}}, ::Type{Val{L2}}, a1, a2) where L2 = a1 ≤ a2 ? (a2,L2) : (a1,:closed)
+_right_intersect_type(::Type{Val{:open}}, ::Type{Val{R2}}, b1, b2) where R2 = b1 > b2 ? (b2,R2) : (b1,:open)
+_right_intersect_type(::Type{Val{:closed}}, ::Type{Val{R2}}, b1, b2) where R2 = b1 ≥ b2 ? (b2,R2) : (b1,:closed)
 function intersect(d1::Interval{L1,R1,T}, d2::Interval{L2,R2,T}) where {L1,R1,L2,R2,T}
     a1, b1 = endpoints(d1); a2, b2 = endpoints(d2)
     a,L = _left_intersect_type(Val{L1}, Val{L2}, a1, a2)
@@ -218,12 +211,12 @@ length(A::Interval{T}) where {T<:Integer} = max(0, Int(A.right - A.left) + 1)
 
 length(A::Interval{Date}) = max(0, Dates.days(A.right - A.left) + 1)
 
-range(i::ClosedInterval{I}) where {I<:Integer} = convert(UnitRange{I}, i)
+UnitRange{I}(i::ClosedInterval) where {I<:Integer} = UnitRange{I}(minimum(i), maximum(i))
+UnitRange(i::ClosedInterval{I}) where {I<:Integer} = UnitRange{I}(i)
+range(i::ClosedInterval{I}) where {I<:Integer} = UnitRange{I}(i)
 
-Base.promote_rule(::Type{ClosedInterval{T1}}, ::Type{ClosedInterval{T2}}) where {T1,T2} = ClosedInterval{promote_type(T1, T2)}
+Base.promote_rule(::Type{Interval{L,R,T1}}, ::Type{Interval{L,R,T2}}) where {L,R,T1,T2} = Interval{L,R,promote_type(T1, T2)}
 
 
-# convert should only work if they represent the same thing. 
-@deprecate convert(::Type{R}, i::ClosedInterval{I}) where {R<:AbstractUnitRange,I<:Integer}
-    R(i)
-end
+# convert should only work if they represent the same thing.
+@deprecate convert(::Type{R}, i::ClosedInterval{I}) where {R<:AbstractUnitRange,I<:Integer} R(i)
