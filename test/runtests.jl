@@ -101,6 +101,8 @@ import IntervalSets: AbstractInfiniteSet
     @test width(ClosedInterval(3,7)) ≡ 4
     @test width(ClosedInterval(4.0,8.0)) ≡ 4.0
 
+    @test mean(0..1) == median(0..1) == 0.5
+
     @test promote(1..2, 1.0..2.0) === (1.0..2.0, 1.0..2.0)
 
     @test length(I) == 4
@@ -495,5 +497,19 @@ end
         @test zero(T) ∉ Interval{:closed,:open}(zero(T),zero(T))
     end
 end
+
+struct MyUnitInterval <: AbstractInterval{Int} end
+IntervalSets.leftendpoint(::MyUnitInterval) = 0
+IntervalSets.rightendpoint(::MyUnitInterval) = 1
+
+IntervalSets.isleftclosed(::MyUnitInterval) = true
+IntervalSets.isrightclosed(::MyUnitInterval) = true
+
+@testset "Custom intervals" begin
+    @test ClosedInterval(MyUnitInterval()) == convert(ClosedInterval,MyUnitInterval()) == 0..1
+    @test_throws InexactError convert(OpenInterval, MyUnitInterval())
+end
+
+
 
 nothing
