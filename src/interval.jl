@@ -112,7 +112,7 @@ in(a::Interval{L,:open}, b::Interval{:closed,:open}) where L = (a.left ≥ b.lef
 
 
 isempty(A::ClosedInterval) = A.left > A.right
-isempty(d::Interval) = A.left ≥ A.right
+isempty(A::Interval) = A.left ≥ A.right
 
 isequal(A::Interval{L,R}, B::Interval{L,R}) where {L,R} = (isequal(A.left, B.left) & isequal(A.right, B.right)) | (isempty(A) & isempty(B))
 isequal(A::Interval, B::Interval) = isempty(A) & isempty(B)
@@ -158,49 +158,98 @@ end
 
 
 
+union(d1::ClosedInterval, d2::ClosedInterval) = _closed_closed_union(d1,d2)
+union(d1::Interval{:open,:closed}, d2::ClosedInterval) = _closed_closed_union(d1,d2)
+union(d1::Interval{:closed,:open}, d2::ClosedInterval) = _closed_closed_union(d1,d2)
+union(d1::ClosedInterval, d2::Interval{:open,:closed}) = _closed_closed_union(d1,d2)
+union(d1::ClosedInterval, d2::Interval{:closed,:open}) = _closed_closed_union(d1,d2)
+union(d1::Interval{:open,:closed}, d2::Interval{:open,:closed}) = _closed_closed_union(d1,d2)
+union(d1::Interval{:closed,:open}, d2::Interval{:closed,:open}) = _closed_closed_union(d1,d2)
+union(d1::ClosedInterval, d2::OpenInterval) = _closed_closed_union(d1,d2)
+union(d1::OpenInterval, d2::ClosedInterval) = _closed_closed_union(d1,d2)
 
-_checkunion(d1::ClosedInterval, d2::ClosedInterval) = isempty(d1) || isempty(d2) ||
+
+function _closed_closed_union(d1, d2)
+    isempty(d1) && return d2
+    isempty(d2) && return d1
     d1.left ≤ d2.left ≤ d1.right  || d1.left ≤ d2.right ≤ d1.right ||
-    throw(ArgumentError("Cannot construct union of disjoint sets."))
-_checkunion(d1::ClosedInterval, d2::Interval) = _checkunion(d1, ClosedInterval(d2))
-_checkunion(d1::Interval, d2::ClosedInterval) = _checkunion(ClosedInterval(d1), d2)
-_checkunion(d1::OpenInterval, d2::OpenInterval) = isempty(d1) || isempty(d2) ||
+        d2.left ≤ d1.left ≤ d2.right || d2.left ≤ d1.right ≤ d2.right ||
+        throw(ArgumentError("Cannot construct union of disjoint sets."))
+    _union(d1, d2)
+end
+
+
+function union(d1::OpenInterval, d2::OpenInterval)
+    isempty(d1) && return d2
+    isempty(d2) && return d1
     d1.left ≤ d2.left < d1.right  || d1.left < d2.right ≤ d1.right ||
-    throw(ArgumentError("Cannot construct union of disjoint sets."))
-_checkunion(d1::OpenInterval, d2::Interval{:open,:closed}) = isempty(d1) || isempty(d2) ||
+        d2.left ≤ d1.left < d2.right  || d2.left < d1.right ≤ d2.right ||
+        throw(ArgumentError("Cannot construct union of disjoint sets."))
+    _union(d1, d2)
+end
+
+function union(d1::OpenInterval, d2::Interval{:open,:closed})
+    isempty(d1) && return d2
+    isempty(d2) && return d1
     d1.left ≤ d2.left < d1.right  || d1.left ≤ d2.right ≤ d1.right ||
-    throw(ArgumentError("Cannot construct union of disjoint sets."))
-_checkunion(d1::OpenInterval, d2::Interval{:closed,:open}) = isempty(d1) || isempty(d2) ||
+        d2.left ≤ d1.left ≤ d2.right  || d2.left < d1.right ≤ d2.right ||
+        throw(ArgumentError("Cannot construct union of disjoint sets."))
+    _union(d1, d2)
+end
+
+function union(d1::OpenInterval, d2::Interval{:closed,:open})
+    isempty(d1) && return d2
+    isempty(d2) && return d1
     d1.left ≤ d2.left ≤ d1.right  || d1.left < d2.right ≤ d1.right ||
-    throw(ArgumentError("Cannot construct union of disjoint sets."))
-_checkunion(d1::Interval{:open,:closed}, d2::OpenInterval) = _checkunion(d2, d1)
-_checkunion(d1::Interval{:closed,:open}, d2::OpenInterval) = _checkunion(d2, d1)
-_checkunion(d1::Interval{:closed,:open}, d2::Interval{:closed,:open}) =
-    _checkunion(ClosedInterval(d1), ClosedInterval(d2))
-_checkunion(d1::Interval{:open,:closed}, d2::Interval{:open,:closed}) =
-    _checkunion(ClosedInterval(d1), ClosedInterval(d2))
-_checkunion(d1::Interval{:closed,:open}, d2::Interval{:open,:closed}) = isempty(d1) || isempty(d2) ||
-    d1.left < d2.left ≤ d1.right  || d1.left ≤ d2.right ≤ d1.right ||
-    throw(ArgumentError("Cannot construct union of disjoint sets."))
-_checkunion(d1::Interval{:open,:closed}, d2::Interval{:closed,:open}) =
-    _checkunion(d2, d1)
-
-function union(A::Interval, B::Interval)
-    _checkunion(A, B)
-    _union(A, B)
+        throw(ArgumentError("Cannot construct union of disjoint sets."))
+    _union(d1, d2)
 end
 
-function _union(A::ClosedInterval, B::ClosedInterval)
+union(d1::Interval, d2::OpenInterval) = union(d2, d1)
+
+
+function union(d1::Interval{:closed,:open}, d2::Interval{:open,:closed})
+    isempty(d1) && return d2
+    isempty(d2) && return d1
+    d1.left ≤ d2.left < d1.right  || d1.left ≤ d2.right ≤ d1.right ||
+        d2.left ≤ d1.left ≤ d2.right  || d2.left < d1.right ≤ d2.right ||
+        throw(ArgumentError("Cannot construct union of disjoint sets."))
+    _union(d1, d2)
+end
+
+union(d1::Interval{:open,:closed}, d2::Interval{:closed,:open}) = union(d2, d1)
+
+
+
+# these assume overlap
+function _union(A::Interval{L,R}, B::Interval{L,R}) where {L,R}
     left = min(A.left, B.left)
     right = max(A.right, B.right)
-    ClosedInterval(left, right)
+    Interval{L,R}(left, right)
 end
 
-function _union(A::OpenInterval, B::OpenInterval)
+# this is not typestable
+function _union(A::Interval{L1,R1}, B::Interval{L2,R2}) where {L1,R1,L2,R2}
+    if A.left == B.left
+        L = L1 == :closed ? :closed : L2
+    elseif A.left < B.left
+        L = L1
+    else
+        L = L2
+    end
+    if A.right == B.right
+        R = R1 == :closed ? :closed : R2
+    elseif A.right > B.right
+        R = R1
+    else
+        R = R2
+    end
     left = min(A.left, B.left)
     right = max(A.right, B.right)
-    OpenInterval(left, right)
+
+    Interval{L,R}(left, right)
 end
+
 
 issubset(A::Interval, B::Interval) = ((A.left in B) && (A.right in B)) || isempty(A)
 
