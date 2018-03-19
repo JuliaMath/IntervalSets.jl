@@ -519,18 +519,34 @@ end
     end
 end
 
-struct MyUnitInterval <: AbstractInterval{Int} end
+struct MyUnitInterval <: AbstractInterval{Int}
+    isleftclosed::Bool
+    isrightclosed::Bool
+end
 IntervalSets.leftendpoint(::MyUnitInterval) = 0
 IntervalSets.rightendpoint(::MyUnitInterval) = 1
 
-IntervalSets.isleftclosed(::MyUnitInterval) = true
-IntervalSets.isrightclosed(::MyUnitInterval) = true
+IntervalSets.isleftclosed(I::MyUnitInterval) = I.isleftclosed
+IntervalSets.isrightclosed(I::MyUnitInterval) = I.isrightclosed
 
 @testset "Custom intervals" begin
-    @test ClosedInterval(MyUnitInterval()) === convert(ClosedInterval, MyUnitInterval()) ===
-            ClosedInterval{Int}(MyUnitInterval()) === convert(ClosedInterval{Int}, MyUnitInterval())  ===
-            convert(Interval, MyUnitInterval()) === Interval(MyUnitInterval()) === 0..1
-    @test_throws InexactError convert(OpenInterval, MyUnitInterval())
+    I = MyUnitInterval(true,true)
+    @test ClosedInterval(I) === convert(ClosedInterval, I) ===
+            ClosedInterval{Int}(I) === convert(ClosedInterval{Int}, I)  ===
+            convert(Interval, I) === Interval(I) === 0..1
+    @test_throws InexactError convert(OpenInterval, I)
+    I = MyUnitInterval(false,false)
+    @test OpenInterval(I) === convert(OpenInterval, I) ===
+            OpenInterval{Int}(I) === convert(OpenInterval{Int}, I)  ===
+            convert(Interval, I) === Interval(I) === OpenInterval(0..1)
+    I = MyUnitInterval(false,true)
+    @test Interval{:open,:closed}(I) === convert(Interval{:open,:closed}, I) ===
+            Interval{:open,:closed,Int}(I) === convert(Interval{:open,:closed,Int}, I)  ===
+            convert(Interval, I) === Interval(I) === Interval{:open,:closed}(0..1)
+    I = MyUnitInterval(true,false)
+    @test Interval{:closed,:open}(I) === convert(Interval{:closed,:open}, I) ===
+            Interval{:closed,:open,Int}(I) === convert(Interval{:closed,:open,Int}, I)  ===
+            convert(Interval, I) === Interval(I) === Interval{:closed,:open}(0..1)
 end
 
 

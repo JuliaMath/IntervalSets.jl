@@ -27,12 +27,7 @@ mathematical notation, the constructed range is `(left, right)`.
 """
 const OpenInterval{T} = Interval{:open,:open,T}
 
-function Interval{L,R}(left, right) where {L,R}
-    # Defining this as ClosedInterval(promote(left, right)...) has one problem:
-    # if left and right do not promote to a common type, it triggers a StackOverflow.
-    T = promote_type(typeof(left), typeof(right))
-    Interval{L,R,T}(checked_conversion(T, left, right)...)
-end
+Interval{L,R}(left, right) where {L,R} = Interval{L,R,promote_type(typeof(left), typeof(right))}(left,right)
 Interval{L,R}(left::T, right::T) where {L,R,T} = Interval{L,R,T}(left, right)
 Interval(left, right) = ClosedInterval(left, right)
 
@@ -271,7 +266,7 @@ length(A::Interval{L,R,T}) where {L,R,T<:Integer} = max(0, Int(A.right - A.left)
 
 length(A::Interval{L,R,Date}) where {L,R} = max(0, Dates.days(A.right - A.left) + 1)
 
-ClosedInterval{T}(i::UnitRange) where {T,I<:Integer} = ClosedInterval{T}(minimum(i), maximum(i))
+ClosedInterval{T}(i::UnitRange{I}) where {T,I<:Integer} = ClosedInterval{T}(minimum(i), maximum(i))
 ClosedInterval(i::UnitRange{I}) where {I<:Integer} = ClosedInterval{I}(minimum(i), maximum(i))
 UnitRange{I}(i::ClosedInterval) where {I<:Integer} = UnitRange{I}(minimum(i), maximum(i))
 UnitRange(i::ClosedInterval{I}) where {I<:Integer} = UnitRange{I}(i)
