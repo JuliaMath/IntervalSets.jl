@@ -142,12 +142,22 @@ _left_intersect_type(::Type{Val{:open}}, ::Type{Val{L2}}, a1, a2) where L2 = a1 
 _left_intersect_type(::Type{Val{:closed}}, ::Type{Val{L2}}, a1, a2) where L2 = a1 ≤ a2 ? (a2,L2) : (a1,:closed)
 _right_intersect_type(::Type{Val{:open}}, ::Type{Val{R2}}, b1, b2) where R2 = b1 > b2 ? (b2,R2) : (b1,:open)
 _right_intersect_type(::Type{Val{:closed}}, ::Type{Val{R2}}, b1, b2) where R2 = b1 ≥ b2 ? (b2,R2) : (b1,:closed)
+
 function intersect(d1::Interval{L1,R1,T}, d2::Interval{L2,R2,T}) where {L1,R1,L2,R2,T}
     a1, b1 = endpoints(d1); a2, b2 = endpoints(d2)
     a,L = _left_intersect_type(Val{L1}, Val{L2}, a1, a2)
     b,R = _right_intersect_type(Val{R1}, Val{R2}, b1, b2)
     Interval{L,R}(a,b)
 end
+
+function intersect(d1::Interval{L,R,T}, d2::Interval{L,R,T}) where {L,R,T}
+    a1, b1 = endpoints(d1); a2, b2 = endpoints(d2)
+    Interval{L,R}(max(a1,a2),min(b1,b2))
+end
+
+
+
+
 
 _checkunion(d1::ClosedInterval, d2::ClosedInterval) = isempty(d1) || isempty(d2) ||
     d1.left ≤ d2.left ≤ d1.right  || d1.left ≤ d2.right ≤ d1.right ||
@@ -202,14 +212,14 @@ issubset(A::Interval, B::Interval) = ((A.left in B) && (A.right in B)) || isempt
 Calculate the width (max-min) of interval `iv`. Note that for integers
 `l` and `r`, `width(l..r) = length(l:r) - 1`.
 """
-function width(A::Interval{T}) where T
+function width(A::Interval{L,R,T}) where {L,R,T}
     _width = A.right - A.left
     max(zero(_width), _width)   # this works when T is a Date
 end
 
-length(A::Interval{T}) where {T<:Integer} = max(0, Int(A.right - A.left) + 1)
+length(A::Interval{L,R,T}) where {L,R,T<:Integer} = max(0, Int(A.right - A.left) + 1)
 
-length(A::Interval{Date}) = max(0, Dates.days(A.right - A.left) + 1)
+length(A::Interval{L,R,Date}) where {L,R} = max(0, Dates.days(A.right - A.left) + 1)
 
 UnitRange{I}(i::ClosedInterval) where {I<:Integer} = UnitRange{I}(minimum(i), maximum(i))
 UnitRange(i::ClosedInterval{I}) where {I<:Integer} = UnitRange{I}(i)

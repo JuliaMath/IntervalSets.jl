@@ -3,7 +3,6 @@ using Compat
 using Compat.Test
 using Compat.Dates
 
-
 @testset "IntervalSets" begin
     @test ordered(2, 1) == (1, 2)
     @test ordered(1, 2) == (1, 2)
@@ -59,14 +58,26 @@ using Compat.Dates
         @test isempty(J ∩ K)
         @test isempty((2..5) ∩ (7..10))
         @test isempty((1..10) ∩ (7..2))
-        A = Float16(1.1)..nextfloat(Float16(1.234))
+        A = Float16(1.1)..Float16(1.234)
         B = Float16(1.235)..Float16(1.3)
         C = Float16(1.236)..Float16(1.3)
         D = Float16(1.1)..Float16(1.236)
-        @test A ∪ B == Float16(1.1)..Float16(1.3)
         @test D ∪ B == Float16(1.1)..Float16(1.3)
         @test D ∪ C == Float16(1.1)..Float16(1.3)
         @test_throws(ArgumentError, A ∪ C)
+
+        # even though A and B contain all Float32s between their extrema,
+        # union should not return an interval as there exists a Float64
+        # inbetween
+        x32 = nextfloat(rightendpoint(A))
+        x64 = nextfloat(Float64(rightendpoint(A)))
+        @test x32 ∉ A
+        @test x32 ∈ B
+        @test x64 ∉ A
+        @test x64 ∉ B
+        # these tests
+        @test_broken x32 ∈ A ∪ B
+        @test_broken x64 ∉ A ∪ B
 
         @test J ⊆ L
         @test (L ⊆ J) == false

@@ -9,7 +9,7 @@ import Base: eltype, convert, show, in, length, isempty, isequal, issubset, ==, 
 using Compat
 using Compat.Dates
 
-export AbstractInterval, ClosedInterval, ⊇, .., ±, ordered, width
+export AbstractInterval, ClosedInterval, ⊇, .., ±, ordered, width, leftendpoint, rightendpoint
 
 abstract type AbstractInfiniteSet{T} end
 abstract type AbstractInterval{T} <: AbstractInfiniteSet{T} end
