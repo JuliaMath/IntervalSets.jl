@@ -12,6 +12,8 @@ import IntervalSets: AbstractInfiniteSet
 @testset "Basic Closed Sets" begin
     @test_throws ArgumentError :a .. "b"
     I = 0..3
+    @test I === ClosedInterval(0,3) === ClosedInterval{Int}(0,3) ===
+             Interval(0,3)
     @test string(I) == "0..3"
     @test @inferred(UnitRange(I)) === 0:3
     @test @inferred(range(I)) === 0:3
@@ -120,6 +122,7 @@ end
     @test @inferred(convert(ClosedInterval, I))                  ===
             @inferred(convert(Interval, I))                      ===
             @inferred(ClosedInterval(I))                         ===
+            @inferred(Interval(I))                               ===
             @inferred(convert(AbstractInterval, I))              ===
             @inferred(convert(AbstractInfiniteSet, I))           === I
     @test_throws InexactError convert(OpenInterval, I)
@@ -162,6 +165,9 @@ end
             @inferred(convert(AbstractInterval, J))              ===
             @inferred(convert(AbstractInfiniteSet, J))           ===
             @inferred(Interval{:closed,:open}(J))                          === Interval{:closed,:open}(J)
+
+    @test 1.0..2.0 === 1.0..2 === 1..2.0 === ClosedInterval{Float64}(1..2) ===
+            Interval(1.0,2.0)
 end
 
 
@@ -286,6 +292,10 @@ end
     @test J ∈ OpenInterval(I)
     @test I ∉ OpenInterval(J)
     @test OpenInterval(J) ∈ OpenInterval(I)
+    @test OpenInterval(I) ∉ OpenInterval(J)
+    @test Interval{:closed,:open}(J) ∈ OpenInterval(I)
+    @test Interval{:open,:closed}(J) ∈ OpenInterval(I)
+    @test Interval{:open,:closed}(J) ∈ Interval{:open,:closed}(I)
     @test OpenInterval(I) ∉ OpenInterval(J)
 
     @test Interval{:closed,:open}(J) ∈ I
@@ -483,8 +493,19 @@ end
         @test isempty(OpenInterval(i1) ∩ i_empty)
         @test isempty(i1 ∩ OpenInterval(i_empty))
         @test isempty(Interval{:closed,:open}(i1) ∩ i_empty)
+
+        # - test matching endpoints
+        @test (0..1) ∪ OpenInterval(0..1) ≡ OpenInterval(0..1) ∪ (0..1) ≡  0..1
+        @test Interval{:open,:closed}(0..1) ∪ OpenInterval(0..1) ≡
+                OpenInterval(0..1) ∪ Interval{:open,:closed}(0..1) ≡
+                Interval{:open,:closed}(0..1)
+        @test Interval{:closed,:open}(0..1) ∪ OpenInterval(0..1) ≡
+                OpenInterval(0..1) ∪ Interval{:closed,:open}(0..1) ≡
+                Interval{:closed,:open}(0..1)
     end
 end
+
+
 
 
 @testset "Empty" begin
@@ -506,7 +527,9 @@ IntervalSets.isleftclosed(::MyUnitInterval) = true
 IntervalSets.isrightclosed(::MyUnitInterval) = true
 
 @testset "Custom intervals" begin
-    @test ClosedInterval(MyUnitInterval()) == convert(ClosedInterval,MyUnitInterval()) == 0..1
+    @test ClosedInterval(MyUnitInterval()) === convert(ClosedInterval, MyUnitInterval()) ===
+            ClosedInterval{Int}(MyUnitInterval()) === convert(ClosedInterval{Int}, MyUnitInterval())  ===
+            convert(Interval, MyUnitInterval()) === Interval(MyUnitInterval()) === 0..1
     @test_throws InexactError convert(OpenInterval, MyUnitInterval())
 end
 
