@@ -270,6 +270,8 @@ length(A::Interval{L,R,T}) where {L,R,T<:Integer} = max(0, Int(A.right - A.left)
 
 length(A::Interval{L,R,Date}) where {L,R} = max(0, Dates.days(A.right - A.left) + 1)
 
+ClosedInterval{T}(i::UnitRange) where {T,I<:Integer} = ClosedInterval{T}(minimum(i), maximum(i))
+ClosedInterval(i::UnitRange{I}) where {I<:Integer} = ClosedInterval{I}(minimum(i), maximum(i))
 UnitRange{I}(i::ClosedInterval) where {I<:Integer} = UnitRange{I}(minimum(i), maximum(i))
 UnitRange(i::ClosedInterval{I}) where {I<:Integer} = UnitRange{I}(i)
 range(i::ClosedInterval{I}) where {I<:Integer} = UnitRange{I}(i)
