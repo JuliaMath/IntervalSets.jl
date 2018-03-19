@@ -3,6 +3,8 @@ using Compat
 using Compat.Test
 using Compat.Dates
 
+import IntervalSets: AbstractInfiniteSet
+
 @test ordered(2, 1) == (1, 2)
 @test ordered(1, 2) == (1, 2)
 @test ordered(Float16(1), 2) == (1, 2)
@@ -14,6 +16,8 @@ using Compat.Dates
     @test @inferred(UnitRange(I)) === 0:3
     @test @inferred(range(I)) === 0:3
     @test @inferred(UnitRange{Int16}(I)) === Int16(0):Int16(3)
+    @test @inferred(ClosedInterval(0:3)) === I
+    @test @inferred(ClosedInterval{Float64}(0:3)) === 0.0..3.0
     J = 3..2
     K = 5..4
     L = 3 ± 2
@@ -25,12 +29,6 @@ using Compat.Dates
 
     @test eltype(I) == Int
     @test eltype(M) == Float64
-    @test @inferred(convert(ClosedInterval{Float64}, I)) === 0.0..3.0
-    @test @inferred(ClosedInterval{Float64}(0:3)) === 0.0..3.0
-    @test !(convert(ClosedInterval{Float64}, I) === 0..3)
-    @test ClosedInterval{Float64}(1,3) === 1.0..3.0
-    @test ClosedInterval(0.5..2.5) === 0.5..2.5
-    @test ClosedInterval{Int}(1.0..3.0) === 1..3
 
     @test !isempty(I)
     @test isempty(J)
@@ -110,6 +108,60 @@ using Compat.Dates
     # length deliberately not defined for non-integer intervals
     @test_throws MethodError length(1.2..2.4)
 end
+
+@testset "Convert" begin
+    I = 0..3
+    @test @inferred(convert(ClosedInterval{Float64}, I))         ===
+            @inferred(convert(AbstractInterval{Float64}, I))     ===
+            @inferred(convert(AbstractInfiniteSet{Float64}, I))  ===
+            @inferred(ClosedInterval{Float64}(I))                === 0.0..3.0
+    @test @inferred(convert(ClosedInterval, I))                  ===
+            @inferred(convert(Interval, I))                      ===
+            @inferred(ClosedInterval(I))                         ===
+            @inferred(convert(AbstractInterval, I))              ===
+            @inferred(convert(AbstractInfiniteSet, I))           === I
+    @test_throws InexactError convert(OpenInterval, I)
+    @test_throws InexactError convert(Interval{:open,:closed}, I)
+    @test_throws InexactError convert(Interval{:closed,:open}, I)
+    @test !(convert(ClosedInterval{Float64}, I) === 0..3)
+    @test ClosedInterval{Float64}(1,3) === 1.0..3.0
+    @test ClosedInterval(0.5..2.5) === 0.5..2.5
+    @test ClosedInterval{Int}(1.0..3.0) === 1..3
+    J = OpenInterval(I)
+    @test_throws InexactError convert(ClosedInterval, J)
+    @test @inferred(convert(OpenInterval{Float64}, J))         ===
+            @inferred(convert(AbstractInterval{Float64}, J))     ===
+            @inferred(convert(AbstractInfiniteSet{Float64}, J)) ===
+            @inferred(OpenInterval{Float64}(J))                === OpenInterval(0.0..3.0)
+    @test @inferred(convert(OpenInterval, J))                ===
+            @inferred(convert(Interval, J))                      ===
+            @inferred(convert(AbstractInterval, J))              ===
+            @inferred(convert(AbstractInfiniteSet, J))           ===
+            @inferred(OpenInterval(J))                          === OpenInterval(J)
+    J = Interval{:open,:closed}(I)
+    @test_throws InexactError convert(Interval{:closed,:open}, J)
+    @test @inferred(convert(Interval{:open,:closed,Float64}, J))         ===
+            @inferred(convert(AbstractInterval{Float64}, J))     ===
+            @inferred(convert(AbstractInfiniteSet{Float64}, J)) ===
+            @inferred(Interval{:open,:closed,Float64}(J))                === Interval{:open,:closed}(0.0..3.0)
+    @test @inferred(convert(Interval{:open,:closed}, J))                ===
+            @inferred(convert(Interval, J))                      ===
+            @inferred(convert(AbstractInterval, J))              ===
+            @inferred(convert(AbstractInfiniteSet, J))           ===
+            @inferred(Interval{:open,:closed}(J))                          === Interval{:open,:closed}(J)
+    J = Interval{:closed,:open}(I)
+    @test_throws InexactError convert(Interval{:open,:closed}, J)
+    @test @inferred(convert(Interval{:closed,:open,Float64}, J))         ===
+            @inferred(convert(AbstractInterval{Float64}, J))     ===
+            @inferred(convert(AbstractInfiniteSet{Float64}, J)) ===
+            @inferred(Interval{:closed,:open,Float64}(J))                === Interval{:closed,:open}(0.0..3.0)
+    @test @inferred(convert(Interval{:closed,:open}, J))                ===
+            @inferred(convert(Interval, J))                      ===
+            @inferred(convert(AbstractInterval, J))              ===
+            @inferred(convert(AbstractInfiniteSet, J))           ===
+            @inferred(Interval{:closed,:open}(J))                          === Interval{:closed,:open}(J)
+end
+
 
 @testset "Interval tests" begin
     for T in (Float32,Float64,BigFloat)
@@ -222,6 +274,39 @@ end
     end
 end
 
+@testset "In" begin
+    I = 0..3
+    J = 1..2
+    @test J ∈ I
+    @test I ∉ J
+    @test OpenInterval(J) ∈ I
+    @test OpenInterval(I) ∉ J
+    @test J ∈ OpenInterval(I)
+    @test I ∉ OpenInterval(J)
+    @test OpenInterval(J) ∈ OpenInterval(I)
+    @test OpenInterval(I) ∉ OpenInterval(J)
+
+    @test Interval{:closed,:open}(J) ∈ I
+    @test I ∉ Interval{:closed,:open}(J)
+
+
+    @test I ∈ I
+    @test OpenInterval(I) ∈ I
+    @test Interval{:open,:closed}(I) ∈ I
+    @test Interval{:closed,:open}(I) ∈ I
+    @test I ∉ OpenInterval(I)
+    @test I ∉ Interval{:open,:closed}(I)
+    @test I ∉ Interval{:closed,:open}(I)
+
+    @test Interval{:closed,:open}(I) ∈ Interval{:closed,:open}(I)
+    @test Interval{:open,:closed}(I) ∉ Interval{:closed,:open}(I)
+
+    @test !isequal(I, OpenInterval(I))
+    @test !(I == OpenInterval(I))
+end
+
+
+
 @testset "Union and intersection" begin
     for T in (Float32,Float64)
         i1 = zero(T) .. one(T)
@@ -244,6 +329,7 @@ end
         @test i1 ∪ OpenInterval(i2) ≡ OpenInterval(i2) ∪ i1 ≡ i1
         @test OpenInterval(i1) ∪ i2 ≡ i2 ∪ OpenInterval(i1) ≡ OpenInterval(i1)
         @test OpenInterval(i1) ∪ Interval{:open,:closed}(i2) ≡ Interval{:open,:closed}(i2) ∪ OpenInterval(i1) ≡ OpenInterval(i1)
+        @test OpenInterval(i1) ∪ Interval{:closed,:open}(i2) ≡ Interval{:closed,:open}(i2) ∪ OpenInterval(i1) ≡ OpenInterval(i1)
         @test Interval{:open,:closed}(i1) ∪ OpenInterval(i2) ≡ OpenInterval(i2) ∪ Interval{:open,:closed}(i1) ≡ Interval{:open,:closed}(i1)
         @test Interval{:open,:closed}(i1) ∪ Interval{:closed,:open}(i2) ≡ Interval{:closed,:open}(i2) ∪ Interval{:open,:closed}(i1) ≡ Interval{:open,:closed}(i1)
 
@@ -260,6 +346,7 @@ end
         @test i1 ∩ OpenInterval(i2) ≡ OpenInterval(i2) ∩ i1 ≡ OpenInterval(i2)
         @test OpenInterval(i1) ∩ i2 ≡ i2 ∩ OpenInterval(i1) ≡ i2
         @test OpenInterval(i1) ∩ Interval{:open,:closed}(i2) ≡ Interval{:open,:closed}(i2) ∩ OpenInterval(i1) ≡ Interval{:open,:closed}(i2)
+        @test OpenInterval(i1) ∩ Interval{:closed,:open}(i2) ≡ Interval{:closed,:open}(i2) ∩ OpenInterval(i1) ≡ Interval{:closed,:open}(i2)
         @test Interval{:open,:closed}(i1) ∩ OpenInterval(i2) ≡ OpenInterval(i2) ∩ Interval{:open,:closed}(i1) ≡ OpenInterval(i2)
         @test Interval{:open,:closed}(i1) ∩ Interval{:closed,:open}(i2) ≡ Interval{:closed,:open}(i2) ∩ Interval{:open,:closed}(i1) ≡ Interval{:closed,:open}(i2)
 
@@ -272,12 +359,13 @@ end
         @test Interval{:closed,:open}(i1) ∪ Interval{:closed,:open}(i3) ≡
               Interval{:closed,:open}(i3) ∪ Interval{:closed,:open}(i1) ≡ Interval{:closed,:open}(d)
         @test OpenInterval(i1) ∪ OpenInterval(i3) ≡
-                OpenInterval(i3) ∪ OpenInterval(i1) ≡ OpenInterval(d)
+              OpenInterval(i3) ∪ OpenInterval(i1) ≡ OpenInterval(d)
         @test i1 ∪ Interval{:open,:closed}(i3) ≡ Interval{:open,:closed}(i3) ∪ i1 ≡ d
         @test i1 ∪ Interval{:closed,:open}(i3) ≡ Interval{:closed,:open}(i3) ∪ i1 ≡ Interval{:closed,:open}(d)
         @test i1 ∪ OpenInterval(i3) ≡ OpenInterval(i3) ∪ i1 ≡ Interval{:closed,:open}(d)
         @test OpenInterval(i1) ∪ i3 ≡ i3 ∪ OpenInterval(i1) ≡ Interval{:open,:closed}(d)
         @test OpenInterval(i1) ∪ Interval{:open,:closed}(i3) ≡ Interval{:open,:closed}(i3) ∪ OpenInterval(i1) ≡ Interval{:open,:closed}(d)
+        @test OpenInterval(i1) ∪ Interval{:closed,:open}(i3) ≡ Interval{:closed,:open}(i3) ∪ OpenInterval(i1) ≡ OpenInterval(d)
         @test Interval{:open,:closed}(i1) ∪ OpenInterval(i3) ≡ OpenInterval(i3) ∪ Interval{:open,:closed}(i1) ≡ OpenInterval(d)
         @test Interval{:open,:closed}(i1) ∪ Interval{:closed,:open}(i3) ≡ Interval{:closed,:open}(i3) ∪ Interval{:open,:closed}(i1) ≡ OpenInterval(d)
 
@@ -297,6 +385,7 @@ end
         @test i1 ∩ OpenInterval(i3) ≡ OpenInterval(i3) ∩ i1 ≡ Interval{:open,:closed}(d)
         @test OpenInterval(i1) ∩ i3 ≡ i3 ∩ OpenInterval(i1) ≡ Interval{:closed,:open}(d)
         @test OpenInterval(i1) ∩ Interval{:open,:closed}(i3) ≡ Interval{:open,:closed}(i3) ∩ OpenInterval(i1) ≡ OpenInterval(d)
+        @test OpenInterval(i1) ∩ Interval{:closed,:open}(i3) ≡ Interval{:closed,:open}(i3) ∩ OpenInterval(i1) ≡ Interval{:closed,:open}(d)
         @test Interval{:open,:closed}(i1) ∩ OpenInterval(i3) ≡ OpenInterval(i3) ∩ Interval{:open,:closed}(i1) ≡ Interval{:open,:closed}(d)
         @test Interval{:open,:closed}(i1) ∩ Interval{:closed,:open}(i3) ≡ Interval{:closed,:open}(i3) ∩ Interval{:open,:closed}(i1) ≡ d
 
@@ -331,6 +420,7 @@ end
         @test i2 ∩ OpenInterval(i3) ≡ OpenInterval(i3) ∩ i2 ≡ Interval{:open,:closed}(d)
         @test OpenInterval(i2) ∩ i3 ≡ i3 ∩ OpenInterval(i2) ≡ Interval{:closed,:open}(d)
         @test OpenInterval(i2) ∩ Interval{:open,:closed}(i3) ≡ Interval{:open,:closed}(i3) ∩ OpenInterval(i2) ≡ OpenInterval(d)
+        @test OpenInterval(i2) ∩ Interval{:closed,:open}(i3) ≡ Interval{:closed,:open}(i3) ∩ OpenInterval(i2) ≡ Interval{:closed,:open}(d)
         @test Interval{:open,:closed}(i2) ∩ OpenInterval(i3) ≡ OpenInterval(i3) ∩ Interval{:open,:closed}(i2) ≡ Interval{:open,:closed}(d)
         @test Interval{:open,:closed}(i2) ∩ Interval{:closed,:open}(i3) ≡ Interval{:closed,:open}(i3) ∩ Interval{:open,:closed}(i2) ≡ d
 
@@ -341,6 +431,9 @@ end
         @test_throws ArgumentError OpenInterval(i1) ∪ i4
         @test_throws ArgumentError i1 ∪ OpenInterval(i4)
         @test_throws ArgumentError Interval{:closed,:open}(i1) ∪ i4
+        @test_throws ArgumentError Interval{:closed,:open}(i1) ∪ OpenInterval(i4)
+
+
 
         # - union of almost-overlapping intervals
         @test_throws ArgumentError i1 ∪ i5
@@ -348,6 +441,7 @@ end
         @test_throws ArgumentError OpenInterval(i1) ∪ i5
         @test_throws ArgumentError i1 ∪ OpenInterval(i5)
         @test_throws ArgumentError Interval{:closed,:open}(i1) ∪ i5
+        @test_throws ArgumentError Interval{:closed,:open}(i1) ∪ OpenInterval(i5)
 
         # - intersection of non-overlapping intervals
         @test isempty(i1 ∩ i4)
@@ -377,6 +471,7 @@ end
         @test i1 ∪ OpenInterval(i_empty) ≡ OpenInterval(i_empty) ∪ i1 ≡ i1
         @test OpenInterval(i1) ∪ i_empty ≡ i_empty ∪ OpenInterval(i1) ≡ OpenInterval(i1)
         @test OpenInterval(i1) ∪ Interval{:open,:closed}(i_empty) ≡ Interval{:open,:closed}(i_empty) ∪ OpenInterval(i1) ≡ OpenInterval(i1)
+        @test OpenInterval(i1) ∪ Interval{:closed,:open}(i_empty) ≡ Interval{:closed,:open}(i_empty) ∪ OpenInterval(i1) ≡ OpenInterval(i1)
         @test Interval{:open,:closed}(i1) ∪ OpenInterval(i_empty) ≡ OpenInterval(i_empty) ∪ Interval{:open,:closed}(i1) ≡ Interval{:open,:closed}(i1)
         @test Interval{:open,:closed}(i1) ∪ Interval{:closed,:open}(i_empty) ≡ Interval{:closed,:open}(i_empty) ∪ Interval{:open,:closed}(i1) ≡ Interval{:open,:closed}(i1)
 

@@ -71,10 +71,6 @@ eltype(::Type{AbstractInterval{T}}) where {T} = T
 @pure eltype(::Type{I}) where {I<:AbstractInterval} = eltype(supertype(I))
 
 convert(::Type{I}, i::I) where {I<:AbstractInterval} = i
-function convert(::Type{I}, i::AbstractInterval) where I<:AbstractInterval
-    T = eltype(I)
-    I(convert(T, i.left), convert(T, i.right))
-end
 function convert(::Type{I}, r::AbstractRange) where I<:AbstractInterval
     T = eltype(I)
     I(convert(T, minimum(r)), convert(T, maximum(r)))

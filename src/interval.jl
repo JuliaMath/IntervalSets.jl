@@ -41,21 +41,21 @@ Interval(left, right) = ClosedInterval(left, right)
 Interval{L,R}(i::AbstractInterval) where {L,R} = Interval{L,R}(endpoints(i)...)
 convert(::Type{Interval}, i::Interval) = i
 
-function convert(::ClosedInterval, i::AbstractInterval)
+function convert(::Type{II}, i::AbstractInterval) where II<:ClosedInterval
     isclosed(i) ||  throw(InexactError())
-    ClosedInterval(i)
+    II(i)
 end
-function convert(::OpenInterval, i::AbstractInterval)
+function convert(::Type{II}, i::AbstractInterval) where II<:OpenInterval
     isopen(i) ||  throw(InexactError())
-    OpenInterval(i)
+    II(i)
 end
-function convert(::Interval{:open,:closed}, i::AbstractInterval)
+function convert(::Type{II}, i::AbstractInterval) where II<:Interval{:open,:closed}
     (isleftopen(i) && isrightclosed(i)) ||  throw(InexactError())
-    Interval{:open,:closed}(i)
+    II(i)
 end
-function convert(::Interval{:closed,:open}, i::AbstractInterval)
+function convert(::Type{II}, i::AbstractInterval) where II<:Interval{:closed,:open}
     (isleftclosed(i) && isrightopen(i)) ||  throw(InexactError())
-    Interval{:closed,:open}(i)
+    II(i)
 end
 
 
@@ -201,6 +201,7 @@ function union(d1::OpenInterval, d2::Interval{:closed,:open})
     isempty(d1) && return d2
     isempty(d2) && return d1
     d1.left ≤ d2.left ≤ d1.right  || d1.left < d2.right ≤ d1.right ||
+        d2.left ≤ d1.left < d2.right  || d2.left ≤ d1.right ≤ d2.right ||
         throw(ArgumentError("Cannot construct union of disjoint sets."))
     _union(d1, d2)
 end
