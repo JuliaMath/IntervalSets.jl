@@ -7,7 +7,7 @@ import IntervalSets: AbstractInfiniteSet
 
 @test ordered(2, 1) == (1, 2)
 @test ordered(1, 2) == (1, 2)
-@test ordered(Float16(1), 2) == (1, 2)
+@test ordered(Float16(1), 2) == (1, 2) 
 
 @testset "Basic Closed Sets" begin
     @test_throws ArgumentError :a .. "b"

@@ -10,10 +10,9 @@ struct Interval{L,R,T}  <: AbstractInterval{T}
     left::T
     right::T
 
-    Interval{L,R,T}(l::T, r::T) where {L,R,T} = new{L,R,T}(l, r)
     Interval{L,R,T}(l, r) where {L,R,T} = ((a, b) = checked_conversion(T, l, r); new{L,R,T}(a, b))
-    Interval{L,R,T}(i::AbstractInterval) where {L,R,T} = Interval{L,R,T}(endpoints(i)...)
 end
+
 
 """
 A `ClosedInterval(left, right)` is an interval set that includes both its upper and lower bounds. In
@@ -27,6 +26,7 @@ mathematical notation, the constructed range is `(left, right)`.
 """
 const OpenInterval{T} = Interval{:open,:open,T}
 
+Interval{L,R,T}(i::AbstractInterval) where {L,R,T} = Interval{L,R,T}(endpoints(i)...)
 Interval{L,R}(left, right) where {L,R} = Interval{L,R,promote_type(typeof(left), typeof(right))}(left,right)
 Interval{L,R}(left::T, right::T) where {L,R,T} = Interval{L,R,T}(left, right)
 Interval(left, right) = ClosedInterval(left, right)
