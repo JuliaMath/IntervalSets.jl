@@ -90,6 +90,9 @@ Construct a ClosedInterval `iv` spanning the region from
 ±(x::CartesianIndex, y) = (xy = y * one(x); map(ClosedInterval, (x - xy).I, (x + xy).I))
 
 show(io::IO, I::ClosedInterval) = print(io, I.left, "..", I.right)
+show(io::IO, I::OpenInterval) = print(io, I.left, "..", I.right, " (open)")
+show(io::IO, I::Interval{:open,:closed}) = print(io, I.left, "..", I.right, " (open–closed)")
+show(io::IO, I::Interval{:closed,:open}) = print(io, I.left, "..", I.right, " (closed–open)")
 
 in(v, I::ClosedInterval) = I.left ≤ v ≤ I.right
 in(v, I::OpenInterval) = I.left < v < I.right
@@ -150,6 +153,7 @@ function intersect(d1::Interval{L,R,T}, d2::Interval{L,R,T}) where {L,R,T}
     Interval{L,R}(max(a1,a2),min(b1,b2))
 end
 
+intersect(d1::AbstractInterval{T}, d2::AbstractInterval{V}) where {T,V} = intersect(promote(d1, d2)...)
 
 
 

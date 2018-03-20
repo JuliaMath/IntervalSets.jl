@@ -38,6 +38,18 @@ julia> 1.5±1
 0.5..2.5
 ```
 
+Similarly, you can construct `OpenInterval`s and `Interval{:open,:closed}`s, and `Interval{:closed,:open}`:
+```julia
+julia> OpenInterval{Float64}(1,3)
+1.0..3.0 (open)
+
+julia> OpenInterval(0.5..2.5)
+0.5..2.5 (open)
+
+julia> Interval{:open,:closed}(1,3)
+1..3 (open–closed)
+```
+
 The `±` operator may be typed as `\pm<TAB>` (using Julia's LaTeX
 syntax tab-completion).
 
@@ -48,6 +60,9 @@ julia> 1.75 ∈ 1.5±1  # \in<TAB>; can also use `in`
 true
 
 julia> 0 ∈ 1.5±1
+false
+
+julia> 1 ∈ OpenInterval(0..1)
 false
 
 julia> intersect(1..5, 3..7)   # can also use `a ∩ b`, where the symbol is \cap<TAB>
