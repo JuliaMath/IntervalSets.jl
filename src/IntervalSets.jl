@@ -3,7 +3,7 @@ __precompile__()
 module IntervalSets
 
 using Base: @pure
-import Base: eltype, convert, show, in, length, isempty, isequal, issubset, ==, hash,
+import Base: eltype, convert, show, in, length, isempty, isequal, isless, issubset, ==, hash,
              union, intersect, minimum, maximum, extrema, range, ⊇
 
 using Compat

@@ -43,7 +43,9 @@ in(a::ClosedInterval, b::ClosedInterval) = (b.left <= a.left) & (a.right <= b.ri
 
 isempty(A::ClosedInterval) = A.left > A.right
 
-isequal(A::ClosedInterval, B::ClosedInterval) = (isequal(A.left, B.left) & isequal(A.right, B.right)) | (isempty(A) & isempty(B))
+isequal(A::ClosedInterval, B::ClosedInterval) = isequal(A.left, B.left) & isequal(A.right, B.right)
+
+isless(A::ClosedInterval, B::ClosedInterval) = isless(A.left, B.left) | (isequal(A.left, B.left) & isless(A.right, B.right))
 
 ==(A::ClosedInterval, B::ClosedInterval) = (A.left == B.left && A.right == B.right) || (isempty(A) && isempty(B))
 
