@@ -15,7 +15,8 @@ using Compat.Dates
 
 export AbstractInterval, Interval, OpenInterval, ClosedInterval,
             ⊇, .., ±, ordered, width, duration, leftendpoint, rightendpoint, endpoints,
-            infimum, supremum, isleftclosed, isrightclosed, isleftopen, isrightopen, closedendpoints
+            isclosed, isleftclosed, isrightclosed, isleftopen, isrightopen, closedendpoints,
+            infimum, supremum
 
 """
 A subtype of `Domain{T}` represents a subset of type `T`, that overrides `in`.
@@ -61,7 +62,8 @@ isopen(d::AbstractInterval) = isleftopen(d) && isrightopen(d)
 eltype(::Type{AbstractInterval{T}}) where {T} = T
 @pure eltype(::Type{I}) where {I<:AbstractInterval} = eltype(supertype(I))
 
-convert(::Type{I}, i::I) where {I<:AbstractInterval} = i
+convert(::Type{AbstractInterval}, i::AbstractInterval) = i
+convert(::Type{AbstractInterval{T}}, i::AbstractInterval{T}) where T = i
 
 ordered(a::T, b::T) where {T} = ifelse(a < b, (a, b), (b, a))
 ordered(a, b) = ordered(promote(a, b)...)
