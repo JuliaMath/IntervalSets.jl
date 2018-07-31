@@ -4,35 +4,47 @@ module IntervalSets
 
 using Base: @pure
 import Base: eltype, convert, show, in, length, isempty, isequal, issubset, ==, hash,
-             union, intersect, minimum, maximum, extrema, range, ⊇, mean, median
+             union, intersect, minimum, maximum, extrema, range, ⊇
+
+using Compat.Statistics
+import Compat.Statistics: mean, median
+
 
 using Compat
 using Compat.Dates
 
 export AbstractInterval, Interval, OpenInterval, ClosedInterval,
-            ⊇, .., ±, ordered, width, leftendpoint, rightendpoint,
-            infimum, supremum
+            ⊇, .., ±, ordered, width, duration, leftendpoint, rightendpoint, endpoints,
+            infimum, supremum, isleftclosed, isrightclosed, isleftopen, isrightopen, closedendpoints
 
-abstract type AbstractInfiniteSet{T} end
-abstract type AbstractInterval{T} <: AbstractInfiniteSet{T} end
+"""
+A subtype of `Domain{T}` represents a subset of type `T`, that overrides `in`.
+"""
+abstract type Domain{T} end
+"""
+A subtype of `AbstractInterval{T}` represents an interval subset of type `T`, that overrides
+`endpoints`, `closedendpoints`.
+"""
+abstract type AbstractInterval{T} <: Domain{T} end
 
-
-"The left endpoint of the interval."
-leftendpoint(d::AbstractInterval) = d.left
-
-"The right endpoint of the interval."
-rightendpoint(d::AbstractInterval) = d.right
 
 "A tuple containing the left and right endpoints of the interval."
-endpoints(d::AbstractInterval) = (leftendpoint(d), rightendpoint(d))
+endpoints(d::AI) where AI<:AbstractInterval = error("Override endpoints(::$(AI))")
+
+"The left endpoint of the interval."
+leftendpoint(d::AbstractInterval) = endpoints(d)[1]
+
+"The right endpoint of the interval."
+rightendpoint(d::AbstractInterval) = endpoints(d)[2]
+
+"A tuple of `Bool`'s encoding whether the left/right endpoints are closed."
+closedendpoints(d::AI) where AI<:AbstractInterval = error("Override closedendpoints(::$(AI))")
 
 "Is the interval closed at the left endpoint?"
-function isleftclosed end
+isleftclosed(d::AbstractInterval) = closedendpoints(d)[1]
 
 "Is the interval closed at the right endpoint?"
-function isrightclosed end
-
-
+isrightclosed(d::AbstractInterval) = closedendpoints(d)[2]
 
 # open_left and open_right are implemented in terms of closed_* above, so those
 # are the only ones that should be implemented for specific intervals
@@ -45,6 +57,19 @@ isrightopen(d::AbstractInterval) = !isrightclosed(d)
 # Only closed if closed at both endpoints, and similar for open
 isclosed(d::AbstractInterval) = isleftclosed(d) && isrightclosed(d)
 isopen(d::AbstractInterval) = isleftopen(d) && isrightopen(d)
+
+eltype(::Type{AbstractInterval{T}}) where {T} = T
+@pure eltype(::Type{I}) where {I<:AbstractInterval} = eltype(supertype(I))
+
+convert(::Type{I}, i::I) where {I<:AbstractInterval} = i
+
+ordered(a::T, b::T) where {T} = ifelse(a < b, (a, b), (b, a))
+ordered(a, b) = ordered(promote(a, b)...)
+
+checked_conversion(::Type{T}, a, b) where {T} = _checked_conversion(T, convert(T, a), convert(T, b))
+_checked_conversion(::Type{T}, a::T, b::T) where {T} = a, b
+_checked_conversion(::Type{Any}, a, b) = throw(ArgumentError("$a and $b promoted to type Any"))
+_checked_conversion(::Type{T}, a, b) where {T} = throw(ArgumentError("$a and $b are not both of type $T"))
 
 function infimum(d::AbstractInterval{T}) where T
     a = leftendpoint(d)
@@ -63,21 +88,94 @@ end
 mean(d::AbstractInterval) = one(eltype(d))/2 * (leftendpoint(d) + rightendpoint(d))
 median(d::AbstractInterval) = mean(d)
 
+issubset(A::AbstractInterval, B::AbstractInterval) = ((leftendpoint(A) in B) && (rightendpoint(A) in B)) || isempty(A)
+⊇(A::AbstractInterval, B::AbstractInterval) = issubset(B, A)
 
+"""
+    w = width(iv)
+
+Calculate the width (max-min) of interval `iv`. Note that for integers
+`l` and `r`, `width(l..r) = length(l:r) - 1`.
+"""
+function width(A::AbstractInterval)
+    _width = rightendpoint(A) - leftendpoint(A)
+    max(zero(_width), _width)   # this works when T is a Date
+end
+
+"""
+A subtype of `TypedEndpointsInterval{L,R,T}` where `L` and `R` are `:open` or `:closed`,
+that represents an interval subset of type `T`, and overrides `endpoints`.
+"""
+abstract type TypedEndpointsInterval{L,R,T} <: AbstractInterval{T} end
+
+closedendpoints(d::TypedEndpointsInterval{:closed,:closed}) = (true,true)
+closedendpoints(d::TypedEndpointsInterval{:closed,:open}) = (true,false)
+closedendpoints(d::TypedEndpointsInterval{:open,:closed}) = (false,true)
+closedendpoints(d::TypedEndpointsInterval{:open,:open}) = (false,false)
+
+
+in(v, I::TypedEndpointsInterval{:closed,:closed}) = leftendpoint(I) ≤ v ≤ rightendpoint(I)
+in(v, I::TypedEndpointsInterval{:open,:open}) = leftendpoint(I) < v < rightendpoint(I)
+in(v, I::TypedEndpointsInterval{:closed,:open}) = leftendpoint(I) ≤ v < rightendpoint(I)
+in(v, I::TypedEndpointsInterval{:open,:closed}) = leftendpoint(I) < v ≤ rightendpoint(I)
+
+in(a::AbstractInterval,                         b::TypedEndpointsInterval{:closed,:closed}) =
+    (leftendpoint(a) ≥ leftendpoint(b)) & (rightendpoint(a) ≤ rightendpoint(b))
+in(a::TypedEndpointsInterval{:open,:open},      b::TypedEndpointsInterval{:open,:open}) =
+    (leftendpoint(a) ≥ leftendpoint(b)) & (rightendpoint(a) ≤ rightendpoint(b))
+in(a::TypedEndpointsInterval{:closed,:open},    b::TypedEndpointsInterval{:open,:open}) =
+    (leftendpoint(a) > leftendpoint(b)) & (rightendpoint(a) ≤ rightendpoint(b))
+in(a::TypedEndpointsInterval{:open,:closed},    b::TypedEndpointsInterval{:open,:open}) =
+    (leftendpoint(a) ≥ leftendpoint(b)) & (rightendpoint(a) < rightendpoint(b))
+in(a::TypedEndpointsInterval{:closed,:closed},  b::TypedEndpointsInterval{:open,:open}) =
+    (leftendpoint(a) > leftendpoint(b)) & (rightendpoint(a) < rightendpoint(b))
+in(a::TypedEndpointsInterval{:closed},          b::TypedEndpointsInterval{:open,:closed}) =
+    (leftendpoint(a) > leftendpoint(b)) & (rightendpoint(a) ≤ rightendpoint(b))
+in(a::TypedEndpointsInterval{:open},            b::TypedEndpointsInterval{:open,:closed}) =
+    (leftendpoint(a) ≥ leftendpoint(b)) & (rightendpoint(a) ≤ rightendpoint(b))
+in(a::TypedEndpointsInterval{L,:closed}, b::TypedEndpointsInterval{:closed,:open}) where L = (leftendpoint(a) ≥ leftendpoint(b)) & (rightendpoint(a) < rightendpoint(b))
+in(a::TypedEndpointsInterval{L,:open}, b::TypedEndpointsInterval{:closed,:open}) where L = (leftendpoint(a) ≥ leftendpoint(b)) & (rightendpoint(a) ≤ rightendpoint(b))
+
+isempty(A::TypedEndpointsInterval{:closed,:closed}) = leftendpoint(A) > rightendpoint(A)
+isempty(A::TypedEndpointsInterval) = leftendpoint(A) ≥ rightendpoint(A)
+
+isequal(A::TypedEndpointsInterval{L,R}, B::TypedEndpointsInterval{L,R}) where {L,R} = (isequal(leftendpoint(A), leftendpoint(B)) & isequal(rightendpoint(A), rightendpoint(B))) | (isempty(A) & isempty(B))
+isequal(A::TypedEndpointsInterval, B::TypedEndpointsInterval) = isempty(A) & isempty(B)
+
+==(A::TypedEndpointsInterval{L,R}, B::TypedEndpointsInterval{L,R}) where {L,R} = (leftendpoint(A) == leftendpoint(B) && rightendpoint(A) == rightendpoint(B)) || (isempty(A) && isempty(B))
+==(A::TypedEndpointsInterval, B::TypedEndpointsInterval) = isempty(A) && isempty(B)
+
+const _interval_hash = UInt == UInt64 ? 0x1588c274e0a33ad4 : 0x1e3f7252
+
+hash(I::TypedEndpointsInterval, h::UInt) = hash(leftendpoint(I), hash(rightendpoint(I), hash(_interval_hash, h)))
+
+minimum(d::TypedEndpointsInterval{:closed}) = infimum(d)
+minimum(d::TypedEndpointsInterval{:open}) = throw(ArgumentError("$d is open on the left. Use infimum."))
+maximum(d::TypedEndpointsInterval{L,:closed}) where L = supremum(d)
+maximum(d::TypedEndpointsInterval{L,:open}) where L = throw(ArgumentError("$d is open on the right. Use supremum."))
+
+extrema(I::TypedEndpointsInterval) = (infimum(I), supremum(I))
+
+# Open and closed at endpoints
+isleftclosed(d::TypedEndpointsInterval{:closed}) = true
+isleftclosed(d::TypedEndpointsInterval{:open}) = false
+isrightclosed(d::TypedEndpointsInterval{L,:closed}) where {L} = true
+isrightclosed(d::TypedEndpointsInterval{L,:open}) where {L} = false
+
+# UnitRange construction
+UnitRange{I}(i::TypedEndpointsInterval{:closed,:closed}) where {I<:Integer} = UnitRange{I}(minimum(i), maximum(i))
+UnitRange(i::TypedEndpointsInterval{:closed,:closed,I}) where {I<:Integer} = UnitRange{I}(i)
+range(i::TypedEndpointsInterval{:closed,:closed,I}) where {I<:Integer} = UnitRange{I}(i)
+
+"""
+   duration(iv)
+
+calculates the the total number of integers or dates of an integer or date
+valued interval. For example, `duration(0..1)` is 2, while `width(0..1)` is 1.
+"""
+duration(A::TypedEndpointsInterval{:closed,:closed,T}) where {T<:Integer} = max(0, Int(A.right - A.left) + 1)
+duration(A::TypedEndpointsInterval{:closed,:closed,Date}) = max(0, Dates.days(A.right - A.left) + 1)
 
 include("interval.jl")
-
-eltype(::Type{AbstractInterval{T}}) where {T} = T
-@pure eltype(::Type{I}) where {I<:AbstractInterval} = eltype(supertype(I))
-
-convert(::Type{I}, i::I) where {I<:AbstractInterval} = i
-
-ordered(a::T, b::T) where {T} = ifelse(a < b, (a, b), (b, a))
-ordered(a, b) = ordered(promote(a, b)...)
-
-checked_conversion(::Type{T}, a, b) where {T} = _checked_conversion(T, convert(T, a), convert(T, b))
-_checked_conversion(::Type{T}, a::T, b::T) where {T} = a, b
-_checked_conversion(::Type{Any}, a, b) = throw(ArgumentError("$a and $b promoted to type Any"))
-_checked_conversion(::Type{T}, a, b) where {T} = throw(ArgumentError("$a and $b are not both of type $T"))
 
 end # module

@@ -2,12 +2,14 @@ using IntervalSets
 using Compat
 using Compat.Test
 using Compat.Dates
+using Compat.Statistics
+import Compat.Statistics: mean, median
 
-import IntervalSets: AbstractInfiniteSet
+import IntervalSets: Domain, endpoints, closedendpoints, TypedEndpointsInterval
 
 @test ordered(2, 1) == (1, 2)
 @test ordered(1, 2) == (1, 2)
-@test ordered(Float16(1), 2) == (1, 2) 
+@test ordered(Float16(1), 2) == (1, 2)
 
 @testset "Basic Closed Sets" begin
     @test_throws ArgumentError :a .. "b"
@@ -42,8 +44,8 @@ import IntervalSets: AbstractInfiniteSet
     @test isequal(I, I)
     @test isequal(J, K)
 
-    @test typeof(M.left) == typeof(M.right) && typeof(M.left) == Float64
-    @test typeof(N.left) == typeof(N.right) && typeof(N.left) == Int
+    @test typeof(leftendpoint(M)) == typeof(rightendpoint(M)) && typeof(leftendpoint(M)) == Float64
+    @test typeof(leftendpoint(N)) == typeof(rightendpoint(N)) && typeof(leftendpoint(N)) == Int
 
     @test maximum(I) === 3
     @test minimum(I) === 0
@@ -92,13 +94,8 @@ import IntervalSets: AbstractInfiniteSet
 
     @test hash(1..3) == hash(1.0..3.0)
 
-    let A = Date(1990, 1, 1), B = Date(1990, 3, 1)
-        @test width(ClosedInterval(A, B)) == Dates.Day(59)
-        @test width(ClosedInterval(B, A)) == Dates.Day(0)
-        @test isempty(ClosedInterval(B, A))
-        @test length(ClosedInterval(A, B)) ≡ 60
-        @test length(ClosedInterval(B, A)) ≡ 0
-    end
+    @test width(I) == 3
+    @test width(J) == 0
 
     @test width(ClosedInterval(3,7)) ≡ 4
     @test width(ClosedInterval(4.0,8.0)) ≡ 4.0
@@ -107,24 +104,31 @@ import IntervalSets: AbstractInfiniteSet
 
     @test promote(1..2, 1.0..2.0) === (1.0..2.0, 1.0..2.0)
 
-    @test length(I) == 4
-    @test length(J) == 0
-    # length deliberately not defined for non-integer intervals
-    @test_throws MethodError length(1.2..2.4)
+    # duration deliberately not defined for non-integer intervals
+    @test_throws MethodError duration(1.2..2.4)
+end
+
+@testset "Day interval" begin
+    A = Date(1990, 1, 1); B = Date(1990, 3, 1)
+    @test width(ClosedInterval(A, B)) == Dates.Day(59)
+    @test width(ClosedInterval(B, A)) == Dates.Day(0)
+    @test isempty(ClosedInterval(B, A))
+    @test duration(ClosedInterval(A, B)) ≡ 60
+    @test duration(ClosedInterval(B, A)) ≡ 0
 end
 
 @testset "Convert" begin
     I = 0..3
     @test @inferred(convert(ClosedInterval{Float64}, I))         ===
             @inferred(convert(AbstractInterval{Float64}, I))     ===
-            @inferred(convert(AbstractInfiniteSet{Float64}, I))  ===
+            @inferred(convert(Domain{Float64}, I))  ===
             @inferred(ClosedInterval{Float64}(I))                === 0.0..3.0
     @test @inferred(convert(ClosedInterval, I))                  ===
             @inferred(convert(Interval, I))                      ===
             @inferred(ClosedInterval(I))                         ===
             @inferred(Interval(I))                               ===
             @inferred(convert(AbstractInterval, I))              ===
-            @inferred(convert(AbstractInfiniteSet, I))           === I
+            @inferred(convert(Domain, I))           === I
     @test_throws InexactError convert(OpenInterval, I)
     @test_throws InexactError convert(Interval{:open,:closed}, I)
     @test_throws InexactError convert(Interval{:closed,:open}, I)
@@ -136,34 +140,34 @@ end
     @test_throws InexactError convert(ClosedInterval, J)
     @test @inferred(convert(OpenInterval{Float64}, J))         ===
             @inferred(convert(AbstractInterval{Float64}, J))     ===
-            @inferred(convert(AbstractInfiniteSet{Float64}, J)) ===
+            @inferred(convert(Domain{Float64}, J)) ===
             @inferred(OpenInterval{Float64}(J))                === OpenInterval(0.0..3.0)
     @test @inferred(convert(OpenInterval, J))                ===
             @inferred(convert(Interval, J))                      ===
             @inferred(convert(AbstractInterval, J))              ===
-            @inferred(convert(AbstractInfiniteSet, J))           ===
+            @inferred(convert(Domain, J))           ===
             @inferred(OpenInterval(J))                          === OpenInterval(J)
     J = Interval{:open,:closed}(I)
     @test_throws InexactError convert(Interval{:closed,:open}, J)
     @test @inferred(convert(Interval{:open,:closed,Float64}, J))         ===
             @inferred(convert(AbstractInterval{Float64}, J))     ===
-            @inferred(convert(AbstractInfiniteSet{Float64}, J)) ===
+            @inferred(convert(Domain{Float64}, J)) ===
             @inferred(Interval{:open,:closed,Float64}(J))                === Interval{:open,:closed}(0.0..3.0)
     @test @inferred(convert(Interval{:open,:closed}, J))                ===
             @inferred(convert(Interval, J))                      ===
             @inferred(convert(AbstractInterval, J))              ===
-            @inferred(convert(AbstractInfiniteSet, J))           ===
+            @inferred(convert(Domain, J))           ===
             @inferred(Interval{:open,:closed}(J))                          === Interval{:open,:closed}(J)
     J = Interval{:closed,:open}(I)
     @test_throws InexactError convert(Interval{:open,:closed}, J)
     @test @inferred(convert(Interval{:closed,:open,Float64}, J))         ===
             @inferred(convert(AbstractInterval{Float64}, J))     ===
-            @inferred(convert(AbstractInfiniteSet{Float64}, J)) ===
+            @inferred(convert(Domain{Float64}, J)) ===
             @inferred(Interval{:closed,:open,Float64}(J))                === Interval{:closed,:open}(0.0..3.0)
     @test @inferred(convert(Interval{:closed,:open}, J))                ===
             @inferred(convert(Interval, J))                      ===
             @inferred(convert(AbstractInterval, J))              ===
-            @inferred(convert(AbstractInfiniteSet, J))           ===
+            @inferred(convert(Domain, J))           ===
             @inferred(Interval{:closed,:open}(J))                          === Interval{:closed,:open}(J)
 
     @test 1.0..2.0 === 1.0..2 === 1..2.0 === ClosedInterval{Float64}(1..2) ===
@@ -203,8 +207,8 @@ end
 
         @test convert(AbstractInterval, d) ≡ d
         @test convert(AbstractInterval{T}, d) ≡ d
-        @test convert(IntervalSets.AbstractInfiniteSet, d) ≡ d
-        @test convert(IntervalSets.AbstractInfiniteSet{T}, d) ≡ d
+        @test convert(IntervalSets.Domain, d) ≡ d
+        @test convert(IntervalSets.Domain{T}, d) ≡ d
 
         d = OpenInterval(zero(T) .. one(T))
         @test IntervalSets.isopen(d)
@@ -505,9 +509,6 @@ end
     end
 end
 
-
-
-
 @testset "Empty" begin
     for T in (Float32,Float64)
         @test isempty(Interval{:open,:open}(zero(T),zero(T)))
@@ -523,30 +524,59 @@ struct MyUnitInterval <: AbstractInterval{Int}
     isleftclosed::Bool
     isrightclosed::Bool
 end
-IntervalSets.leftendpoint(::MyUnitInterval) = 0
-IntervalSets.rightendpoint(::MyUnitInterval) = 1
-
-IntervalSets.isleftclosed(I::MyUnitInterval) = I.isleftclosed
-IntervalSets.isrightclosed(I::MyUnitInterval) = I.isrightclosed
+endpoints(::MyUnitInterval) = (0,1)
+closedendpoints(I::MyUnitInterval) = (I.isleftclosed,I.isrightclosed)
 
 @testset "Custom intervals" begin
     I = MyUnitInterval(true,true)
+    @test leftendpoint(I) == 0
+    @test rightendpoint(I) == 1
+    @test isleftclosed(I) == true
+    @test isrightclosed(I) == true
     @test ClosedInterval(I) === convert(ClosedInterval, I) ===
             ClosedInterval{Int}(I) === convert(ClosedInterval{Int}, I)  ===
             convert(Interval, I) === Interval(I) === 0..1
     @test_throws InexactError convert(OpenInterval, I)
     I = MyUnitInterval(false,false)
+    @test leftendpoint(I) == 0
+    @test rightendpoint(I) == 1
+    @test isleftclosed(I) == false
+    @test isrightclosed(I) == false
     @test OpenInterval(I) === convert(OpenInterval, I) ===
             OpenInterval{Int}(I) === convert(OpenInterval{Int}, I)  ===
             convert(Interval, I) === Interval(I) === OpenInterval(0..1)
     I = MyUnitInterval(false,true)
+    @test leftendpoint(I) == 0
+    @test rightendpoint(I) == 1
+    @test isleftclosed(I) == false
+    @test isrightclosed(I) == true
     @test Interval{:open,:closed}(I) === convert(Interval{:open,:closed}, I) ===
             Interval{:open,:closed,Int}(I) === convert(Interval{:open,:closed,Int}, I)  ===
             convert(Interval, I) === Interval(I) === Interval{:open,:closed}(0..1)
     I = MyUnitInterval(true,false)
+    @test leftendpoint(I) == 0
+    @test rightendpoint(I) == 1
+    @test isleftclosed(I) == true
+    @test isrightclosed(I) == false
     @test Interval{:closed,:open}(I) === convert(Interval{:closed,:open}, I) ===
             Interval{:closed,:open,Int}(I) === convert(Interval{:closed,:open,Int}, I)  ===
             convert(Interval, I) === Interval(I) === Interval{:closed,:open}(0..1)
+end
+
+
+struct MyClosedUnitInterval <: TypedEndpointsInterval{:closed,:closed,Int} end
+endpoints(::MyClosedUnitInterval) = (0,1)
+
+@testset "Custom typed endpoints interval" begin
+    I = MyClosedUnitInterval()
+    @test leftendpoint(I) == 0
+    @test rightendpoint(I) == 1
+    @test isleftclosed(I) == true
+    @test isrightclosed(I) == true
+    @test ClosedInterval(I) === convert(ClosedInterval, I) ===
+            ClosedInterval{Int}(I) === convert(ClosedInterval{Int}, I)  ===
+            convert(Interval, I) === Interval(I) === 0..1
+    @test_throws InexactError convert(OpenInterval, I)
 end
 
 
