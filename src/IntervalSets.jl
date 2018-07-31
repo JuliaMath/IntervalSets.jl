@@ -7,7 +7,7 @@ import Base: eltype, convert, show, in, length, isempty, isequal, issubset, ==, 
              union, intersect, minimum, maximum, extrema, range, ⊇
 
 using Compat.Statistics
-import Compat.Statistics: mean, median
+import Compat.Statistics: mean
 
 
 using Compat
@@ -85,8 +85,7 @@ function supremum(d::AbstractInterval{T}) where T
     b
 end
 
-mean(d::AbstractInterval) = one(eltype(d))/2 * (leftendpoint(d) + rightendpoint(d))
-median(d::AbstractInterval) = mean(d)
+mean(d::AbstractInterval) = (leftendpoint(d) + rightendpoint(d))/2
 
 issubset(A::AbstractInterval, B::AbstractInterval) = ((leftendpoint(A) in B) && (rightendpoint(A) in B)) || isempty(A)
 ⊇(A::AbstractInterval, B::AbstractInterval) = issubset(B, A)

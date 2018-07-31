@@ -3,7 +3,7 @@ using Compat
 using Compat.Test
 using Compat.Dates
 using Compat.Statistics
-import Compat.Statistics: mean, median
+import Compat.Statistics: mean
 
 import IntervalSets: Domain, endpoints, closedendpoints, TypedEndpointsInterval
 
@@ -100,7 +100,7 @@ import IntervalSets: Domain, endpoints, closedendpoints, TypedEndpointsInterval
     @test width(ClosedInterval(3,7)) ≡ 4
     @test width(ClosedInterval(4.0,8.0)) ≡ 4.0
 
-    @test mean(0..1) == median(0..1) == 0.5
+    @test mean(0..1) == 0.5
 
     @test promote(1..2, 1.0..2.0) === (1.0..2.0, 1.0..2.0)
 
