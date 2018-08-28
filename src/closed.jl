@@ -103,3 +103,5 @@ end
 range(i::ClosedInterval{I}) where {I<:Integer} = convert(UnitRange{I}, i)
 
 Base.promote_rule(::Type{ClosedInterval{T1}}, ::Type{ClosedInterval{T2}}) where {T1,T2} = ClosedInterval{promote_type(T1, T2)}
+
+Base.IteratorSize(::Type{<:ClosedInterval}) = Base.SizeUnknown()
