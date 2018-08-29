@@ -15,6 +15,7 @@ using Compat.Dates
         @test @inferred(convert(UnitRange, I)) === 0:3
         @test @inferred(range(I)) === 0:3
         @test @inferred(convert(UnitRange{Int16}, I)) === Int16(0):Int16(3)
+        @test @inferred(UnitRange{Int16}(I)) === Int16(0):Int16(3)
         J = 3..2
         K = 5..4
         L = 3 ± 2
