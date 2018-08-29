@@ -95,6 +95,15 @@ using Compat.Dates
         @test length(J) == 0
         # length deliberately not defined for non-integer intervals
         @test_throws MethodError length(1.2..2.4)
+
+        # see issue #35 about below test
+        if (v"0.6.99" <= VERSION < v"1.1.0-DEV.123")
+            @test_broken issubset(0.1, 0.0..1.0) == true
+            @test_broken issubset(1.1, 0.0..1.0) == false
+        else
+            @test issubset(0.1, 0.0..1.0) == true
+            @test issubset(1.1, 0.0..1.0) == false
+        end
     end
 end
 
