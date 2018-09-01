@@ -44,7 +44,11 @@ using Compat.Dates
         @test J == J
         @test L == L
         @test isequal(I, I)
-        @test isequal(J, K)
+        @test !isequal(J, K)
+        @test !isless(I, I)
+        @test isless(I, J)
+        @test !isless(J, I)
+        @test isless(I, 0..4)
 
         @test typeof(M.left) == typeof(M.right) && typeof(M.left) == Float64
         @test typeof(N.left) == typeof(N.right) && typeof(N.left) == Int
