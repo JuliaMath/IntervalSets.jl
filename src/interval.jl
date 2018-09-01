@@ -225,9 +225,12 @@ end
 ClosedInterval{T}(i::UnitRange{I}) where {T,I<:Integer} = ClosedInterval{T}(minimum(i), maximum(i))
 ClosedInterval(i::UnitRange{I}) where {I<:Integer} = ClosedInterval{I}(minimum(i), maximum(i))
 
+
+
 Base.promote_rule(::Type{Interval{L,R,T1}}, ::Type{Interval{L,R,T2}}) where {L,R,T1,T2} = Interval{L,R,promote_type(T1, T2)}
 
+Base.IteratorSize(::Type{<:ClosedInterval}) = Base.SizeUnknown()
 
 # convert should only work if they represent the same thing.
 @deprecate convert(::Type{R}, i::ClosedInterval{I}) where {R<:AbstractUnitRange,I<:Integer} R(i)
-@deprecate length(i::ClosedInterval) duration(i)
+@deprecate length(i::ClosedInterval) IntervalSets.duration(i)

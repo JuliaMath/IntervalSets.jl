@@ -65,6 +65,7 @@ eltype(::Type{AbstractInterval{T}}) where {T} = T
 convert(::Type{AbstractInterval}, i::AbstractInterval) = i
 convert(::Type{AbstractInterval{T}}, i::AbstractInterval{T}) where T = i
 
+
 ordered(a::T, b::T) where {T} = ifelse(a < b, (a, b), (b, a))
 ordered(a, b) = ordered(promote(a, b)...)
 
@@ -91,6 +92,7 @@ mean(d::AbstractInterval) = (leftendpoint(d) + rightendpoint(d))/2
 
 issubset(A::AbstractInterval, B::AbstractInterval) = ((leftendpoint(A) in B) && (rightendpoint(A) in B)) || isempty(A)
 ⊇(A::AbstractInterval, B::AbstractInterval) = issubset(B, A)
+issubset(x, B::AbstractInterval) = issubset(convert(AbstractInterval, x), B)
 
 """
     w = width(iv)
@@ -164,7 +166,15 @@ isrightclosed(d::TypedEndpointsInterval{L,:closed}) where {L} = true
 isrightclosed(d::TypedEndpointsInterval{L,:open}) where {L} = false
 
 # UnitRange construction
-UnitRange{I}(i::TypedEndpointsInterval{:closed,:closed}) where {I<:Integer} = UnitRange{I}(minimum(i), maximum(i))
+# The third is the one we want, but the first two are needed to resolve ambiguities
+Base.Slice{T}(i::TypedEndpointsInterval{:closed,:closed,I}) where {T<:AbstractUnitRange,I<:Integer} =
+    Base.Slice{T}(minimum(i):maximum(i))
+function Base.OneTo{T}(i::TypedEndpointsInterval{:closed,:closed,I}) where {T<:Integer,I<:Integer}
+    @noinline throwstart(i) = throw(ArgumentError("smallest element must be 1, got $(minimum(i))"))
+    minimum(i) == 1 || throwstart(i)
+    Base.OneTo{T}(maximum(i))
+end
+UnitRange{T}(i::TypedEndpointsInterval{:closed,:closed,I}) where {T<:Integer,I<:Integer} = UnitRange{T}(minimum(i), maximum(i))
 UnitRange(i::TypedEndpointsInterval{:closed,:closed,I}) where {I<:Integer} = UnitRange{I}(i)
 range(i::TypedEndpointsInterval{:closed,:closed,I}) where {I<:Integer} = UnitRange{I}(i)
 
@@ -178,5 +188,17 @@ duration(A::TypedEndpointsInterval{:closed,:closed,T}) where {T<:Integer} = max(
 duration(A::TypedEndpointsInterval{:closed,:closed,Date}) = max(0, Dates.days(A.right - A.left) + 1)
 
 include("interval.jl")
+
+# convert numbers to intervals
+convert(::Type{AbstractInterval}, x::Number) = x..x
+convert(::Type{AbstractInterval{T}}, x::Number) where T =
+    convert(AbstractInterval{T}, convert(AbstractInterval, x))
+convert(::Type{TypedEndpointsInterval{:closed,:closed}}, x::Number) = x..x
+convert(::Type{TypedEndpointsInterval{:closed,:closed,T}}, x::Number) where T =
+    convert(AbstractInterval{T}, convert(AbstractInterval, x))
+convert(::Type{ClosedInterval}, x::Number) = x..x
+convert(::Type{ClosedInterval{T}}, x::Number) where T =
+    convert(AbstractInterval{T}, convert(AbstractInterval, x))
+
 
 end # module
