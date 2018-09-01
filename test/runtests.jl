@@ -3,6 +3,8 @@ using Compat
 using Compat.Test
 using Compat.Dates
 
+@test isempty(detect_ambiguities(IntervalSets, Base, Core))
+
 @testset "IntervalSets" begin
     @test ordered(2, 1) == (1, 2)
     @test ordered(1, 2) == (1, 2)

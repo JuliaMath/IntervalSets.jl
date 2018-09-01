@@ -100,6 +100,14 @@ function convert(::Type{R}, i::ClosedInterval{I}) where {R<:AbstractUnitRange,I<
     R(minimum(i), maximum(i))
 end
 
+# The third is the one we want, but the first two are needed to resolve ambiguities
+Base.Slice{T}(i::ClosedInterval{I}) where {T<:AbstractUnitRange,I<:Integer} =
+    Base.Slice{T}(minimum(i):maximum(i))
+function Base.OneTo{T}(i::ClosedInterval{I}) where {T<:Integer,I<:Integer}
+    @noinline throwstart(i) = throw(ArgumentError("smallest element must be 1, got $(minimum(i))"))
+    minimum(i) == 1 || throwstart(i)
+    Base.OneTo{T}(maximum(i))
+end
 function (::Type{R})(i::ClosedInterval{I}) where {R<:AbstractUnitRange,I<:Integer}
     R(minimum(i), maximum(i))
 end
