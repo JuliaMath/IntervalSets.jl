@@ -92,7 +92,9 @@ mean(d::AbstractInterval) = (leftendpoint(d) + rightendpoint(d))/2
 
 issubset(A::AbstractInterval, B::AbstractInterval) = ((leftendpoint(A) in B) && (rightendpoint(A) in B)) || isempty(A)
 ⊇(A::AbstractInterval, B::AbstractInterval) = issubset(B, A)
-issubset(x, B::AbstractInterval) = issubset(convert(AbstractInterval, x), B)
+if VERSION < v"1.1.0-DEV.123"
+    issubset(x, B::AbstractInterval) = issubset(convert(AbstractInterval, x), B)
+end
 
 """
     w = width(iv)
