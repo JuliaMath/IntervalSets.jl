@@ -123,26 +123,26 @@ intersect(d1::AbstractInterval, d2::AbstractInterval) = intersect(Interval(d1), 
 
 
 union(d1::TypedEndpointsInterval{:closed,:closed},  d2::TypedEndpointsInterval{:closed,:closed}) =
-    _closed_closed_union(d1,d2)
+    _leq_union(d1,d2)
 union(d1::Interval{:open,:closed},                  d2::TypedEndpointsInterval{:closed,:closed}) =
-    _closed_closed_union(d1,d2)
+    _leq_union(d1,d2)
 union(d1::Interval{:closed,:open},                  d2::TypedEndpointsInterval{:closed,:closed}) =
-    _closed_closed_union(d1,d2)
+    _leq_union(d1,d2)
 union(d1::TypedEndpointsInterval{:closed,:closed},  d2::TypedEndpointsInterval{:open,:closed}) =
-    _closed_closed_union(d1,d2)
+    _leq_union(d1,d2)
 union(d1::TypedEndpointsInterval{:closed,:closed},  d2::TypedEndpointsInterval{:closed,:open}) =
-    _closed_closed_union(d1,d2)
+    _leq_union(d1,d2)
 union(d1::TypedEndpointsInterval{:open,:closed},    d2::TypedEndpointsInterval{:open,:closed}) =
-    _closed_closed_union(d1,d2)
+    _leq_union(d1,d2)
 union(d1::TypedEndpointsInterval{:closed,:open},    d2::TypedEndpointsInterval{:closed,:open}) =
-    _closed_closed_union(d1,d2)
+    _leq_union(d1,d2)
 union(d1::TypedEndpointsInterval{:closed,:closed},  d2::TypedEndpointsInterval{:open,:open}) =
-    _closed_closed_union(d1,d2)
+    _leq_union(d1,d2)
 union(d1::TypedEndpointsInterval{:open,:open},      d2::TypedEndpointsInterval{:closed,:closed}) =
-    _closed_closed_union(d1,d2)
+    _leq_union(d1,d2)
 
 
-function _closed_closed_union(d1, d2)
+function _leq_union(d1, d2)
     isempty(d1) && return d2
     isempty(d2) && return d1
     leftendpoint(d1) ≤ leftendpoint(d2) ≤ rightendpoint(d1)  || leftendpoint(d1) ≤ rightendpoint(d2) ≤ rightendpoint(d1) ||

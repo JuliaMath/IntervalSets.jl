@@ -19,11 +19,11 @@ export AbstractInterval, Interval, OpenInterval, ClosedInterval,
             infimum, supremum
 
 """
-A subtype of `Domain{T}` represents a subset of type `T`, that overrides `in`.
+A subtype of `Domain{T}` represents a subset of type `T`, that provides `in`.
 """
 abstract type Domain{T} end
 """
-A subtype of `AbstractInterval{T}` represents an interval subset of type `T`, that overrides
+A subtype of `AbstractInterval{T}` represents an interval subset of type `T`, that provides
 `endpoints`, `closedendpoints`.
 """
 abstract type AbstractInterval{T} <: Domain{T} end
@@ -105,7 +105,7 @@ end
 
 """
 A subtype of `TypedEndpointsInterval{L,R,T}` where `L` and `R` are `:open` or `:closed`,
-that represents an interval subset of type `T`, and overrides `endpoints`.
+that represents an interval subset of type `T`, and provides `endpoints`.
 """
 abstract type TypedEndpointsInterval{L,R,T} <: AbstractInterval{T} end
 
