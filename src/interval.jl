@@ -222,8 +222,8 @@ function _union(A::TypedEndpointsInterval{L1,R1}, B::TypedEndpointsInterval{L2,R
     Interval{L,R}(left, right)
 end
 
-ClosedInterval{T}(i::UnitRange{I}) where {T,I<:Integer} = ClosedInterval{T}(minimum(i), maximum(i))
-ClosedInterval(i::UnitRange{I}) where {I<:Integer} = ClosedInterval{I}(minimum(i), maximum(i))
+ClosedInterval{T}(i::AbstractUnitRange{I}) where {T,I<:Integer} = ClosedInterval{T}(minimum(i), maximum(i))
+ClosedInterval(i::AbstractUnitRange{I}) where {I<:Integer} = ClosedInterval{I}(minimum(i), maximum(i))
 
 
 
