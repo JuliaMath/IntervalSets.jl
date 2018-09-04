@@ -35,6 +35,7 @@ closedendpoints(I::MyUnitInterval) = (I.isleftclosed,I.isrightclosed)
         @test @inferred(UnitRange{Int16}(I)) === Int16(0):Int16(3)
         @test @inferred(ClosedInterval(0:3)) === I
         @test @inferred(ClosedInterval{Float64}(0:3)) === 0.0..3.0
+        @test @inferred(ClosedInterval(Base.OneTo(3))) === 1..3
         J = 3..2
         K = 5..4
         L = 3 ± 2
