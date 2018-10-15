@@ -597,4 +597,10 @@ closedendpoints(I::MyUnitInterval) = (I.isleftclosed,I.isrightclosed)
         @test issubset(1.1, 0.0..1.0) == false
         @test issubset(0.0, nextfloat(0.0)..1.0) == false
     end
+
+    @testset "complex in" begin
+        @test 0+im ∉ 0..2
+        @test 0+0im ∈ 0..2
+        @test 0+eps()im ∉ 0..2
+    end
 end
