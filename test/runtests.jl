@@ -577,6 +577,7 @@ closedendpoints(I::MyUnitInterval) = (I.isleftclosed,I.isrightclosed)
         @test Interval{:closed,:open}(I) === convert(Interval{:closed,:open}, I) ===
                 Interval{:closed,:open,Int}(I) === convert(Interval{:closed,:open,Int}, I)  ===
                 convert(Interval, I) === Interval(I) === Interval{:closed,:open}(0..1)
+        @test convert(AbstractInterval, I) === convert(AbstractInterval{Int}, I) === I
     end
 
     @testset "Custom typed endpoints interval" begin
@@ -616,6 +617,19 @@ closedendpoints(I::MyUnitInterval) = (I.isleftclosed,I.isrightclosed)
         @test 0+im ∉ Interval{:open,:closed}(0,2)
         @test 0+0im ∉ Interval{:open,:closed}(0,2)
         @test 1+0im ∈ Interval{:open,:closed}(0,2)
-        @test 1+eps()im ∉ Interval{:open,:closed}(0,2)        
+        @test 1+eps()im ∉ Interval{:open,:closed}(0,2)
+    end
+
+    @testset "closedendpoints" begin
+        @test closedendpoints(0..1) == closedendpoints(MyClosedUnitInterval()) == (true,true)
+        @test closedendpoints(Interval{:open,:closed}(0,1)) == (false,true)
+        @test closedendpoints(Interval{:closed,:open}(0,1)) == (true,false)
+        @test closedendpoints(OpenInterval(0,1)) == (false,false)
+    end
+
+    @testset "OneTo" begin
+        @test_throws ArgumentError Base.OneTo{Int}(0..5)
+        @test_throws ArgumentError Base.OneTo(0..5)
+        @test Base.OneTo(1..5) == Base.OneTo{Int}(1..5) == Base.OneTo(5)
     end
 end
