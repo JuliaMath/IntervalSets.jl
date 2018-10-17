@@ -463,6 +463,9 @@ closedendpoints(I::MyUnitInterval) = (I.isleftclosed,I.isrightclosed)
             @test Interval{:open,:closed}(i2) ∩ OpenInterval(i3) ≡ OpenInterval(i3) ∩ Interval{:open,:closed}(i2) ≡ Interval{:open,:closed}(d)
             @test Interval{:open,:closed}(i2) ∩ Interval{:closed,:open}(i3) ≡ Interval{:closed,:open}(i3) ∩ Interval{:open,:closed}(i2) ≡ d
 
+            # - intersection of custom intervals
+            @test intersect(MyUnitInterval(true,true), MyUnitInterval(false,false)) == OpenInterval(0,1)
+            @test intersect(MyUnitInterval(true,true), OpenInterval(0,1)) == OpenInterval(0,1)
 
             # - union of non-overlapping intervals
             @test_throws ArgumentError i1 ∪ i4
@@ -471,8 +474,6 @@ closedendpoints(I::MyUnitInterval) = (I.isleftclosed,I.isrightclosed)
             @test_throws ArgumentError i1 ∪ OpenInterval(i4)
             @test_throws ArgumentError Interval{:closed,:open}(i1) ∪ i4
             @test_throws ArgumentError Interval{:closed,:open}(i1) ∪ OpenInterval(i4)
-
-
 
             # - union of almost-overlapping intervals
             @test_throws ArgumentError i1 ∪ i5
@@ -577,6 +578,7 @@ closedendpoints(I::MyUnitInterval) = (I.isleftclosed,I.isrightclosed)
         @test Interval{:closed,:open}(I) === convert(Interval{:closed,:open}, I) ===
                 Interval{:closed,:open,Int}(I) === convert(Interval{:closed,:open,Int}, I)  ===
                 convert(Interval, I) === Interval(I) === Interval{:closed,:open}(0..1)
+        @test convert(AbstractInterval, I) === convert(AbstractInterval{Int}, I) === I
     end
 
     @testset "Custom typed endpoints interval" begin
@@ -596,5 +598,43 @@ closedendpoints(I::MyUnitInterval) = (I.isleftclosed,I.isrightclosed)
         @test issubset(0.0, 0.0..1.0) == true
         @test issubset(1.1, 0.0..1.0) == false
         @test issubset(0.0, nextfloat(0.0)..1.0) == false
+    end
+
+    @testset "complex in" begin
+        @test 0+im ∉ 0..2
+        @test 0+0im ∈ 0..2
+        @test 0+eps()im ∉ 0..2
+
+        @test 0+im ∉ OpenInterval(0,2)
+        @test 0+0im ∉ OpenInterval(0,2)
+        @test 1+0im ∈ OpenInterval(0,2)
+        @test 1+eps()im ∉ OpenInterval(0,2)
+
+        @test 0+im ∉ Interval{:closed,:open}(0,2)
+        @test 0+0im ∈ Interval{:closed,:open}(0,2)
+        @test 1+0im ∈ Interval{:closed,:open}(0,2)
+        @test 1+eps()im ∉ Interval{:closed,:open}(0,2)
+
+        @test 0+im ∉ Interval{:open,:closed}(0,2)
+        @test 0+0im ∉ Interval{:open,:closed}(0,2)
+        @test 1+0im ∈ Interval{:open,:closed}(0,2)
+        @test 1+eps()im ∉ Interval{:open,:closed}(0,2)
+    end
+
+    @testset "closedendpoints" begin
+        @test closedendpoints(0..1) == closedendpoints(MyClosedUnitInterval()) == (true,true)
+        @test closedendpoints(Interval{:open,:closed}(0,1)) == (false,true)
+        @test closedendpoints(Interval{:closed,:open}(0,1)) == (true,false)
+        @test closedendpoints(OpenInterval(0,1)) == (false,false)
+    end
+
+    @testset "OneTo" begin
+        @test_throws ArgumentError Base.OneTo{Int}(0..5)
+        @test_throws ArgumentError Base.OneTo(0..5)
+        @test Base.OneTo(1..5) == Base.OneTo{Int}(1..5) == Base.OneTo(5)
+    end
+
+    @testset "IteratorSize" begin
+        @test Base.IteratorSize(ClosedInterval) == Base.SizeUnknown()
     end
 end

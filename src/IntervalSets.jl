@@ -124,6 +124,11 @@ in(v, I::TypedEndpointsInterval{:open,:open}) = leftendpoint(I) < v < rightendpo
 in(v, I::TypedEndpointsInterval{:closed,:open}) = leftendpoint(I) ≤ v < rightendpoint(I)
 in(v, I::TypedEndpointsInterval{:open,:closed}) = leftendpoint(I) < v ≤ rightendpoint(I)
 
+in(v::Complex, I::TypedEndpointsInterval{:closed,:closed}) = isreal(v) && in(real(v), I)
+in(v::Complex, I::TypedEndpointsInterval{:open,:open}) = isreal(v) && in(real(v), I)
+in(v::Complex, I::TypedEndpointsInterval{:closed,:open}) = isreal(v) && in(real(v), I)
+in(v::Complex, I::TypedEndpointsInterval{:open,:closed}) = isreal(v) && in(real(v), I)
+
 in(a::AbstractInterval,                         b::TypedEndpointsInterval{:closed,:closed}) =
     (leftendpoint(a) ≥ leftendpoint(b)) & (rightendpoint(a) ≤ rightendpoint(b))
 in(a::TypedEndpointsInterval{:open,:open},      b::TypedEndpointsInterval{:open,:open}) =
@@ -176,6 +181,8 @@ function Base.OneTo{T}(i::TypedEndpointsInterval{:closed,:closed,I}) where {T<:I
     minimum(i) == 1 || throwstart(i)
     Base.OneTo{T}(maximum(i))
 end
+Base.OneTo(i::TypedEndpointsInterval{:closed,:closed,I}) where {I<:Integer} =
+    Base.OneTo{I}(i)
 UnitRange{T}(i::TypedEndpointsInterval{:closed,:closed,I}) where {T<:Integer,I<:Integer} = UnitRange{T}(minimum(i), maximum(i))
 UnitRange(i::TypedEndpointsInterval{:closed,:closed,I}) where {I<:Integer} = UnitRange{I}(i)
 range(i::TypedEndpointsInterval{:closed,:closed,I}) where {I<:Integer} = UnitRange{I}(i)
