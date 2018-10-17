@@ -602,5 +602,20 @@ closedendpoints(I::MyUnitInterval) = (I.isleftclosed,I.isrightclosed)
         @test 0+im ∉ 0..2
         @test 0+0im ∈ 0..2
         @test 0+eps()im ∉ 0..2
+
+        @test 0+im ∉ OpenInterval(0,2)
+        @test 0+0im ∉ OpenInterval(0,2)
+        @test 1+0im ∈ OpenInterval(0,2)
+        @test 1+eps()im ∉ OpenInterval(0,2)
+
+        @test 0+im ∉ Interval{:closed,:open}(0,2)
+        @test 0+0im ∈ Interval{:closed,:open}(0,2)
+        @test 1+0im ∈ Interval{:closed,:open}(0,2)
+        @test 1+eps()im ∉ Interval{:closed,:open}(0,2)
+
+        @test 0+im ∉ Interval{:open,:closed}(0,2)
+        @test 0+0im ∉ Interval{:open,:closed}(0,2)
+        @test 1+0im ∈ Interval{:open,:closed}(0,2)
+        @test 1+eps()im ∉ Interval{:open,:closed}(0,2)        
     end
 end
