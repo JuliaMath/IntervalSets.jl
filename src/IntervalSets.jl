@@ -133,6 +133,11 @@ in(v::Complex, I::TypedEndpointsInterval{:open,:open}) = isreal(v) && in(real(v)
 in(v::Complex, I::TypedEndpointsInterval{:closed,:open}) = isreal(v) && in(real(v), I)
 in(v::Complex, I::TypedEndpointsInterval{:open,:closed}) = isreal(v) && in(real(v), I)
 
+in(::Missing, I::TypedEndpointsInterval{:closed,:closed}) = !isempty(I) && missing
+in(::Missing, I::TypedEndpointsInterval{:open,:open}) = !isempty(I) && missing
+in(::Missing, I::TypedEndpointsInterval{:closed,:open}) = !isempty(I) && missing
+in(::Missing, I::TypedEndpointsInterval{:open,:closed}) = !isempty(I) && missing
+
 in(a::AbstractInterval,                         b::TypedEndpointsInterval{:closed,:closed}) =
     (leftendpoint(a) ≥ leftendpoint(b)) & (rightendpoint(a) ≤ rightendpoint(b))
 in(a::TypedEndpointsInterval{:open,:open},      b::TypedEndpointsInterval{:open,:open}) =

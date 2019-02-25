@@ -600,6 +600,12 @@ closedendpoints(I::MyUnitInterval) = (I.isleftclosed,I.isrightclosed)
         @test issubset(0.0, nextfloat(0.0)..1.0) == false
     end
 
+    @testset "missing in" begin
+        @test ismissing(missing in 0..1)
+        @test !(missing in 1..0)
+        @test ismissing(missing in OpenInterval(0, 1))
+    end
+    
     @testset "complex in" begin
         @test 0+im ∉ 0..2
         @test 0+0im ∈ 0..2
