@@ -593,6 +593,11 @@ closedendpoints(I::MyUnitInterval) = (I.isleftclosed,I.isrightclosed)
         @test_throws InexactError convert(OpenInterval, I)
     end
 
+    @testset "Missing endpoints" begin
+        @test ismissing(2 in 1..missing)
+        @test_broken ismissing(2 in missing..1)  # would be fixed by julialang#31171
+    end
+
     @testset "issubset" begin
         @test issubset(0.1, 0.0..1.0) == true
         @test issubset(0.0, 0.0..1.0) == true
