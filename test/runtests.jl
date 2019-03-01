@@ -608,6 +608,8 @@ closedendpoints(I::MyUnitInterval) = (I.isleftclosed,I.isrightclosed)
         @test ismissing(missing in 0..1)
         @test !(missing in 1..0)
         @test ismissing(missing in OpenInterval(0, 1))
+        @test ismissing(missing in Interval{:closed, :open}(0, 1))
+        @test ismissing(missing in Interval{:open, :closed}(0, 1))
     end
     
     @testset "complex in" begin
