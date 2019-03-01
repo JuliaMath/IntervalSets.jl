@@ -1,9 +1,8 @@
 using IntervalSets
-using Compat
-using Compat.Test
-using Compat.Dates
-using Compat.Statistics
-import Compat.Statistics: mean
+using Test
+using Dates
+using Statistics
+import Statistics: mean
 
 import IntervalSets: Domain, endpoints, closedendpoints, TypedEndpointsInterval
 

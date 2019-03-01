@@ -6,12 +6,10 @@ using Base: @pure
 import Base: eltype, convert, show, in, length, isempty, isequal, issubset, ==, hash,
              union, intersect, minimum, maximum, extrema, range, ⊇
 
-using Compat.Statistics
-import Compat.Statistics: mean
+using Statistics
+import Statistics: mean
 
-
-using Compat
-using Compat.Dates
+using Dates
 
 export AbstractInterval, Interval, OpenInterval, ClosedInterval,
             ⊇, .., ±, ordered, width, duration, leftendpoint, rightendpoint, endpoints,
