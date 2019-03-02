@@ -6,12 +6,10 @@ using Base: @pure
 import Base: eltype, convert, show, in, length, isempty, isequal, issubset, ==, hash,
              union, intersect, minimum, maximum, extrema, range, ⊇
 
-using Compat.Statistics
-import Compat.Statistics: mean
+using Statistics
+import Statistics: mean
 
-
-using Compat
-using Compat.Dates
+using Dates
 
 export AbstractInterval, Interval, OpenInterval, ClosedInterval,
             ⊇, .., ±, ordered, width, duration, leftendpoint, rightendpoint, endpoints,
@@ -132,6 +130,11 @@ in(v::Complex, I::TypedEndpointsInterval{:closed,:closed}) = isreal(v) && in(rea
 in(v::Complex, I::TypedEndpointsInterval{:open,:open}) = isreal(v) && in(real(v), I)
 in(v::Complex, I::TypedEndpointsInterval{:closed,:open}) = isreal(v) && in(real(v), I)
 in(v::Complex, I::TypedEndpointsInterval{:open,:closed}) = isreal(v) && in(real(v), I)
+
+in(::Missing, I::TypedEndpointsInterval{:closed,:closed}) = !isempty(I) && missing
+in(::Missing, I::TypedEndpointsInterval{:open,:open}) = !isempty(I) && missing
+in(::Missing, I::TypedEndpointsInterval{:closed,:open}) = !isempty(I) && missing
+in(::Missing, I::TypedEndpointsInterval{:open,:closed}) = !isempty(I) && missing
 
 in(a::AbstractInterval,                         b::TypedEndpointsInterval{:closed,:closed}) =
     (leftendpoint(a) ≥ leftendpoint(b)) & (rightendpoint(a) ≤ rightendpoint(b))

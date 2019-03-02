@@ -1,9 +1,8 @@
 using IntervalSets
-using Compat
-using Compat.Test
-using Compat.Dates
-using Compat.Statistics
-import Compat.Statistics: mean
+using Test
+using Dates
+using Statistics
+import Statistics: mean
 
 import IntervalSets: Domain, endpoints, closedendpoints, TypedEndpointsInterval
 
@@ -593,6 +592,11 @@ closedendpoints(I::MyUnitInterval) = (I.isleftclosed,I.isrightclosed)
         @test_throws InexactError convert(OpenInterval, I)
     end
 
+    @testset "Missing endpoints" begin
+        @test ismissing(2 in 1..missing)
+        @test_broken ismissing(2 in missing..1)  # would be fixed by julialang#31171
+    end
+
     @testset "issubset" begin
         @test issubset(0.1, 0.0..1.0) == true
         @test issubset(0.0, 0.0..1.0) == true
@@ -600,6 +604,14 @@ closedendpoints(I::MyUnitInterval) = (I.isleftclosed,I.isrightclosed)
         @test issubset(0.0, nextfloat(0.0)..1.0) == false
     end
 
+    @testset "missing in" begin
+        @test ismissing(missing in 0..1)
+        @test !(missing in 1..0)
+        @test ismissing(missing in OpenInterval(0, 1))
+        @test ismissing(missing in Interval{:closed, :open}(0, 1))
+        @test ismissing(missing in Interval{:open, :closed}(0, 1))
+    end
+    
     @testset "complex in" begin
         @test 0+im ∉ 0..2
         @test 0+0im ∈ 0..2
