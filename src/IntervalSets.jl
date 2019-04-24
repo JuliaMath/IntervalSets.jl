@@ -198,8 +198,10 @@ range(i::TypedEndpointsInterval{:closed,:closed,I}) where {I<:Integer} = UnitRan
 calculates the the total number of integers or dates of an integer or date
 valued interval. For example, `duration(0..1)` is 2, while `width(0..1)` is 1.
 """
-duration(A::TypedEndpointsInterval{:closed,:closed,T}) where {T<:Integer} = max(0, Int(A.right - A.left) + 1)
-duration(A::TypedEndpointsInterval{:closed,:closed,Date}) = max(0, Dates.days(A.right - A.left) + 1)
+function duration(A::AbstractInterval)
+    _width = rightendpoint(A) - leftendpoint(A)
+    max(zero(_width), _width + oneunit(_width))
+end
 
 include("interval.jl")
 
