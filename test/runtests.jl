@@ -8,6 +8,8 @@ import IntervalSets: Domain, endpoints, closedendpoints, TypedEndpointsInterval
 
 struct MyClosedUnitInterval <: TypedEndpointsInterval{:closed,:closed,Int} end
 endpoints(::MyClosedUnitInterval) = (0,1)
+Base.promote_rule(::Type{MyClosedUnitInterval}, ::Type{ClosedInterval{T}}) where T =
+        ClosedInterval{T}
 
 struct MyUnitInterval <: AbstractInterval{Int}
     isleftclosed::Bool
@@ -15,6 +17,8 @@ struct MyUnitInterval <: AbstractInterval{Int}
 end
 endpoints(::MyUnitInterval) = (0,1)
 closedendpoints(I::MyUnitInterval) = (I.isleftclosed,I.isrightclosed)
+
+struct IncompleteInterval <: AbstractInterval{Int} end
 
 @testset "IntervalSets" begin
     @test isempty(detect_ambiguities(IntervalSets, Base, Core))
@@ -59,6 +63,8 @@ closedendpoints(I::MyUnitInterval) = (I.isleftclosed,I.isrightclosed)
 
         @test typeof(leftendpoint(M)) == typeof(rightendpoint(M)) && typeof(leftendpoint(M)) == Float64
         @test typeof(leftendpoint(N)) == typeof(rightendpoint(N)) && typeof(leftendpoint(N)) == Int
+        @test @inferred(endpoints(M)) === (2.0,5.0)
+        @test @inferred(endpoints(N)) === (255,300)
 
         @test maximum(I) === 3
         @test minimum(I) === 0
@@ -135,13 +141,18 @@ closedendpoints(I::MyUnitInterval) = (I.isleftclosed,I.isrightclosed)
         @test @inferred(convert(ClosedInterval{Float64}, I))         ===
                 @inferred(convert(AbstractInterval{Float64}, I))     ===
                 @inferred(convert(Domain{Float64}, I))  ===
-                @inferred(ClosedInterval{Float64}(I))                === 0.0..3.0
+                @inferred(ClosedInterval{Float64}(I))                === 
+                @inferred(convert(TypedEndpointsInterval{:closed,:closed,Float64},I)) === 
+                0.0..3.0
         @test @inferred(convert(ClosedInterval, I))                  ===
                 @inferred(convert(Interval, I))                      ===
                 @inferred(ClosedInterval(I))                         ===
                 @inferred(Interval(I))                               ===
                 @inferred(convert(AbstractInterval, I))              ===
-                @inferred(convert(Domain, I))           === I
+                @inferred(convert(Domain, I))           === 
+                @inferred(convert(TypedEndpointsInterval{:closed,:closed}, I)) === 
+                @inferred(convert(TypedEndpointsInterval{:closed,:closed,Int}, I)) === 
+                @inferred(convert(ClosedInterval{Int}, I)) === I
         @test_throws InexactError convert(OpenInterval, I)
         @test_throws InexactError convert(Interval{:open,:closed}, I)
         @test_throws InexactError convert(Interval{:closed,:open}, I)
@@ -159,7 +170,9 @@ closedendpoints(I::MyUnitInterval) = (I.isleftclosed,I.isrightclosed)
                 @inferred(convert(Interval, J))                      ===
                 @inferred(convert(AbstractInterval, J))              ===
                 @inferred(convert(Domain, J))           ===
-                @inferred(OpenInterval(J))                          === OpenInterval(J)
+                @inferred(OpenInterval(J))                          === 
+                @inferred(OpenInterval{Int}(J)) === 
+                @inferred(convert(OpenInterval{Int},J)) === OpenInterval(J)
         J = Interval{:open,:closed}(I)
         @test_throws InexactError convert(Interval{:closed,:open}, J)
         @test @inferred(convert(Interval{:open,:closed,Float64}, J))         ===
@@ -194,6 +207,8 @@ closedendpoints(I::MyUnitInterval) = (I.isleftclosed,I.isrightclosed)
                 convert(ClosedInterval{Float64}, 1) ==
                 1.0..1.0
 
+        @test promote_type(Interval{:closed,:open,Float64}, Interval{:closed,:open,Int}) ===
+                        Interval{:closed,:open,Float64}
     end
 
 
@@ -547,8 +562,10 @@ closedendpoints(I::MyUnitInterval) = (I.isleftclosed,I.isrightclosed)
         I = MyUnitInterval(true,true)
         @test leftendpoint(I) == 0
         @test rightendpoint(I) == 1
-        @test isleftclosed(I) == true
-        @test isrightclosed(I) == true
+        @test isleftclosed(I)
+        @test !isleftopen(I)
+        @test isrightclosed(I)
+        @test !isrightopen(I)
         @test ClosedInterval(I) === convert(ClosedInterval, I) ===
                 ClosedInterval{Int}(I) === convert(ClosedInterval{Int}, I)  ===
                 convert(Interval, I) === Interval(I) === 0..1
@@ -556,8 +573,8 @@ closedendpoints(I::MyUnitInterval) = (I.isleftclosed,I.isrightclosed)
         I = MyUnitInterval(false,false)
         @test leftendpoint(I) == 0
         @test rightendpoint(I) == 1
-        @test isleftclosed(I) == false
-        @test isrightclosed(I) == false
+        @test !isleftclosed(I)
+        @test !isrightclosed(I)
         @test OpenInterval(I) === convert(OpenInterval, I) ===
                 OpenInterval{Int}(I) === convert(OpenInterval{Int}, I)  ===
                 convert(Interval, I) === Interval(I) === OpenInterval(0..1)
@@ -590,6 +607,8 @@ closedendpoints(I::MyUnitInterval) = (I.isleftclosed,I.isrightclosed)
                 ClosedInterval{Int}(I) === convert(ClosedInterval{Int}, I)  ===
                 convert(Interval, I) === Interval(I) === 0..1
         @test_throws InexactError convert(OpenInterval, I)
+        @test I ∩ I === 0..1
+        @test I ∩ (0.0..0.5) === 0.0..0.5
     end
 
     @testset "Missing endpoints" begin
@@ -648,5 +667,12 @@ closedendpoints(I::MyUnitInterval) = (I.isleftclosed,I.isrightclosed)
 
     @testset "IteratorSize" begin
         @test Base.IteratorSize(ClosedInterval) == Base.SizeUnknown()
+    end
+
+    @testset "IncompleteInterval" begin
+        I = IncompleteInterval()
+        @test eltype(I) === Int
+        @test_throws ErrorException endpoints(I)
+        @test_throws ErrorException closedendpoints(I)
     end
 end
