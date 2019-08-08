@@ -123,6 +123,7 @@ struct IncompleteInterval <: AbstractInterval{Int} end
 
         @test promote(1..2, 1.0..2.0) === (1.0..2.0, 1.0..2.0)
 
+        @test duration(1..2) == 2
         # duration deliberately not defined for non-integer intervals
         @test_throws MethodError duration(1.2..2.4)
     end
@@ -241,6 +242,10 @@ struct IncompleteInterval <: AbstractInterval{Int} end
 
             @test IntervalSets.isclosed(d)
             @test !IntervalSets.isopen(d)
+            @test IntervalSets.isleftclosed(d)
+            @test !IntervalSets.isleftopen(d)
+            @test !IntervalSets.isrightopen(d)
+            @test IntervalSets.isrightclosed(d)            
 
             @test convert(AbstractInterval, d) ≡ d
             @test convert(AbstractInterval{T}, d) ≡ d
@@ -250,6 +255,12 @@ struct IncompleteInterval <: AbstractInterval{Int} end
             d = OpenInterval(zero(T) .. one(T))
             @test IntervalSets.isopen(d)
             @test !IntervalSets.isclosed(d)
+            @test IntervalSets.isopen(d)
+            @test !IntervalSets.isclosed(d)
+            @test !IntervalSets.isleftclosed(d)
+            @test IntervalSets.isleftopen(d)
+            @test IntervalSets.isrightopen(d)
+            @test !IntervalSets.isrightclosed(d)            
             @test leftendpoint(d) ∉ d
             @test BigFloat(leftendpoint(d)) ∉ d
             @test nextfloat(leftendpoint(d)) ∈ d
@@ -272,20 +283,22 @@ struct IncompleteInterval <: AbstractInterval{Int} end
             d = Interval{:open,:closed}(zero(T) .. one(T))
             @test !IntervalSets.isopen(d)
             @test !IntervalSets.isclosed(d)
+            @test !IntervalSets.isleftclosed(d)
+            @test IntervalSets.isleftopen(d)
+            @test !IntervalSets.isrightopen(d)
+            @test IntervalSets.isrightclosed(d)       
             @test leftendpoint(d) ∉ d
             @test BigFloat(leftendpoint(d)) ∉ d
             @test nextfloat(leftendpoint(d)) ∈ d
             @test nextfloat(BigFloat(leftendpoint(d))) ∈ d
             @test prevfloat(leftendpoint(d)) ∉ d
-            @test prevfloat(leftendpoint(d)) ∉ d
+            @test prevfloat(BigFloat(leftendpoint(d))) ∉ d
             @test rightendpoint(d) ∈ d
             @test BigFloat(rightendpoint(d)) ∈ d
             @test nextfloat(rightendpoint(d)) ∉ d
             @test nextfloat(BigFloat(rightendpoint(d))) ∉ d
             @test prevfloat(rightendpoint(d)) ∈ d
-            @test prevfloat(rightendpoint(d)) ∈ d
-            @test infimum(d) == leftendpoint(d)
-            @test supremum(d) == rightendpoint(d)
+            @test prevfloat(BigFloat(rightendpoint(d))) ∈ d
             @test infimum(d) == leftendpoint(d)
             @test maximum(d) == supremum(d) == rightendpoint(d)
             @test_throws ArgumentError minimum(d)
@@ -293,23 +306,26 @@ struct IncompleteInterval <: AbstractInterval{Int} end
             d = Interval{:closed,:open}(zero(T) .. one(T))
             @test !IntervalSets.isopen(d)
             @test !IntervalSets.isclosed(d)
+            @test IntervalSets.isleftclosed(d)
+            @test !IntervalSets.isleftopen(d)
+            @test IntervalSets.isrightopen(d)
+            @test !IntervalSets.isrightclosed(d)            
             @test leftendpoint(d) ∈ d
             @test BigFloat(leftendpoint(d)) ∈ d
             @test nextfloat(leftendpoint(d)) ∈ d
             @test nextfloat(BigFloat(leftendpoint(d))) ∈ d
             @test prevfloat(leftendpoint(d)) ∉ d
-            @test prevfloat(leftendpoint(d)) ∉ d
+            @test prevfloat(BigFloat(leftendpoint(d))) ∉ d
             @test rightendpoint(d) ∉ d
             @test BigFloat(rightendpoint(d)) ∉ d
             @test nextfloat(rightendpoint(d)) ∉ d
             @test nextfloat(BigFloat(rightendpoint(d))) ∉ d
             @test prevfloat(rightendpoint(d)) ∈ d
-            @test prevfloat(rightendpoint(d)) ∈ d
-            @test infimum(d) == leftendpoint(d)
-            @test supremum(d) == rightendpoint(d)
+            @test prevfloat(BigFloat(rightendpoint(d))) ∈ d
             @test infimum(d) == minimum(d) == leftendpoint(d)
             @test supremum(d) == rightendpoint(d)
             @test_throws ArgumentError maximum(d)
+
 
             # - empty interval
             @test isempty(one(T) .. zero(T))
@@ -560,6 +576,7 @@ struct IncompleteInterval <: AbstractInterval{Int} end
 
     @testset "Custom intervals" begin
         I = MyUnitInterval(true,true)
+        @test eltype(I) == eltype(typeof(I)) == Int
         @test leftendpoint(I) == 0
         @test rightendpoint(I) == 1
         @test isleftclosed(I)
@@ -663,6 +680,7 @@ struct IncompleteInterval <: AbstractInterval{Int} end
         @test_throws ArgumentError Base.OneTo{Int}(0..5)
         @test_throws ArgumentError Base.OneTo(0..5)
         @test Base.OneTo(1..5) == Base.OneTo{Int}(1..5) == Base.OneTo(5)
+        @test Base.Slice(1..5) == Base.Slice{UnitRange{Int}}(1..5) == Base.Slice(1:5)
     end
 
     @testset "IteratorSize" begin
