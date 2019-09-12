@@ -2,7 +2,7 @@ module IntervalSets
 
 using Base: @pure
 import Base: eltype, convert, show, in, length, isempty, isequal, issubset, ==, hash,
-             union, intersect, minimum, maximum, extrema, range, ⊇
+             union, intersect, minimum, maximum, extrema, range, ⊇, copy
 
 using Statistics
 import Statistics: mean
@@ -19,6 +19,7 @@ A subtype of `Domain{T}` represents a subset of type `T`, that provides `in`.
 """
 abstract type Domain{T} end
 
+copy(d::Domain) = deepcopy(d)
 Base.IteratorSize(::Type{<:Domain}) = Base.SizeUnknown()
 
 
