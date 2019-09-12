@@ -31,7 +31,7 @@ struct IncompleteInterval <: AbstractInterval{Int} end
         @test_throws ArgumentError :a .. "b"
         I = 0..3
         @test I === ClosedInterval(0,3) === ClosedInterval{Int}(0,3) ===
-                 Interval(0,3)
+                 Interval(0,3) === copy(I)
         @test string(I) == "0..3"
         @test @inferred(UnitRange(I)) === 0:3
         @test @inferred(range(I)) === 0:3
