@@ -210,6 +210,10 @@ struct IncompleteInterval <: AbstractInterval{Int} end
 
         @test promote_type(Interval{:closed,:open,Float64}, Interval{:closed,:open,Int}) ===
                         Interval{:closed,:open,Float64}
+
+        J = BigFloat(1)..2                        
+        @test copy(J) == J
+        @test copy(J) !== J
     end
 
 
