@@ -10,10 +10,10 @@ spanning from `a` to `b`, all values `x` that lie between `a` and `b`
 are defined as being members of the interval.
 
 This package is intended to implement a "minimal" foundation for
-intervals upon which other packages might build. In particular, we
-*encourage* [type-piracy](https://docs.julialang.org/en/stable/manual/style-guide/#Avoid-type-piracy-1)
-for the reason that only one interval package can
-unambiguously define the `..` and `±` operators (see below).
+intervals upon which other packages might build.  If you find
+IntervalSets.jl lacks definitions you need, we suggest to directly
+`include` IntervalSets.jl in your package rather than the standard
+`using` or `import` (see below) to avoid [type-piracy](https://docs.julialang.org/en/stable/manual/style-guide/#Avoid-type-piracy-1).
 
 Currently this package defines one concrete type, `ClosedInterval`.
 These define the closed set spanning from `a` to `b`, meaning the
@@ -84,3 +84,27 @@ julia> (0.25..5) ∪ (6..7.4)
 
 ArgumentError: Cannot construct union of disjoint sets.
 ```
+
+## Including IntervalSets.jl as a submodule
+
+To avoid multiple packages overwriting method definitions, you can
+`include` IntervalSets.jl instead of the standard `using` or `import`:
+
+```julia
+module YourPackage
+
+include(Base.locate_package(Base.PkgId(Base.UUID("8197267c-284f-5f27-9208-e0e47529a953"), "IntervalSets")))
+using .IntervalSets  # notice the leading dot
+
+# ... more code ...
+
+end
+```
+
+This defines `IntervalSets` to be a _submodule_ of `YourPackage`.  It
+means that all functions and types in `YourPackage.IntervalSets` are
+"owned" by `YourPackage` hence any method can be implemented without
+worrying about type-piracy.  Note that re-exporting symbols from
+`YourPackage.IntervalSets` such as `..` and `±` is not a good idea
+because `YourPackage.IntervalSets.±` and `IntervalSets.±` are
+different functions.

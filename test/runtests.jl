@@ -693,4 +693,10 @@ struct IncompleteInterval <: AbstractInterval{Int} end
         @test_throws ErrorException endpoints(I)
         @test_throws ErrorException closedendpoints(I)
     end
+
+    @testset "vendoring" begin
+        m = Module()
+        Base.include(m, Base.locate_package(Base.PkgId(Base.UUID("8197267c-284f-5f27-9208-e0e47529a953"), "IntervalSets",)))
+        @test m.IntervalSets !== IntervalSets
+    end
 end
