@@ -273,7 +273,7 @@ function broadcasted(::typeof(*), d1::AbstractInterval, d2::AbstractInterval)
 end
 
 broadcasted(::typeof(/), d1::AbstractInterval, d2::AbstractInterval) =
-    MethodError(broadcasted, (/, d1, d2))
+    throw(MethodError(broadcasted, (/, d1, d2)))
 # Defining this to be a method error so that the `x` below is not of
 # type `AbstractInterval`.
 

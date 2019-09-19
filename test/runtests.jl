@@ -721,5 +721,6 @@ struct IncompleteInterval <: AbstractInterval{Int} end
 
         @test (2..4) ./ 2 == 1..2
         @test Interval{:open,:closed}(2, 4) ./ 2 == Interval{:open,:closed}(1, 2)
+        @test_throws MethodError (2..4) ./ (1..2)
     end
 end
