@@ -21,7 +21,11 @@ closedendpoints(I::MyUnitInterval) = (I.isleftclosed,I.isrightclosed)
 struct IncompleteInterval <: AbstractInterval{Int} end
 
 @testset "IntervalSets" begin
-    @test isempty(detect_ambiguities(IntervalSets, Base, Core))
+    if VERSION >= v"1.1"
+        # Julia 1.0 defines getindex(a::GenericArray, i...) in Test, 
+        # which could cause an ambiguity with getindex(A::AbstractArray, ::EllipsisNotation.Ellipsis)
+        @test isempty(detect_ambiguities(IntervalSets, Base, Core))
+    end
 
     @test ordered(2, 1) == (1, 2)
     @test ordered(1, 2) == (1, 2)
