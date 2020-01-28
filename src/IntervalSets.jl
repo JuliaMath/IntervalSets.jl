@@ -9,6 +9,9 @@ import Statistics: mean
 
 using Dates
 
+using EllipsisNotation
+import EllipsisNotation: Ellipsis
+
 export AbstractInterval, Interval, OpenInterval, ClosedInterval,
             ⊇, .., ±, ordered, width, duration, leftendpoint, rightendpoint, endpoints,
             isclosed, isleftclosed, isrightclosed, isleftopen, isrightopen, closedendpoints,
@@ -181,7 +184,7 @@ isrightclosed(d::TypedEndpointsInterval{L,:open}) where {L} = false
 # The third is the one we want, but the first two are needed to resolve ambiguities
 Base.Slice{T}(i::TypedEndpointsInterval{:closed,:closed,I}) where {T<:AbstractUnitRange,I<:Integer} =
     Base.Slice{T}(minimum(i):maximum(i))
-Base.Slice(i::TypedEndpointsInterval{:closed,:closed,I}) where I<:Integer = 
+Base.Slice(i::TypedEndpointsInterval{:closed,:closed,I}) where I<:Integer =
     Base.Slice(minimum(i):maximum(i))
 function Base.OneTo{T}(i::TypedEndpointsInterval{:closed,:closed,I}) where {T<:Integer,I<:Integer}
     @noinline throwstart(i) = throw(ArgumentError("smallest element must be 1, got $(minimum(i))"))

@@ -1,13 +1,15 @@
 name = "IntervalSets"
 uuid = "8197267c-284f-5f27-9208-e0e47529a953"
-version = "0.3.2"
+version = "0.4.0"
 
 [deps]
 Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
+EllipsisNotation = "da5c29d0-fa7d-589e-88eb-ea29b0a81949"
 Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
 
 [compat]
 julia = "0.7, 1"
+EllipsisNotation = "0.4"
 
 [extras]
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
