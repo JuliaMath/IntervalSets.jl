@@ -48,7 +48,12 @@ julia> OpenInterval(0.5..2.5)
 
 julia> Interval{:open,:closed}(1,3)
 1..3 (open–closed)
+
+julia> IntervalSets.isopen(OpenInterval(0.5..2.5))
+true
 ```
+Note that `isopen` for intervals should be qualified with the module name, due
+to the existing `isopen` function in Base that has a different meaning.
 
 The `±` operator may be typed as `\pm<TAB>` (using Julia's LaTeX
 syntax tab-completion).

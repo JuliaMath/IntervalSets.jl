@@ -60,6 +60,12 @@ isrightopen(d::AbstractInterval) = !isrightclosed(d)
 
 # Only closed if closed at both endpoints, and similar for open
 isclosed(d::AbstractInterval) = isleftclosed(d) && isrightclosed(d)
+
+"""
+    IntervalSets.isopen(iv)
+
+Is the interval open?
+"""
 isopen(d::AbstractInterval) = isleftopen(d) && isrightopen(d)
 
 eltype(::Type{AbstractInterval{T}}) where {T} = T
