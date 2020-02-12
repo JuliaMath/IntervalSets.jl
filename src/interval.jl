@@ -49,11 +49,11 @@ end
 convert(::Type{Interval}, i::Interval) = i
 
 function convert(::Type{II}, i::AbstractInterval) where II<:ClosedInterval
-    isclosed(i) ||  throw(InexactError(:convert,II,i))
+    isclosedset(i) ||  throw(InexactError(:convert,II,i))
     II(i)
 end
 function convert(::Type{II}, i::AbstractInterval) where II<:OpenInterval
-    isopen(i) ||  throw(InexactError(:convert,II,i))
+    isopenset(i) ||  throw(InexactError(:convert,II,i))
     II(i)
 end
 function convert(::Type{II}, i::AbstractInterval) where II<:Interval{:open,:closed}
