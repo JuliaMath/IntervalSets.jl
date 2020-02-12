@@ -65,6 +65,9 @@ isclosedset(d::AbstractInterval) = isleftclosed(d) && isrightclosed(d)
 "Is the interval open?"
 isopenset(d::AbstractInterval) = isleftopen(d) && isrightopen(d)
 
+@deprecate isopen(d) isopenset(d) false
+@deprecate isclosed(d) isclosedset(d)
+
 eltype(::Type{AbstractInterval{T}}) where {T} = T
 @pure eltype(::Type{I}) where {I<:AbstractInterval} = eltype(supertype(I))
 
