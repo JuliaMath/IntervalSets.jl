@@ -22,7 +22,7 @@ struct IncompleteInterval <: AbstractInterval{Int} end
 
 @testset "IntervalSets" begin
     if VERSION >= v"1.1"
-        # Julia 1.0 defines getindex(a::GenericArray, i...) in Test, 
+        # Julia 1.0 defines getindex(a::GenericArray, i...) in Test,
         # which could cause an ambiguity with getindex(A::AbstractArray, ::EllipsisNotation.Ellipsis)
         @test isempty(detect_ambiguities(IntervalSets, Base, Core))
     end
@@ -146,17 +146,17 @@ struct IncompleteInterval <: AbstractInterval{Int} end
         @test @inferred(convert(ClosedInterval{Float64}, I))         ===
                 @inferred(convert(AbstractInterval{Float64}, I))     ===
                 @inferred(convert(Domain{Float64}, I))  ===
-                @inferred(ClosedInterval{Float64}(I))                === 
-                @inferred(convert(TypedEndpointsInterval{:closed,:closed,Float64},I)) === 
+                @inferred(ClosedInterval{Float64}(I))                ===
+                @inferred(convert(TypedEndpointsInterval{:closed,:closed,Float64},I)) ===
                 0.0..3.0
         @test @inferred(convert(ClosedInterval, I))                  ===
                 @inferred(convert(Interval, I))                      ===
                 @inferred(ClosedInterval(I))                         ===
                 @inferred(Interval(I))                               ===
                 @inferred(convert(AbstractInterval, I))              ===
-                @inferred(convert(Domain, I))           === 
-                @inferred(convert(TypedEndpointsInterval{:closed,:closed}, I)) === 
-                @inferred(convert(TypedEndpointsInterval{:closed,:closed,Int}, I)) === 
+                @inferred(convert(Domain, I))           ===
+                @inferred(convert(TypedEndpointsInterval{:closed,:closed}, I)) ===
+                @inferred(convert(TypedEndpointsInterval{:closed,:closed,Int}, I)) ===
                 @inferred(convert(ClosedInterval{Int}, I)) === I
         @test_throws InexactError convert(OpenInterval, I)
         @test_throws InexactError convert(Interval{:open,:closed}, I)
@@ -175,8 +175,8 @@ struct IncompleteInterval <: AbstractInterval{Int} end
                 @inferred(convert(Interval, J))                      ===
                 @inferred(convert(AbstractInterval, J))              ===
                 @inferred(convert(Domain, J))           ===
-                @inferred(OpenInterval(J))                          === 
-                @inferred(OpenInterval{Int}(J)) === 
+                @inferred(OpenInterval(J))                          ===
+                @inferred(OpenInterval{Int}(J)) ===
                 @inferred(convert(OpenInterval{Int},J)) === OpenInterval(J)
         J = Interval{:open,:closed}(I)
         @test_throws InexactError convert(Interval{:closed,:open}, J)
@@ -249,7 +249,7 @@ struct IncompleteInterval <: AbstractInterval{Int} end
             @test IntervalSets.isleftclosed(d)
             @test !IntervalSets.isleftopen(d)
             @test !IntervalSets.isrightopen(d)
-            @test IntervalSets.isrightclosed(d)            
+            @test IntervalSets.isrightclosed(d)
 
             @test convert(AbstractInterval, d) ≡ d
             @test convert(AbstractInterval{T}, d) ≡ d
@@ -264,7 +264,7 @@ struct IncompleteInterval <: AbstractInterval{Int} end
             @test !IntervalSets.isleftclosed(d)
             @test IntervalSets.isleftopen(d)
             @test IntervalSets.isrightopen(d)
-            @test !IntervalSets.isrightclosed(d)            
+            @test !IntervalSets.isrightclosed(d)
             @test leftendpoint(d) ∉ d
             @test BigFloat(leftendpoint(d)) ∉ d
             @test nextfloat(leftendpoint(d)) ∈ d
@@ -290,7 +290,7 @@ struct IncompleteInterval <: AbstractInterval{Int} end
             @test !IntervalSets.isleftclosed(d)
             @test IntervalSets.isleftopen(d)
             @test !IntervalSets.isrightopen(d)
-            @test IntervalSets.isrightclosed(d)       
+            @test IntervalSets.isrightclosed(d)
             @test leftendpoint(d) ∉ d
             @test BigFloat(leftendpoint(d)) ∉ d
             @test nextfloat(leftendpoint(d)) ∈ d
@@ -313,7 +313,7 @@ struct IncompleteInterval <: AbstractInterval{Int} end
             @test IntervalSets.isleftclosed(d)
             @test !IntervalSets.isleftopen(d)
             @test IntervalSets.isrightopen(d)
-            @test !IntervalSets.isrightclosed(d)            
+            @test !IntervalSets.isrightclosed(d)
             @test leftendpoint(d) ∈ d
             @test BigFloat(leftendpoint(d)) ∈ d
             @test nextfloat(leftendpoint(d)) ∈ d
@@ -637,11 +637,21 @@ struct IncompleteInterval <: AbstractInterval{Int} end
         @test_broken ismissing(2 in missing..1)  # would be fixed by julialang#31171
     end
 
+    @testset "in" begin
+        @test in(0.1, 0.0..1.0) == true
+        @test in(0.0, 0.0..1.0) == true
+        @test in(1.1, 0.0..1.0) == false
+        @test in(0.0, nextfloat(0.0)..1.0) == false
+    end
+
     @testset "issubset" begin
-        @test issubset(0.1, 0.0..1.0) == true
-        @test issubset(0.0, 0.0..1.0) == true
-        @test issubset(1.1, 0.0..1.0) == false
-        @test issubset(0.0, nextfloat(0.0)..1.0) == false
+        @test issubset(Interval{:closed,:closed}(1,2), Interval{:closed,:closed}(1,2)) == true
+        @test issubset(Interval{:open,  :open  }(1,2), Interval{:open  ,:open  }(1,2)) == true
+        @test issubset(Interval{:closed,:open  }(1,2), Interval{:open  ,:open  }(1,2)) == false
+        @test issubset(Interval{:closed,:open  }(1,2), Interval{:closed,:open  }(1,2)) == true
+        @test issubset(Interval{:closed,:open  }(1,2), Interval{:closed,:open  }(1,2)) == true
+        @test issubset(Interval{:closed,:closed}(1,2), Interval{:closed,:closed}(1,prevfloat(2.0))) == false
+        @test issubset(Interval{:closed,:open  }(1,2), Interval{:open  ,:open  }(prevfloat(1.0),2)) == true
     end
 
     @testset "missing in" begin
@@ -651,7 +661,7 @@ struct IncompleteInterval <: AbstractInterval{Int} end
         @test ismissing(missing in Interval{:closed, :open}(0, 1))
         @test ismissing(missing in Interval{:open, :closed}(0, 1))
     end
-    
+
     @testset "complex in" begin
         @test 0+im ∉ 0..2
         @test 0+0im ∈ 0..2
