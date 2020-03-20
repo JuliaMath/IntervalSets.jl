@@ -93,7 +93,27 @@ end
 
 mean(d::AbstractInterval) = (leftendpoint(d) + rightendpoint(d))/2
 
-issubset(A::AbstractInterval, B::AbstractInterval) = ((leftendpoint(A) in B) && (rightendpoint(A) in B)) || isempty(A)
+function issubset(A::TypedEndpointsInterval, B::TypedEndpointsInterval)
+    Al, Ar = endpoints(A)
+    Bl, Br = endpoints(B)
+    return isempty(A) || (Bl ≤ Al && Ar ≤ Br)
+end
+function issubset(A::TypedEndpointsInterval{:closed,R1} where R1, B::TypedEndpointsInterval{:open,R2} where R2)
+    Al, Ar = endpoints(A)
+    Bl, Br = endpoints(B)
+    return isempty(A) || ( Bl < Al && Ar ≤ Br )
+end
+function issubset(A::TypedEndpointsInterval{L1,:closed} where L1, B::TypedEndpointsInterval{L2,:open} where L2)
+    Al, Ar = endpoints(A)
+    Bl, Br = endpoints(B)
+    return isempty(A) || ( Bl ≤ Al && Ar < Br )
+end
+function issubset(A::TypedEndpointsInterval{:closed,:closed}, B::TypedEndpointsInterval{:open,:open})
+    Al, Ar = endpoints(A)
+    Bl, Br = endpoints(B)
+    return isempty(A) || ( Bl < Al && Ar < Br )
+end
+
 ⊇(A::AbstractInterval, B::AbstractInterval) = issubset(B, A)
 if VERSION < v"1.1.0-DEV.123"
     issubset(x, B::AbstractInterval) = issubset(convert(AbstractInterval, x), B)
