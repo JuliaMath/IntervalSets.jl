@@ -131,22 +131,15 @@ in(::Missing, I::TypedEndpointsInterval{:open,:open}) = !isempty(I) && missing
 in(::Missing, I::TypedEndpointsInterval{:closed,:open}) = !isempty(I) && missing
 in(::Missing, I::TypedEndpointsInterval{:open,:closed}) = !isempty(I) && missing
 
-in(a::AbstractInterval,                         b::TypedEndpointsInterval{:closed,:closed}) =
-    (leftendpoint(a) ≥ leftendpoint(b)) & (rightendpoint(a) ≤ rightendpoint(b))
-in(a::TypedEndpointsInterval{:open,:open},      b::TypedEndpointsInterval{:open,:open}) =
-    (leftendpoint(a) ≥ leftendpoint(b)) & (rightendpoint(a) ≤ rightendpoint(b))
-in(a::TypedEndpointsInterval{:closed,:open},    b::TypedEndpointsInterval{:open,:open}) =
-    (leftendpoint(a) > leftendpoint(b)) & (rightendpoint(a) ≤ rightendpoint(b))
-in(a::TypedEndpointsInterval{:open,:closed},    b::TypedEndpointsInterval{:open,:open}) =
-    (leftendpoint(a) ≥ leftendpoint(b)) & (rightendpoint(a) < rightendpoint(b))
-in(a::TypedEndpointsInterval{:closed,:closed},  b::TypedEndpointsInterval{:open,:open}) =
-    (leftendpoint(a) > leftendpoint(b)) & (rightendpoint(a) < rightendpoint(b))
-in(a::TypedEndpointsInterval{:closed},          b::TypedEndpointsInterval{:open,:closed}) =
-    (leftendpoint(a) > leftendpoint(b)) & (rightendpoint(a) ≤ rightendpoint(b))
-in(a::TypedEndpointsInterval{:open},            b::TypedEndpointsInterval{:open,:closed}) =
-    (leftendpoint(a) ≥ leftendpoint(b)) & (rightendpoint(a) ≤ rightendpoint(b))
-in(a::TypedEndpointsInterval{L,:closed}, b::TypedEndpointsInterval{:closed,:open}) where L = (leftendpoint(a) ≥ leftendpoint(b)) & (rightendpoint(a) < rightendpoint(b))
-in(a::TypedEndpointsInterval{L,:open}, b::TypedEndpointsInterval{:closed,:open}) where L = (leftendpoint(a) ≥ leftendpoint(b)) & (rightendpoint(a) ≤ rightendpoint(b))
+@deprecate in(a::AbstractInterval,                         b::TypedEndpointsInterval{:closed,:closed}) (leftendpoint(a) ≥ leftendpoint(b)) & (rightendpoint(a) ≤ rightendpoint(b))
+@deprecate in(a::TypedEndpointsInterval{:open,:open},      b::TypedEndpointsInterval{:open,:open}    ) (leftendpoint(a) ≥ leftendpoint(b)) & (rightendpoint(a) ≤ rightendpoint(b))
+@deprecate in(a::TypedEndpointsInterval{:closed,:open},    b::TypedEndpointsInterval{:open,:open}    ) (leftendpoint(a) > leftendpoint(b)) & (rightendpoint(a) ≤ rightendpoint(b))
+@deprecate in(a::TypedEndpointsInterval{:open,:closed},    b::TypedEndpointsInterval{:open,:open}    ) (leftendpoint(a) ≥ leftendpoint(b)) & (rightendpoint(a) < rightendpoint(b))
+@deprecate in(a::TypedEndpointsInterval{:closed,:closed},  b::TypedEndpointsInterval{:open,:open}    ) (leftendpoint(a) > leftendpoint(b)) & (rightendpoint(a) < rightendpoint(b))
+@deprecate in(a::TypedEndpointsInterval{:closed},          b::TypedEndpointsInterval{:open,:closed}  ) (leftendpoint(a) > leftendpoint(b)) & (rightendpoint(a) ≤ rightendpoint(b))
+@deprecate in(a::TypedEndpointsInterval{:open},            b::TypedEndpointsInterval{:open,:closed}  ) (leftendpoint(a) ≥ leftendpoint(b)) & (rightendpoint(a) ≤ rightendpoint(b))
+@deprecate in(a::TypedEndpointsInterval{L,:closed}, b::TypedEndpointsInterval{:closed,:open}) where L  (leftendpoint(a) ≥ leftendpoint(b)) & (rightendpoint(a) < rightendpoint(b))
+@deprecate in(a::TypedEndpointsInterval{L,:open},   b::TypedEndpointsInterval{:closed,:open}) where L  (leftendpoint(a) ≥ leftendpoint(b)) & (rightendpoint(a) ≤ rightendpoint(b))
 
 isempty(A::TypedEndpointsInterval{:closed,:closed}) = leftendpoint(A) > rightendpoint(A)
 isempty(A::TypedEndpointsInterval) = leftendpoint(A) ≥ rightendpoint(A)
@@ -160,7 +153,7 @@ isequal(A::TypedEndpointsInterval, B::TypedEndpointsInterval) = isempty(A) & ise
 function issubset(A::TypedEndpointsInterval, B::TypedEndpointsInterval)
     Al, Ar = endpoints(A)
     Bl, Br = endpoints(B)
-    return isempty(A) || (Bl ≤ Al && Ar ≤ Br)
+    return isempty(A) || ( Bl ≤ Al && Ar ≤ Br )
 end
 function issubset(A::TypedEndpointsInterval{:closed,R1} where R1, B::TypedEndpointsInterval{:open,R2} where R2)
     Al, Ar = endpoints(A)

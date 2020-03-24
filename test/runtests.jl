@@ -75,7 +75,7 @@ struct IncompleteInterval <: AbstractInterval{Int} end
         @test extrema(I) === (0, 3)
 
         @test 2 in I
-        @test 1..2 in 0.5..2.5
+        @test issubset(1..2, 0.5..2.5)
 
         @test @inferred(I ∪ L) == ClosedInterval(0, 5)
         @test @inferred(I ∩ L) == ClosedInterval(1, 3)
@@ -343,36 +343,36 @@ struct IncompleteInterval <: AbstractInterval{Int} end
         end
     end
 
-    @testset "In" begin
+    @testset "Issubset" begin
         I = 0..3
         J = 1..2
-        @test J ∈ I
-        @test I ∉ J
-        @test OpenInterval(J) ∈ I
-        @test OpenInterval(I) ∉ J
-        @test J ∈ OpenInterval(I)
-        @test I ∉ OpenInterval(J)
-        @test OpenInterval(J) ∈ OpenInterval(I)
-        @test OpenInterval(I) ∉ OpenInterval(J)
-        @test Interval{:closed,:open}(J) ∈ OpenInterval(I)
-        @test Interval{:open,:closed}(J) ∈ OpenInterval(I)
-        @test Interval{:open,:closed}(J) ∈ Interval{:open,:closed}(I)
-        @test OpenInterval(I) ∉ OpenInterval(J)
+        @test J ⊆ I
+        @test I ⊈ J
+        @test OpenInterval(J) ⊆ I
+        @test OpenInterval(I) ⊈ J
+        @test J ⊆ OpenInterval(I)
+        @test I ⊈ OpenInterval(J)
+        @test OpenInterval(J) ⊆ OpenInterval(I)
+        @test OpenInterval(I) ⊈ OpenInterval(J)
+        @test Interval{:closed,:open}(J) ⊆ OpenInterval(I)
+        @test Interval{:open,:closed}(J) ⊆ OpenInterval(I)
+        @test Interval{:open,:closed}(J) ⊆ Interval{:open,:closed}(I)
+        @test OpenInterval(I) ⊈ OpenInterval(J)
 
-        @test Interval{:closed,:open}(J) ∈ I
-        @test I ∉ Interval{:closed,:open}(J)
+        @test Interval{:closed,:open}(J) ⊆ I
+        @test I ⊈ Interval{:closed,:open}(J)
 
 
-        @test I ∈ I
-        @test OpenInterval(I) ∈ I
-        @test Interval{:open,:closed}(I) ∈ I
-        @test Interval{:closed,:open}(I) ∈ I
-        @test I ∉ OpenInterval(I)
-        @test I ∉ Interval{:open,:closed}(I)
-        @test I ∉ Interval{:closed,:open}(I)
+        @test I ⊆ I
+        @test OpenInterval(I) ⊆ I
+        @test Interval{:open,:closed}(I) ⊆ I
+        @test Interval{:closed,:open}(I) ⊆ I
+        @test I ⊈ OpenInterval(I)
+        @test I ⊈ Interval{:open,:closed}(I)
+        @test I ⊈ Interval{:closed,:open}(I)
 
-        @test Interval{:closed,:open}(I) ∈ Interval{:closed,:open}(I)
-        @test Interval{:open,:closed}(I) ∉ Interval{:closed,:open}(I)
+        @test Interval{:closed,:open}(I) ⊆ Interval{:closed,:open}(I)
+        @test Interval{:open,:closed}(I) ⊈ Interval{:closed,:open}(I)
 
         @test !isequal(I, OpenInterval(I))
         @test !(I == OpenInterval(I))
@@ -646,10 +646,9 @@ struct IncompleteInterval <: AbstractInterval{Int} end
 
     @testset "issubset" begin
         @test issubset(Interval{:closed,:closed}(1,2), Interval{:closed,:closed}(1,2)) == true
-        @test issubset(Interval{:open,  :open  }(1,2), Interval{:open  ,:open  }(1,2)) == true
+        @test issubset(Interval{:closed,:closed}(1,2), Interval{:open  ,:open  }(1,2)) == false
         @test issubset(Interval{:closed,:open  }(1,2), Interval{:open  ,:open  }(1,2)) == false
-        @test issubset(Interval{:closed,:open  }(1,2), Interval{:closed,:open  }(1,2)) == true
-        @test issubset(Interval{:closed,:open  }(1,2), Interval{:closed,:open  }(1,2)) == true
+        @test issubset(Interval{:open  ,:closed}(1,2), Interval{:open  ,:open  }(1,2)) == false
         @test issubset(Interval{:closed,:closed}(1,2), Interval{:closed,:closed}(1,prevfloat(2.0))) == false
         @test issubset(Interval{:closed,:open  }(1,2), Interval{:open  ,:open  }(prevfloat(1.0),2)) == true
     end
