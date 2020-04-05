@@ -14,7 +14,8 @@ import EllipsisNotation: Ellipsis
 
 export AbstractInterval, Interval, OpenInterval, ClosedInterval,
             ⊇, .., ±, ordered, width, duration, leftendpoint, rightendpoint, endpoints,
-            isclosed, isleftclosed, isrightclosed, isleftopen, isrightopen, closedendpoints,
+            isopenset, isclosedset, isleftclosed, isrightclosed,
+            isleftopen, isrightopen, closedendpoints,
             infimum, supremum
 
 """
@@ -59,8 +60,13 @@ isleftopen(d::AbstractInterval) = !isleftclosed(d)
 isrightopen(d::AbstractInterval) = !isrightclosed(d)
 
 # Only closed if closed at both endpoints, and similar for open
-isclosed(d::AbstractInterval) = isleftclosed(d) && isrightclosed(d)
-isopen(d::AbstractInterval) = isleftopen(d) && isrightopen(d)
+isclosedset(d::AbstractInterval) = isleftclosed(d) && isrightclosed(d)
+
+"Is the interval open?"
+isopenset(d::AbstractInterval) = isleftopen(d) && isrightopen(d)
+
+@deprecate isopen(d) isopenset(d) false
+@deprecate isclosed(d) isclosedset(d)
 
 eltype(::Type{AbstractInterval{T}}) where {T} = T
 @pure eltype(::Type{I}) where {I<:AbstractInterval} = eltype(supertype(I))

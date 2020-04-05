@@ -15,11 +15,15 @@ intervals upon which other packages might build. In particular, we
 for the reason that only one interval package can
 unambiguously define the `..` and `±` operators (see below).
 
-Currently this package defines one concrete type, `ClosedInterval`.
-These define the closed set spanning from `a` to `b`, meaning the
+Currently this package defines one concrete type, `Interval`.
+These define the set spanning from `a` to `b`, meaning the
 interval is defined as the set `{x}` satisfying `a ≤ x ≤ b`. This is
 sometimes written `[a,b]` (mathematics syntax, not Julia syntax) or
 `a..b`.
+
+Optionally, `Interval{L,R}` can represent open and half-open intervals. The type
+parameters `L` and `R` correspond to the left and right endpoint respectively.
+The notation `ClosedInterval` is short for `Interval{:closed,:closed}`, while `OpenInterval` is short for `Interval{:open,:open}`. For example, the interval `Interval{:open,:closed}` corresponds to the set `{x}` satisfying `a < x ≤ b`.
 
 ## Usage
 
@@ -73,6 +77,15 @@ true
 
 julia> (0.25..5) ∪ (3..7.4)    # \cup<TAB>; can also use union()
 0.25..7.4
+
+julia> isclosedset(0.5..2.0)
+true
+
+julia> isopenset(OpenInterval(0.5..2.5))
+true
+
+julia> isleftopen(2..3)
+false
 ```
 
 When computing the union, the result must also be an interval:
