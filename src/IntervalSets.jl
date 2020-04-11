@@ -153,7 +153,7 @@ isequal(A::TypedEndpointsInterval, B::TypedEndpointsInterval) = isempty(A) & ise
 function issubset(A::TypedEndpointsInterval, B::TypedEndpointsInterval)
     Al, Ar = endpoints(A)
     Bl, Br = endpoints(B)
-    return isempty(A) || ( Bl ≤ Al && Ar ≤ Br )
+    return isempty(A) | ( Bl ≤ Al && Ar ≤ Br )
 end
 function issubset(A::TypedEndpointsInterval{:closed,R1} where R1, B::TypedEndpointsInterval{:open,R2} where R2)
     Al, Ar = endpoints(A)
