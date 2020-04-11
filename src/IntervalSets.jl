@@ -3,6 +3,7 @@ module IntervalSets
 using Base: @pure
 import Base: eltype, convert, show, in, length, isempty, isequal, issubset, ==, hash,
              union, intersect, minimum, maximum, extrema, range, ⊇
+import Base.Broadcast: broadcasted
 
 using Statistics
 import Statistics: mean

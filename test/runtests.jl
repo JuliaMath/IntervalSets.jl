@@ -706,4 +706,34 @@ struct IncompleteInterval <: AbstractInterval{Int} end
         @test_throws ErrorException endpoints(I)
         @test_throws ErrorException closedendpoints(I)
     end
+
+    @testset "Interval arithmetic" begin
+        @test (1..2) .+ 1 == 2..3
+        @test 1 .+ (1..2) == 2..3
+        @test (1..2) .+ (3..4) == 4..6
+        @test (1..2) .+ (3..5) == 4..7
+        @test Interval{:open,:closed}(1, 2) .+ Interval{:closed,:open}(3, 4) ==
+            Interval{:open,:open}(4, 6)
+
+        @test (1..2) .- 1 == 0..1
+        @test 1 .- (1..2) == -1 .. 0
+        @test (1..2) .- (3..4) == -3 .. -1
+        @test (1..2) .- (3..5) == -4 .. -1
+        @test Interval{:open,:closed}(1, 2) .- Interval{:closed,:open}(3, 4) ==
+            Interval{:open,:closed}(-3, -1)
+
+        @test 3 .* (1..2) == 3..6
+        @test (1..2) .* 3 == 3..6
+        @test (1 .. 2) .* (3 .. 4) == 3 .. 8
+        @test (-1 .. 2) .* (3 .. 4) == -4 .. 8
+        @test (1 .. -2) .* (3 .. 4) == -8 .. 4
+        @test (1 .. 2) .* (-3 .. 4) == -6 .. 8
+        @test (1 .. 2) .* (3 .. -4) == -8 .. 6
+        @test Interval{:open,:closed}(1, 2) .* Interval{:closed,:open}(3, 4) ==
+            Interval{:open,:open}(3, 8)
+
+        @test (2..4) ./ 2 == 1..2
+        @test Interval{:open,:closed}(2, 4) ./ 2 == Interval{:open,:closed}(1, 2)
+        @test_throws MethodError (2..4) ./ (1..2)
+    end
 end

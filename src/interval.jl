@@ -230,6 +230,63 @@ end
 ClosedInterval{T}(i::AbstractUnitRange{I}) where {T,I<:Integer} = ClosedInterval{T}(minimum(i), maximum(i))
 ClosedInterval(i::AbstractUnitRange{I}) where {I<:Integer} = ClosedInterval{I}(minimum(i), maximum(i))
 
+for op in (+, -, *)
+    @eval begin
+        broadcasted(::typeof($op), i::AbstractInterval, x) = $op.(i, (x..x))
+        broadcasted(::typeof($op), x, i::AbstractInterval) = $op.((x..x), i)
+    end
+end
+
+broadcasted(::typeof(+), d1::AbstractInterval, d2::AbstractInterval) =
+    Interval{
+        isleftclosed(d1) && isleftclosed(d2) ? :closed : :open,
+        isrightclosed(d1) && isrightclosed(d2) ? :closed : :open,
+    }((endpoints(d1) .+ endpoints(d2))...)
+
+broadcasted(::typeof(-), d1::AbstractInterval, d2::AbstractInterval) =
+    Interval{
+        isleftclosed(d1) && isrightclosed(d2) ? :closed : :open,
+        isrightclosed(d1) && isleftclosed(d2) ? :closed : :open,
+    }((endpoints(d1) .- reverse(endpoints(d2)))...)
+
+@inline foldlargs(op, x) = x
+@inline foldlargs(op, x1, x2, xs...) = foldlargs(op, op(x1, x2), xs...)
+@inline extremaby(f, x, xs...) =
+    foldlargs((x, x), xs...) do (min, max), x
+        if f(min) > f(x)
+            (x, max)
+        elseif f(max) < f(x)
+            (min, x)
+        else
+            (min, max)
+        end
+    end
+
+_value(::Val{x}) where x = x
+
+function broadcasted(::typeof(*), d1::AbstractInterval, d2::AbstractInterval)
+    l1, r1 = endpoints(d1)
+    l2, r2 = endpoints(d2)
+    candidates = (
+        (l1 * l2, Val(isleftclosed(d1) && isleftclosed(d2) ? :closed : :open)),
+        (l1 * r2, Val(isleftclosed(d1) && isrightclosed(d2) ? :closed : :open)),
+        (r1 * l2, Val(isrightclosed(d1) && isleftclosed(d2) ? :closed : :open)),
+        (r1 * r2, Val(isrightclosed(d1) && isrightclosed(d2) ? :closed : :open)),
+    )
+    (left, L), (right, R) = extremaby(first, candidates...)
+    return Interval{_value(L), _value(R)}(left, right)
+end
+
+broadcasted(::typeof(/), d1::AbstractInterval, d2::AbstractInterval) =
+    throw(MethodError(broadcasted, (/, d1, d2)))
+# Defining this to be a method error so that the `x` below is not of
+# type `AbstractInterval`.
+
+broadcasted(::typeof(/), i::AbstractInterval, x) =
+    Interval{
+        isleftclosed(i) ? :closed : :open,
+        isrightclosed(i) ? :closed : :open,
+    }((endpoints(i) ./ x)...)
 
 
 Base.promote_rule(::Type{Interval{L,R,T1}}, ::Type{Interval{L,R,T2}}) where {L,R,T1,T2} = Interval{L,R,promote_type(T1, T2)}
