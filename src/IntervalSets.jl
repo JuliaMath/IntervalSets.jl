@@ -131,8 +131,28 @@ in(::Missing, I::TypedEndpointsInterval{:open,:open}) = !isempty(I) && missing
 in(::Missing, I::TypedEndpointsInterval{:closed,:open}) = !isempty(I) && missing
 in(::Missing, I::TypedEndpointsInterval{:open,:closed}) = !isempty(I) && missing
 
-function in(a::AbstractInterval, b::AbstractInterval)
-    Base.depwarn("`in(a, b)` (equivalently, `a ∈ b`) is deprecated in favor of `issubset(a, b)` (equivalently, `a ⊆ b`). Note that the behavior for empty intervals is also changing.", :in)
+# The code below can be defined as
+# ```
+# function in(a::AbstractInterval, b::AbstractInterval)
+#     Base.depwarn("`in(a::AbstractInterval, b::AbstractInterval)` (equivalently, `a ∈ b`) is deprecated in favor of `issubset(a, b)` (equivalently, `a ⊆ b`). Note that the behavior for empty intervals is also changing.", :in)
+#     return in_deprecation(a, b)
+# end
+# ```
+# but that makes ambiguity definition.
+function in(a::AbstractInterval, b::TypedEndpointsInterval{:closed,:closed})
+    Base.depwarn("`in(a::AbstractInterval, b::AbstractInterval)` (equivalently, `a ∈ b`) is deprecated in favor of `issubset(a, b)` (equivalently, `a ⊆ b`). Note that the behavior for empty intervals is also changing.", :in)
+    return in_deprecation(a, b)
+end
+function in(a::AbstractInterval, b::TypedEndpointsInterval{:open,:open})
+    Base.depwarn("`in(a::AbstractInterval, b::AbstractInterval)` (equivalently, `a ∈ b`) is deprecated in favor of `issubset(a, b)` (equivalently, `a ⊆ b`). Note that the behavior for empty intervals is also changing.", :in)
+    return in_deprecation(a, b)
+end
+function in(a::AbstractInterval, b::TypedEndpointsInterval{:closed,:open})
+    Base.depwarn("`in(a::AbstractInterval, b::AbstractInterval)` (equivalently, `a ∈ b`) is deprecated in favor of `issubset(a, b)` (equivalently, `a ⊆ b`). Note that the behavior for empty intervals is also changing.", :in)
+    return in_deprecation(a, b)
+end
+function in(a::AbstractInterval, b::TypedEndpointsInterval{:open,:closed})
+    Base.depwarn("`in(a::AbstractInterval, b::AbstractInterval)` (equivalently, `a ∈ b`) is deprecated in favor of `issubset(a, b)` (equivalently, `a ⊆ b`). Note that the behavior for empty intervals is also changing.", :in)
     return in_deprecation(a, b)
 end
 
@@ -167,22 +187,22 @@ isequal(A::TypedEndpointsInterval, B::TypedEndpointsInterval) = isempty(A) & ise
 function issubset(A::TypedEndpointsInterval, B::TypedEndpointsInterval)
     Al, Ar = endpoints(A)
     Bl, Br = endpoints(B)
-    return isempty(A) | ( Bl ≤ Al & Ar ≤ Br )
+    return isempty(A) | ( (Bl ≤ Al) & (Ar ≤ Br) )
 end
 function issubset(A::TypedEndpointsInterval{:closed,R1} where R1, B::TypedEndpointsInterval{:open,R2} where R2)
     Al, Ar = endpoints(A)
     Bl, Br = endpoints(B)
-    return isempty(A) | ( Bl < Al & Ar ≤ Br )
+    return isempty(A) | ( (Bl < Al) & (Ar ≤ Br) )
 end
 function issubset(A::TypedEndpointsInterval{L1,:closed} where L1, B::TypedEndpointsInterval{L2,:open} where L2)
     Al, Ar = endpoints(A)
     Bl, Br = endpoints(B)
-    return isempty(A) | ( Bl ≤ Al & Ar < Br )
+    return isempty(A) | ( (Bl ≤ Al) & (Ar < Br) )
 end
 function issubset(A::TypedEndpointsInterval{:closed,:closed}, B::TypedEndpointsInterval{:open,:open})
     Al, Ar = endpoints(A)
     Bl, Br = endpoints(B)
-    return isempty(A) | ( Bl < Al & Ar < Br )
+    return isempty(A) | ( (Bl < Al) & (Ar < Br) )
 end
 
 ⊇(A::AbstractInterval, B::AbstractInterval) = issubset(B, A)
