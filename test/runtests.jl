@@ -706,4 +706,6 @@ struct IncompleteInterval <: AbstractInterval{Int} end
         @test_throws ErrorException endpoints(I)
         @test_throws ErrorException closedendpoints(I)
     end
+
+    include("findall.jl")
 end

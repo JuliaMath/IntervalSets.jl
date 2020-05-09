@@ -272,5 +272,6 @@ convert(::Type{ClosedInterval}, x::Number) = x..x
 convert(::Type{ClosedInterval{T}}, x::Number) where T =
     convert(AbstractInterval{T}, convert(AbstractInterval, x))
 
+include("findall.jl")
 
 end # module
