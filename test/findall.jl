@@ -80,4 +80,10 @@ end
             end
         end
     end
+
+    @testset "Arrays" begin
+        @test findall(in(1..6), collect(0:7)) == 2:7
+        @test findall(in(1..6), reshape(1:16, 4, 4)) ==
+            vcat([CartesianIndex(i,1) for i = 1:4], CartesianIndex(1,2), CartesianIndex(2,2))
+    end
 end

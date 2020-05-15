@@ -53,3 +53,13 @@ function Base.findall(interval_d::Base.Fix2{typeof(in),Interval{L,R,T}}, x::Abst
     b = min(ir, ceil(Int, (r-lx)/δx))
     a + (x[a] == l && L == :open):b + (b < ir && x[b+1] == r && R == :closed)
 end
+
+# We overload Base._findin to avoid an ambiguity that arises with
+# Base.findall(interval_d::Base.Fix2{typeof(in),Interval{L,R,T}}, x::AbstractArray)
+function Base._findin(a::Union{AbstractArray, Tuple}, b::Interval)
+    ind  = Vector{eltype(keys(a))}()
+    @inbounds for (i,ai) in pairs(a)
+        ai in b && push!(ind, i)
+    end
+    ind
+end
