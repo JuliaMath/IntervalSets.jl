@@ -67,15 +67,13 @@ end
     end
 
     @testset "Reverse intervals" begin
-        @testset "with reverse" begin
-            for x in [1:10, 1:3:10, 2:3:11, -1:9, -2:0.5:5]
-                for lo in -3:4, hi in 5:13
-                    for L in [:closed, :open], R in [:closed, :open]
-                        int = Interval{L,R}(lo,hi)
-                        @test findall(in(int), x) == findall(i -> x[i] in int, eachindex(x))
-                        r = reverse(x)
-                        @test findall(in(int), r) == findall(i -> r[i] in int, eachindex(r))
-                    end
+        for x in [1:10, 1:3:10, 2:3:11, -1:9, -2:0.5:5]
+            for lo in -3:4, hi in 5:13
+                for L in [:closed, :open], R in [:closed, :open]
+                    int = Interval{L,R}(lo,hi)
+                    @test findall(in(int), x) == findall(i -> x[i] in int, eachindex(x))
+                    r = reverse(x)
+                    @test findall(in(int), r) == findall(i -> r[i] in int, eachindex(r))
                 end
             end
         end
