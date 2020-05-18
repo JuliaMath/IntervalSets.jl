@@ -35,6 +35,8 @@ julia> findall(in(Interval{:open,:closed}(1,6)), y) # (1,6], does not include 1
 ```
 """
 function Base.findall(interval_d::Base.Fix2{typeof(in),Interval{L,R,T}}, x::AbstractRange)  where {L,R,T}
+    isempty(x) && return 1:0
+
     interval = interval_d.x
     il, ir = firstindex(x), lastindex(x)
     δx = step(x)
@@ -50,8 +52,12 @@ function Base.findall(interval_d::Base.Fix2{typeof(in),Interval{L,R,T}}, x::Abst
     (l > rx || r < lx) && return 1:0
 
     a = max(il, ceil(Int, (l-lx)/δx) + il)
-    b = min(ir, ceil(Int, (r-lx)/δx))
-    a + (x[a] == l && L == :open):b + (b < ir && x[b+1] == r && R == :closed)
+    a += (a ≤ ir && (x[a] == l && L == :open || x[a] < l))
+
+    b = min(ir, ceil(Int, (r-lx)/δx) + il)
+    b -= (b ≥ il && (x[b] == r && R == :open || x[b] > r))
+
+    a:b
 end
 
 # We overload Base._findin to avoid an ambiguity that arises with

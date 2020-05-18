@@ -3,6 +3,7 @@ using Test
 using Dates
 using Statistics
 import Statistics: mean
+using Random
 
 import IntervalSets: Domain, endpoints, closedendpoints, TypedEndpointsInterval
 
