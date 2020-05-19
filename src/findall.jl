@@ -42,7 +42,26 @@ function Base.findall(interval_d::Base.Fix2{typeof(in),Interval{L,R,T}}, x::Abst
     δx = step(x)
     if δx < 0
         rev = findall(in(interval), reverse(x))
-        return (il+ir)-last(rev):(il+ir)-first(rev)
+        isempty(rev) && return rev
+
+        a = (il+ir)-last(rev)
+        b = (il+ir)-first(rev)
+        # Reversing a range could change sign of values close to zero
+        # (cf sign of the smallest element in x and reverse(x), where
+        # x = range(BigFloat(-0.5),stop=BigFloat(1.0),length=10)), or
+        # more generally push elements in or out of the interval, so
+        # we need to check once again.
+        if x[a] ∉ interval
+            a += 1
+        else
+            a -= il < a && x[a-1] ∈ interval
+        end
+        if x[b] ∉ interval
+            b -= 1
+        else
+            b += b < ir && x[b+1] ∈ interval
+        end
+        return a:b
     end
 
     lx, rx = first(x), last(x)
