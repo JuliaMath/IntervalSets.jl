@@ -70,6 +70,7 @@ function Base.findall(interval_d::Base.Fix2{typeof(in),Interval{L,R,T}}, x::Abst
 
     (l > rx || r < lx) && return 1:0
 
+    # This can most likely be optimized for when x is an integer range
     a = max(il, ceil(Int, (l-lx)/δx) + il)
     a += (a ≤ ir && (x[a] == l && L == :open || x[a] < l))
 
