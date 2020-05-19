@@ -150,35 +150,37 @@ end
         end
 
         @testset "Partially covered intervals" begin
-            @testset "$name, x = $x" for (name,x) in [
-                ("Outside left",range(-1,stop=-0.5,length=10)),
-                ("Touching left",range(-1,stop=0,length=10)),
-                ("Touching left-ϵ",range(-1,stop=0-eps(),length=10)),
-                ("Touching left+ϵ",range(-1,stop=0+eps(),length=10)),
+            @testset "$T" for T in (Float32,Float64,BigFloat)
+                @testset "$name, x = $x" for (name,x) in [
+                    ("Outside left",range(T(-1),stop=T(-0.5),length=10)),
+                    ("Touching left",range(T(-1),stop=T(0),length=10)),
+                    ("Touching left-ϵ",range(T(-1),stop=T(0)-eps(T),length=10)),
+                    ("Touching left+ϵ",range(T(-1),stop=T(0)+eps(T),length=10)),
 
-                ("Outside right",range(1.5,stop=2,length=10)),
-                ("Touching right",range(1,stop=2,length=10)),
-                ("Touching right-ϵ",range(1-eps(),stop=2,length=10)),
-                ("Touching right+ϵ",range(1+eps(),stop=2,length=10)),
+                    ("Outside right",range(T(1.5),stop=T(2),length=10)),
+                    ("Touching right",range(T(1),stop=T(2),length=10)),
+                    ("Touching right-ϵ",range(T(1)-eps(T),stop=T(2),length=10)),
+                    ("Touching right+ϵ",range(T(1)+eps(T),stop=T(2),length=10)),
 
-                ("Other right",range(0.5,stop=1,length=10)),
-                ("Other right-ϵ",range(0.5-eps(0.5),stop=1,length=10)),
-                ("Other right+ϵ",range(0.5+eps(0.5),stop=1,length=10)),
+                    ("Other right",range(T(0.5),stop=T(1),length=10)),
+                    ("Other right-ϵ",range(T(0.5)-eps(T(0.5)),stop=T(1),length=10)),
+                    ("Other right+ϵ",range(T(0.5)+eps(T(0.5)),stop=T(1),length=10)),
 
-                ("Complete", range(0,stop=1,length=10)),
-                ("Complete-ϵ", range(eps(),stop=1-eps(),length=10)),
-                ("Complete+ϵ", range(-eps(),stop=1+eps(),length=10)),
+                    ("Complete", range(T(0),stop=T(1),length=10)),
+                    ("Complete-ϵ", range(eps(T),stop=T(1)-eps(T),length=10)),
+                    ("Complete+ϵ", range(-eps(T),stop=T(1)+eps(T),length=10)),
 
-                ("Left partial", range(-0.5,stop=0.6,length=10)),
-                ("Left", range(-0.5,stop=1.0,length=10)),
-                ("Right partial", range(0.5,stop=1.6,length=10)),
-                ("Right", range(0,stop=1.6,length=10))]
-                @testset "L=$L" for L=[:closed,:open]
-                    @testset "R=$R" for R=[:closed,:open]
-                        @testset "Reversed: $reversed" for reversed in [false, true]
-                            for (a,b) in [(0.0,0.5),(0.5,1.0)]
-                                interval = Interval{L,R}(a, b)
-                                assert_in_interval(reversed ? reverse(x) : x, interval)
+                    ("Left partial", range(T(-0.5),stop=T(0.6),length=10)),
+                    ("Left", range(T(-0.5),stop=T(1.0),length=10)),
+                    ("Right partial", range(T(0.5),stop=T(1.6),length=10)),
+                    ("Right", range(T(0),stop=T(1.6),length=10))]
+                    @testset "L=$L" for L=[:closed,:open]
+                        @testset "R=$R" for R=[:closed,:open]
+                            @testset "Reversed: $reversed" for reversed in [false, true]
+                                for (a,b) in [(T(0.0),T(0.5)),(T(0.5),T(1.0))]
+                                    interval = Interval{L,R}(a, b)
+                                    assert_in_interval(reversed ? reverse(x) : x, interval)
+                                end
                             end
                         end
                     end
