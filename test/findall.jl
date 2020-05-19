@@ -1,16 +1,17 @@
+using OffsetArrays
+
 # Helper function to test that findall(in(interval), x) works. By
 # default, a reference is generated using the general algorithm,
 # linear in complexity, by generating a vector with the same contents
 # as x.
 function assert_in_interval(x, interval,
-                            expected=eachindex(x)[findall(v -> v ∈ interval, collect(x))]
-                            )
+                            expected=findall(v -> v ∈ interval, x))
 
     result = :(findall(in($interval), $x))
     expr = :($result == $expected || isempty($result) && isempty($expected))
     if !(@eval $expr)
         println("Looking for elements of $x ∈ $interval, got $(@eval $result), expected $expected")
-        length(x) < 30 && println("    x = ", collect(enumerate(x)), "\n")
+        length(x) < 30 && println("    x = ", collect(pairs(x)), "\n")
     end
     @eval @test $expr
 end
@@ -96,6 +97,12 @@ end
         @test isempty(findall(in(1..6), 1:0))
         @test isempty(findall(in(Interval{:closed,:open}(1.0..1.0)),
                               0.0:0.02040816326530612:1.0))
+    end
+
+    @testset "Offset arrays" begin
+        assert_in_interval(OffsetArray(ones(10), -5), -1..1, -4:5)
+        assert_in_interval(OffsetArray(1:5, -3), 2..4)
+        assert_in_interval(OffsetArray(5:-1:1, -5), 2..4)
     end
 
     @testset "Compact support" begin
