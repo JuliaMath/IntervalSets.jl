@@ -8,7 +8,7 @@ EllipsisNotation = "da5c29d0-fa7d-589e-88eb-ea29b0a81949"
 Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
 
 [compat]
-EllipsisNotation = "0.4"
+EllipsisNotation = "0.4, 1"
 julia = "0.7, 1"
 
 [extras]
