@@ -96,7 +96,7 @@ Construct a ClosedInterval `iv` spanning the region from
 `center - halfwidth` to `center + halfwidth`.
 """
 ±(x, y) = ClosedInterval(x - y, x + y)
-±(x::CartesianIndex, y) = (xy = y * one(x); map(ClosedInterval, (x - xy).I, (x + xy).I))
+±(x::CartesianIndex, y) = (xy = y * oneunit(x); map(ClosedInterval, (x - xy).I, (x + xy).I))
 
 show(io::IO, I::ClosedInterval) = print(io, leftendpoint(I), "..", rightendpoint(I))
 show(io::IO, I::OpenInterval) = print(io, leftendpoint(I), "..", rightendpoint(I), " (open)")
