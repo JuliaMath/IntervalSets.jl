@@ -698,9 +698,9 @@ struct IncompleteInterval <: AbstractInterval{Int} end
     end
 
     @testset "range" begin
-        @test range(0..1, 10) == range(0, 1; length=10)
-        @test range(0..1; length=10) == range(0, 1; length=10)
-        @test range(0..1; step=1/10) == range(0, 1; step=1/10)
+        @test range(0..1, 10) == range(0; stop=1, length=10)
+        @test range(0..1; length=10) == range(0; stop=1, length=10)
+        @test range(0..1; step=1/10) == range(0; stop=1, step=1/10)
         @test range(Interval{:closed,:open}(0..1), 10) == range(0; step=1/10, length=10)
         @test range(Interval{:closed,:open}(0..1); length=10) == range(0; step=1/10, length=10)
     end
