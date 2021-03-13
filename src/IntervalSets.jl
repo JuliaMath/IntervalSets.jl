@@ -257,7 +257,7 @@ range(i::TypedEndpointsInterval{:closed,:closed,I}) where {I<:Integer} = UnitRan
 Constructs a range of a specified step or length.
 """
 range(i::TypedEndpointsInterval{:closed,:closed}; step=nothing, length=nothing) =
-    range(endpoints(i)...; step=step, length=length)
+    range(leftendpoint(i); stop=rightendpoint(i), step=step, length=length)
 range(i::TypedEndpointsInterval{:closed,:closed}, len::Integer) = range(i; length=len)
 
 """
