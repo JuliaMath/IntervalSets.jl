@@ -697,6 +697,14 @@ struct IncompleteInterval <: AbstractInterval{Int} end
         @test Base.Slice(1..5) == Base.Slice{UnitRange{Int}}(1..5) == Base.Slice(1:5)
     end
 
+    @testset "range" begin
+        @test range(0..1, 10) == range(0; stop=1, length=10)
+        @test range(0..1; length=10) == range(0; stop=1, length=10)
+        @test range(0..1; step=1/10) == range(0; stop=1, step=1/10)
+        @test range(Interval{:closed,:open}(0..1), 10) == range(0; step=1/10, length=10)
+        @test range(Interval{:closed,:open}(0..1); length=10) == range(0; step=1/10, length=10)
+    end
+
     @testset "IteratorSize" begin
         @test Base.IteratorSize(ClosedInterval) == Base.SizeUnknown()
     end

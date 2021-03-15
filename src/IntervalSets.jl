@@ -251,6 +251,27 @@ UnitRange(i::TypedEndpointsInterval{:closed,:closed,I}) where {I<:Integer} = Uni
 range(i::TypedEndpointsInterval{:closed,:closed,I}) where {I<:Integer} = UnitRange{I}(i)
 
 """
+    range(i::ClosedInterval; step, length)
+    range(i::ClosedInterval, len::Integer)
+
+Constructs a range of a specified step or length.
+"""
+range(i::TypedEndpointsInterval{:closed,:closed}; step=nothing, length=nothing) =
+    range(leftendpoint(i); stop=rightendpoint(i), step=step, length=length)
+range(i::TypedEndpointsInterval{:closed,:closed}, len::Integer) = range(i; length=len)
+
+"""
+    range(i::Interval{:closed,:open}; length)
+    range(i::Interval{:closed,:open}, len::Integer)
+
+Constructs a range of a specified length with `step=width(i)/length`.
+"""
+range(i::TypedEndpointsInterval{:closed,:open}; length::Integer) =
+    range(leftendpoint(i); step=width(i)/length, length=length)
+range(i::TypedEndpointsInterval{:closed,:open}, len::Integer) = range(i; length=len)
+
+
+"""
    duration(iv)
 
 calculates the the total number of integers or dates of an integer or date
