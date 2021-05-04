@@ -705,6 +705,13 @@ struct IncompleteInterval <: AbstractInterval{Int} end
         @test range(Interval{:closed,:open}(0..1); length=10) == range(0; step=1/10, length=10)
     end
 
+    @testset "clamp" begin
+        @test clamp(1, 0..3) == 1
+        @test clamp(1.0, 1.5..3) == 1.5
+        @test clamp(1.0, 0..0.5) == 0.5
+        @test clamp.([pi, 1.0, big(10.)], Ref(2..9.)) == [big(pi), 2, 9]
+    end
+
     @testset "IteratorSize" begin
         @test Base.IteratorSize(ClosedInterval) == Base.SizeUnknown()
     end

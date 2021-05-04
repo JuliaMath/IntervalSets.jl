@@ -2,7 +2,7 @@ module IntervalSets
 
 using Base: @pure
 import Base: eltype, convert, show, in, length, isempty, isequal, issubset, ==, hash,
-             union, intersect, minimum, maximum, extrema, range, ⊇
+             union, intersect, minimum, maximum, extrema, range, clamp, ⊇
 
 using Statistics
 import Statistics: mean
@@ -269,6 +269,14 @@ Constructs a range of a specified length with `step=width(i)/length`.
 range(i::TypedEndpointsInterval{:closed,:open}; length::Integer) =
     range(leftendpoint(i); step=width(i)/length, length=length)
 range(i::TypedEndpointsInterval{:closed,:open}, len::Integer) = range(i; length=len)
+
+"""
+    clamp(t, i::ClosedInterval)
+
+Clamp the scalar `t` such that the result is in the interval `i`.
+"""
+clamp(t, i::TypedEndpointsInterval{:closed,:closed}) =
+    clamp(t, leftendpoint(i), rightendpoint(i))
 
 
 """
