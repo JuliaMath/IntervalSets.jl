@@ -1,4 +1,5 @@
 using OffsetArrays
+using Unitful
 
 # Helper function to test that findall(in(interval), x) works. By
 # default, a reference is generated using the general algorithm,
@@ -120,6 +121,24 @@ end
         for (x,interval) in [(OffsetArray(ones(10), -5), -1..1),
                              (OffsetArray(1:5, -3), 2..4),
                              (OffsetArray(5:-1:1, -5), 2..4)]
+            assert_in_interval(x, interval)
+            assert_in_interval(reverse(x), interval)
+        end
+    end
+
+    @testset "Units, dates" begin
+        for (x, interval) in [
+            ([-2u"m", 3u"m"], -1u"m"..1u"m"),
+            ([-2u"m", 0u"m", 1u"m"], -1u"m"..1u"m"),
+            (-2u"m":10u"m":50u"m", -1u"m"..1u"m"),
+            (-2u"m":1u"m":1u"m", -1u"m"..1u"m"),
+            (-2u"km":1u"cm":1u"km", -1u"m"..1u"m"),
+            (-2u"km":1u"cm":1u"km", -1u"m"..1u"km"),
+            (Date(2021, 1, 1):Day(1):Date(2021, 3, 1), Date(2020, 1, 11)..Date(2020, 2, 22)),
+            (Date(2021, 1, 1):Day(1):Date(2021, 3, 1), Date(2021, 1, 11)..Date(2021, 2, 22)),
+            (DateTime(2021, 1, 1):Millisecond(10000):DateTime(2021, 3, 1), DateTime(2020, 1, 11)..DateTime(2020, 2, 22)),
+            (DateTime(2021, 1, 1):Millisecond(10000):DateTime(2021, 3, 1), DateTime(2021, 1, 11)..DateTime(2021, 2, 22)),
+        ]
             assert_in_interval(x, interval)
             assert_in_interval(reverse(x), interval)
         end
