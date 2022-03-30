@@ -81,12 +81,8 @@ convert(::Type{TypedEndpointsInterval{L,R}}, d::Interval{L,R}) where {L,R} = d
     iv = l..r
 
 Construct a ClosedInterval `iv` spanning the region from `l` to `r`.
-
-(The symbol `..` is the same as in the package EllipsisNotation.jl.)
 """
-..
-
-(::Ellipsis)(x, y) = ClosedInterval(x, y)
+..(x, y) = ClosedInterval(x, y)
 
 
 """

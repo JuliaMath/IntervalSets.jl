@@ -1,9 +1,8 @@
 # IntervalSets.jl
 Interval Sets for Julia
 
-[![Build Status](https://travis-ci.org/JuliaMath/IntervalSets.jl.svg?branch=master)](https://travis-ci.org/JuliaMath/IntervalSets.jl)
-
-[![Coverage Status](https://coveralls.io/repos/github/JuliaMath/IntervalSets.jl/badge.svg?branch=master)](https://coveralls.io/github/JuliaMath/IntervalSets.jl?branch=master)
+[![Build Status](https://github.com/JuliaMath/IntervalSets.jl/workflows/CI/badge.svg)](https://github.com/JuliaMath/IntervalSets.jl/actions)
+[![Coverage](https://codecov.io/gh/JuliaMath/IntervalSets.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/JuliaMath/IntervalSets.jl)
 
 This package represents intervals of an ordered set. For an interval
 spanning from `a` to `b`, all values `x` that lie between `a` and `b`

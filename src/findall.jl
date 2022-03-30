@@ -11,7 +11,7 @@ julia> x = range(0,stop=3,length=10)
 0.0:0.3333333333333333:3.0
 
 julia> collect(x)'
-1×10 LinearAlgebra.Adjoint{Float64,Array{Float64,1}}:
+1×10 adjoint(::Vector{Float64}) with eltype Float64:
  0.0  0.333333  0.666667  1.0  1.33333  1.66667  2.0  2.33333  2.66667  3.0
 
 julia> findall(in(1..6), x)
@@ -24,7 +24,7 @@ julia> y = 8:-0.5:0
 8.0:-0.5:0.0
 
 julia> collect(y)'
-1×17 LinearAlgebra.Adjoint{Float64,Array{Float64,1}}:
+1×17 adjoint(::Vector{Float64}) with eltype Float64:
  8.0  7.5  7.0  6.5  6.0  5.5  5.0  4.5  4.0  3.5  3.0  2.5  2.0  1.5  1.0  0.5  0.0
 
 julia> findall(in(1..6), y)
@@ -40,7 +40,7 @@ function Base.findall(interval_d::Base.Fix2{typeof(in),Interval{L,R,T}}, x::Abst
     interval = interval_d.x
     il, ir = firstindex(x), lastindex(x)
     δx = step(x)
-    a,b = if δx < 0
+    a,b = if δx < zero(δx)
         rev = findall(in(interval), reverse(x))
         isempty(rev) && return rev
 
@@ -50,8 +50,8 @@ function Base.findall(interval_d::Base.Fix2{typeof(in),Interval{L,R,T}}, x::Abst
         a,b
     else
         lx, rx = first(x), last(x)
-        l = max(leftendpoint(interval), lx-1)
-        r = min(rightendpoint(interval), rx+1)
+        l = max(leftendpoint(interval), lx - oneunit(δx))
+        r = min(rightendpoint(interval), rx + oneunit(δx))
 
         (l > rx || r < lx) && return 1:0
 
