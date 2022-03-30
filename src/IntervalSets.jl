@@ -65,9 +65,6 @@ isclosedset(d::AbstractInterval) = isleftclosed(d) && isrightclosed(d)
 "Is the interval open?"
 isopenset(d::AbstractInterval) = isleftopen(d) && isrightopen(d)
 
-@deprecate isopen(d) isopenset(d) false
-@deprecate isclosed(d) isclosedset(d)
-
 eltype(::Type{AbstractInterval{T}}) where {T} = T
 @pure eltype(::Type{I}) where {I<:AbstractInterval} = eltype(supertype(I))
 
@@ -136,50 +133,6 @@ in(::Missing, I::TypedEndpointsInterval{:closed,:closed}) = !isempty(I) && missi
 in(::Missing, I::TypedEndpointsInterval{:open,:open}) = !isempty(I) && missing
 in(::Missing, I::TypedEndpointsInterval{:closed,:open}) = !isempty(I) && missing
 in(::Missing, I::TypedEndpointsInterval{:open,:closed}) = !isempty(I) && missing
-
-# The code below can be defined as
-# ```
-# function in(a::AbstractInterval, b::AbstractInterval)
-#     Base.depwarn("`in(a::AbstractInterval, b::AbstractInterval)` (equivalently, `a ∈ b`) is deprecated in favor of `issubset(a, b)` (equivalently, `a ⊆ b`). Note that the behavior for empty intervals is also changing.", :in)
-#     return in_deprecation(a, b)
-# end
-# ```
-# but that makes ambiguity definition.
-function in(a::AbstractInterval, b::TypedEndpointsInterval{:closed,:closed})
-    Base.depwarn("`in(a::AbstractInterval, b::AbstractInterval)` (equivalently, `a ∈ b`) is deprecated in favor of `issubset(a, b)` (equivalently, `a ⊆ b`). Note that the behavior for empty intervals is also changing.", :in)
-    return in_deprecation(a, b)
-end
-function in(a::AbstractInterval, b::TypedEndpointsInterval{:open,:open})
-    Base.depwarn("`in(a::AbstractInterval, b::AbstractInterval)` (equivalently, `a ∈ b`) is deprecated in favor of `issubset(a, b)` (equivalently, `a ⊆ b`). Note that the behavior for empty intervals is also changing.", :in)
-    return in_deprecation(a, b)
-end
-function in(a::AbstractInterval, b::TypedEndpointsInterval{:closed,:open})
-    Base.depwarn("`in(a::AbstractInterval, b::AbstractInterval)` (equivalently, `a ∈ b`) is deprecated in favor of `issubset(a, b)` (equivalently, `a ⊆ b`). Note that the behavior for empty intervals is also changing.", :in)
-    return in_deprecation(a, b)
-end
-function in(a::AbstractInterval, b::TypedEndpointsInterval{:open,:closed})
-    Base.depwarn("`in(a::AbstractInterval, b::AbstractInterval)` (equivalently, `a ∈ b`) is deprecated in favor of `issubset(a, b)` (equivalently, `a ⊆ b`). Note that the behavior for empty intervals is also changing.", :in)
-    return in_deprecation(a, b)
-end
-
-in_deprecation(a::AbstractInterval,                         b::TypedEndpointsInterval{:closed,:closed}) =
-    (leftendpoint(a) ≥ leftendpoint(b)) & (rightendpoint(a) ≤ rightendpoint(b))
-in_deprecation(a::TypedEndpointsInterval{:open,:open},      b::TypedEndpointsInterval{:open,:open}    ) =
-    (leftendpoint(a) ≥ leftendpoint(b)) & (rightendpoint(a) ≤ rightendpoint(b))
-in_deprecation(a::TypedEndpointsInterval{:closed,:open},    b::TypedEndpointsInterval{:open,:open}    ) =
-    (leftendpoint(a) > leftendpoint(b)) & (rightendpoint(a) ≤ rightendpoint(b))
-in_deprecation(a::TypedEndpointsInterval{:open,:closed},    b::TypedEndpointsInterval{:open,:open}    ) =
-    (leftendpoint(a) ≥ leftendpoint(b)) & (rightendpoint(a) < rightendpoint(b))
-in_deprecation(a::TypedEndpointsInterval{:closed,:closed},  b::TypedEndpointsInterval{:open,:open}    ) =
-    (leftendpoint(a) > leftendpoint(b)) & (rightendpoint(a) < rightendpoint(b))
-in_deprecation(a::TypedEndpointsInterval{:closed},          b::TypedEndpointsInterval{:open,:closed}  ) =
-    (leftendpoint(a) > leftendpoint(b)) & (rightendpoint(a) ≤ rightendpoint(b))
-in_deprecation(a::TypedEndpointsInterval{:open},            b::TypedEndpointsInterval{:open,:closed}  ) =
-    (leftendpoint(a) ≥ leftendpoint(b)) & (rightendpoint(a) ≤ rightendpoint(b))
-in_deprecation(a::TypedEndpointsInterval{L,:closed}, b::TypedEndpointsInterval{:closed,:open}) where L  =
-    (leftendpoint(a) ≥ leftendpoint(b)) & (rightendpoint(a) < rightendpoint(b))
-in_deprecation(a::TypedEndpointsInterval{L,:open},   b::TypedEndpointsInterval{:closed,:open}) where L  =
-    (leftendpoint(a) ≥ leftendpoint(b)) & (rightendpoint(a) ≤ rightendpoint(b))
 
 isempty(A::TypedEndpointsInterval{:closed,:closed}) = leftendpoint(A) > rightendpoint(A)
 isempty(A::TypedEndpointsInterval) = leftendpoint(A) ≥ rightendpoint(A)
