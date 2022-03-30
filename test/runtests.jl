@@ -115,6 +115,12 @@ struct IncompleteInterval <: AbstractInterval{Int} end
         @test (ClosedInterval(7, 9) ⊆ I) == false
         @test I ⊇ I
         @test I ⊇ ClosedInterval(1, 2)
+        @test !(I ⊊ I)
+        @test !(I ⊋ I)
+        @test !(I ⊊ J)
+        @test !(J ⊋ I)
+        @test J ⊊ I
+        @test I ⊋ J
 
         @test hash(1..3) == hash(1.0..3.0)
 

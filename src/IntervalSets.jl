@@ -2,7 +2,7 @@ module IntervalSets
 
 using Base: @pure
 import Base: eltype, convert, show, in, length, isempty, isequal, issubset, ==, hash,
-             union, intersect, minimum, maximum, extrema, range, clamp, ⊇
+             union, intersect, minimum, maximum, extrema, range, clamp, ⊇, ⊊, ⊋
 
 using Statistics
 import Statistics: mean
@@ -212,6 +212,8 @@ function issubset(A::TypedEndpointsInterval{:closed,:closed}, B::TypedEndpointsI
 end
 
 ⊇(A::AbstractInterval, B::AbstractInterval) = issubset(B, A)
+⊊(A::AbstractInterval, B::AbstractInterval) = (A ≠ B) & (A ⊆ B)
+⊋(A::AbstractInterval, B::AbstractInterval) = (A ≠ B) & (A ⊇ B)
 if VERSION < v"1.1.0-DEV.123"
     issubset(x, B::AbstractInterval) = issubset(convert(AbstractInterval, x), B)
 end
