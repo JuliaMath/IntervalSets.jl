@@ -40,7 +40,7 @@ function Base.findall(interval_d::Base.Fix2{typeof(in),Interval{L,R,T}}, x::Abst
     interval = interval_d.x
     il, ir = firstindex(x), lastindex(x)
     δx = step(x)
-    a,b = if δx < 0
+    a,b = if δx < zero(δx)
         rev = findall(in(interval), reverse(x))
         isempty(rev) && return rev
 
@@ -50,8 +50,8 @@ function Base.findall(interval_d::Base.Fix2{typeof(in),Interval{L,R,T}}, x::Abst
         a,b
     else
         lx, rx = first(x), last(x)
-        l = max(leftendpoint(interval), lx-1)
-        r = min(rightendpoint(interval), rx+1)
+        l = max(leftendpoint(interval), lx - oneunit(δx))
+        r = min(rightendpoint(interval), rx + oneunit(δx))
 
         (l > rx || r < lx) && return 1:0
 
