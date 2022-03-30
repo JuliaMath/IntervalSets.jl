@@ -9,9 +9,6 @@ import Statistics: mean
 
 using Dates
 
-using EllipsisNotation
-import EllipsisNotation: Ellipsis
-
 export AbstractInterval, Interval, OpenInterval, ClosedInterval,
             ⊇, .., ±, ordered, width, duration, leftendpoint, rightendpoint, endpoints,
             isopenset, isclosedset, isleftclosed, isrightclosed,
