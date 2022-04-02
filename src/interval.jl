@@ -93,6 +93,7 @@ Construct a ClosedInterval `iv` spanning the region from
 """
 ±(x, y) = ClosedInterval(x - y, x + y)
 ±(x::CartesianIndex, y) = (xy = y * one(x); map(ClosedInterval, (x - xy).I, (x + xy).I))
+±(x::CartesianIndex, y::CartesianIndex) = ClosedInterval(x-y, x+y)
 
 show(io::IO, I::ClosedInterval) = print(io, leftendpoint(I), "..", rightendpoint(I))
 show(io::IO, I::OpenInterval) = print(io, leftendpoint(I), "..", rightendpoint(I), " (open)")

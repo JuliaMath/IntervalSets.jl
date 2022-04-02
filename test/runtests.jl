@@ -49,6 +49,10 @@ struct IncompleteInterval <: AbstractInterval{Int} end
         O = @inferred(CartesianIndex(1, 2, 3, 4) ± 2)
         @test O == (-1..3, 0..4, 1..5, 2..6)
 
+        x, y = CartesianIndex(1, 2, 3, 4), CartesianIndex(1, 2, 3, 4)
+        O = @inferred x±y
+        @test O == ClosedInterval(x-y, x+y)
+
         @test eltype(I) == Int
         @test eltype(M) == Float64
 
