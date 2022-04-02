@@ -226,6 +226,6 @@ end
 ClosedInterval{T}(i::AbstractUnitRange{I}) where {T,I<:Integer} = ClosedInterval{T}(minimum(i), maximum(i))
 ClosedInterval(i::AbstractUnitRange{I}) where {I<:Integer} = ClosedInterval{I}(minimum(i), maximum(i))
 
-
-
 Base.promote_rule(::Type{Interval{L,R,T1}}, ::Type{Interval{L,R,T2}}) where {L,R,T1,T2} = Interval{L,R,promote_type(T1, T2)}
+
+float(i::Interval{L, R, T}) where {L,R,T} = Interval{L, R, float(T)}(float.(endpoints(i))...)

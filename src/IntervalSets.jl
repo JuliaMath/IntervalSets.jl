@@ -2,7 +2,7 @@ module IntervalSets
 
 using Base: @pure
 import Base: eltype, convert, show, in, length, isempty, isequal, issubset, ==, hash,
-             union, intersect, minimum, maximum, extrema, range, clamp, ⊇, ⊊, ⊋
+             union, intersect, minimum, maximum, extrema, range, clamp, float, ⊇, ⊊, ⊋
 
 using Statistics
 import Statistics: mean
