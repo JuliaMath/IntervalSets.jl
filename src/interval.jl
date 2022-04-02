@@ -27,7 +27,7 @@ mathematical notation, the constructed range is `(left, right)`.
 const OpenInterval{T} = Interval{:open,:open,T}
 
 Interval{L,R,T}(i::AbstractInterval) where {L,R,T} = Interval{L,R,T}(endpoints(i)...)
-Interval{L,R}(left, right) where {L,R} = Interval{L,R,promote_type(typeof(left), typeof(right))}(left,right)
+Interval{L,R}(left, right) where {L,R} = Interval{L,R}(promote(left,right)...)
 Interval{L,R}(left::T, right::T) where {L,R,T} = Interval{L,R,T}(left, right)
 Interval(left, right) = ClosedInterval(left, right)
 
