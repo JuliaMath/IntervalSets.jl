@@ -29,7 +29,7 @@ struct IncompleteInterval <: AbstractInterval{Int} end
     @test ordered(Float16(1), 2) == (1, 2)
 
     @testset "Basic Closed Sets" begin
-        @test_throws ArgumentError :a .. "b"
+        @test_throws ErrorException :a .. "b"
         I = 0..3
         @test I === ClosedInterval(0,3) === ClosedInterval{Int}(0,3) ===
                  Interval(0,3)
