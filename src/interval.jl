@@ -228,4 +228,4 @@ ClosedInterval(i::AbstractUnitRange{I}) where {I<:Integer} = ClosedInterval{I}(m
 
 Base.promote_rule(::Type{Interval{L,R,T1}}, ::Type{Interval{L,R,T2}}) where {L,R,T1,T2} = Interval{L,R,promote_type(T1, T2)}
 
-float(i::Interval{L, R, T}) where {L,R,T} = Interval{L, R, float(T)}(float.(endpoints(i))...)
+float(i::Interval{L, R, T}) where {L,R,T} = Interval{L, R, float(T)}(endpoints(i)...)
