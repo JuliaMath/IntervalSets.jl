@@ -229,6 +229,14 @@ function _union(A::TypedEndpointsInterval{L1,R1}, B::TypedEndpointsInterval{L2,R
     Interval{L,R}(left, right)
 end
 
+function Random.rand(rng::AbstractRNG, i::Random.SamplerTrivial{Interval{L,R,T}}) where {L,R,T<:Real}
+    _i = i[]
+    isempty(_i) && throw(ArgumentError("The interval should be non-empty."))
+    a,b = endpoints(_i)
+    t = rand(rng)
+    return t*a+(1-t)*b
+end
+
 ClosedInterval{T}(i::AbstractUnitRange{I}) where {T,I<:Integer} = ClosedInterval{T}(minimum(i), maximum(i))
 ClosedInterval(i::AbstractUnitRange{I}) where {I<:Integer} = ClosedInterval{I}(minimum(i), maximum(i))
 
