@@ -242,7 +242,7 @@ include("interval.jl")
 # convert numbers to intervals
 # TODO: These conversions will be removed in the next breaking release (#97)
 function convert(::Type{AbstractInterval}, x::Number)
-    Base.depwarn("`The conversion number to interval will be removed.", :convert)
+    Base.depwarn("`The conversion number to interval will be removed; construct an interval explicitly, e.g., `x..x`.", :convert)
     x..x
 end
 function convert(::Type{AbstractInterval{T}}, x::Number) where T
