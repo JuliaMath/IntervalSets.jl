@@ -636,6 +636,7 @@ struct IncompleteInterval <: AbstractInterval{Int} end
     end
 
     @testset "Missing endpoints" begin
+        # TODO: Remove this testset in the next breaking release (#94)
         @test ismissing(2 in 1..missing)
         @test_broken ismissing(2 in missing..1)  # would be fixed by julialang#31171
     end
