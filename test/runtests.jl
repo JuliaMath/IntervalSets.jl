@@ -207,6 +207,7 @@ struct IncompleteInterval <: AbstractInterval{Int} end
         @test 1.0..2.0 === 1.0..2 === 1..2.0 === ClosedInterval{Float64}(1..2) ===
                 Interval(1.0,2.0)
 
+        # TODO: Remove this test in the next breaking release (#97)
         @test convert(AbstractInterval, 1.0) ==
                 convert(AbstractInterval{Float64}, 1) ==
                 convert(TypedEndpointsInterval{:closed,:closed}, 1.0) ==
