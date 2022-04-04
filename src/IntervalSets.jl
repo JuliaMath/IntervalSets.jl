@@ -246,23 +246,23 @@ function convert(::Type{AbstractInterval}, x::Number)
     x..x
 end
 function convert(::Type{AbstractInterval{T}}, x::Number) where T
-    Base.depwarn("`The conversion number to interval will be removed.", :convert)
+    Base.depwarn("`The conversion number to interval will be removed; construct an interval explicitly, e.g., `x..x`.", :convert)
     convert(AbstractInterval{T}, convert(AbstractInterval, x))
 end
 function convert(::Type{TypedEndpointsInterval{:closed,:closed}}, x::Number)
-    Base.depwarn("`The conversion number to interval will be removed.", :convert)
+    Base.depwarn("`The conversion number to interval will be removed; construct an interval explicitly, e.g., `x..x`.", :convert)
     x..x
 end
 function convert(::Type{TypedEndpointsInterval{:closed,:closed,T}}, x::Number) where T
-    Base.depwarn("`The conversion number to interval will be removed.", :convert)
+    Base.depwarn("`The conversion number to interval will be removed; construct an interval explicitly, e.g., `x..x`.", :convert)
     convert(AbstractInterval{T}, convert(AbstractInterval, x))
 end
 function convert(::Type{ClosedInterval}, x::Number)
-    Base.depwarn("`The conversion number to interval will be removed.", :convert)
+    Base.depwarn("`The conversion number to interval will be removed; construct an interval explicitly, e.g., `x..x`.", :convert)
     x..x
 end
 function convert(::Type{ClosedInterval{T}}, x::Number) where T
-    Base.depwarn("`The conversion number to interval will be removed.", :convert)
+    Base.depwarn("`The conversion number to interval will be removed; construct an interval explicitly, e.g., `x..x`.", :convert)
     convert(AbstractInterval{T}, convert(AbstractInterval, x))
 end
 
