@@ -31,7 +31,7 @@ function Interval{L,R}(left, right) where {L,R}
     # TODO: Replace the retrun value with `Interval{L,R}(promote(left,right)...)`. (#93)
     T = promote_type(typeof(left), typeof(right))
     if !isconcretetype(T)
-        Base.depwarn("`The input types cannot be promoted to a concrete type.", :Interval)
+        Base.depwarn("`Promotion to a concrete type failed and will error in the next release; consider constructing this interval as `Interval{L,R,$(typejoin(typeof(left),typeof(right)))}(left, right)`.", :Interval)
     end
     Interval{L,R,T}(left,right)
 end
