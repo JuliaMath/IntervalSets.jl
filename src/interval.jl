@@ -92,7 +92,12 @@ Construct a ClosedInterval `iv` spanning the region from
 `center - halfwidth` to `center + halfwidth`.
 """
 ±(x, y) = ClosedInterval(x - y, x + y)
-±(x::CartesianIndex, y) = (xy = y * one(x); map(ClosedInterval, (x - xy).I, (x + xy).I))
+function ±(x::CartesianIndex, y)
+    # TODO: Remove this method in the next breaking release
+    Base.depwarn("This method for `CartesianIndex(1,2) ± 1 == (0..2, 1..3)` is not consistent and will be removed because CartesianIndex(1,1) + 1 is not defined. " *
+                 "If you need tuple such as `(0..2, 1..3)` from `CartesianIndex`, just write it in a plain tuple form.", :±)
+    (xy = y * one(x); map(ClosedInterval, (x - xy).I, (x + xy).I))
+end
 ±(x::CartesianIndex, y::CartesianIndex) = ClosedInterval(x-y, x+y)
 
 show(io::IO, I::ClosedInterval) = print(io, leftendpoint(I), "..", rightendpoint(I))
