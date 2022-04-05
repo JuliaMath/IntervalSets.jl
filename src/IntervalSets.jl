@@ -234,8 +234,18 @@ clamp(t, i::TypedEndpointsInterval{:closed,:closed}) =
 calculates the the total number of integers or dates of an integer or date
 valued interval. For example, `duration(0..1)` is 2, while `width(0..1)` is 1.
 """
-duration(A::TypedEndpointsInterval{:closed,:closed,T}) where {T<:Integer} = max(0, Int(A.right - A.left) + 1)
-duration(A::TypedEndpointsInterval{:closed,:closed,Date}) = max(0, Dates.days(A.right - A.left) + 1)
+function duration(A::TypedEndpointsInterval{:closed,:closed,T}) where {T<:Integer}
+    # TODO: Remove this method in the next breaking release
+    Base.depwarn("`duration` will be removed in the next breaking release because it is ill-defined concept. " *
+    "If you need 3 from 2..4, replace duration(2..4) with width(2..4)+1", :duration)
+    max(0, Int(A.right - A.left) + 1)
+end
+function duration(A::TypedEndpointsInterval{:closed,:closed,Date})
+    # TODO: Remove this method in the next breaking release
+    Base.depwarn("`duration` will be removed in the next breaking release because it is ill-defined concept. " *
+    "If you need 961 from A=Date(2018,08,08)..Date(2021,03,25), replace duration(A) with Dates.days(width(A))+1", :duration)
+    max(0, Dates.days(A.right - A.left) + 1)
+end
 
 include("interval.jl")
 
