@@ -718,6 +718,34 @@ struct IncompleteInterval <: AbstractInterval{Int} end
         @test clamp.([pi, 1.0, big(10.)], Ref(2..9.)) == [big(pi), 2, 9]
     end
 
+    @testset "rand" begin
+        @test rand(1..2) isa Float64
+        @test rand(1..2.) isa Float64
+        @test rand(1..big(2)) isa BigFloat
+        @test rand(1..(3//2)) isa Float64
+        @test rand(Int32(1)..Int32(2)) isa Float64
+        @test rand(Float32(1)..Float32(2)) isa Float32
+        @test_throws ArgumentError rand(2..1)
+
+        i1 = 1..2
+        i2 = 3e100..3e100
+        i3 = 1..typemax(Float64)
+        i4 = typemin(Float64)..typemax(Float64)
+        i5 = typemin(Float64)..1
+        for _ in 1:100
+            rand(i1) in i1
+            rand(i2) in i2
+            rand(i3) in i3
+            rand(i4) in i4
+            rand(i5) in i5
+            rand(i1,10) ⊆ i1
+            rand(i2,10) ⊆ i2
+            rand(i3,10) ⊆ i3
+            rand(i4,10) ⊆ i4
+            rand(i5,10) ⊆ i5
+        end
+    end
+
     @testset "IteratorSize" begin
         @test Base.IteratorSize(ClosedInterval) == Base.SizeUnknown()
     end
