@@ -231,12 +231,12 @@ end
 
 # random sampling from interval
 Random.gentype(::Type{Interval{L,R,T}}) where {L,R,T} = float(T)
-function Random.rand(rng::AbstractRNG, i::Random.SamplerTrivial{Interval{L,R,T}}) where {L,R,T<:Real}
+function Random.rand(rng::AbstractRNG, i::Random.SamplerTrivial{ClosedInterval{T}}) where {T<:Real}
     _i = i[]
     isempty(_i) && throw(ArgumentError("The interval should be non-empty."))
     a,b = endpoints(_i)
     t = rand(rng, float(T))
-    return t*a+(1-t)*b
+    return clamp(t*a+(1-t)*b, _i)
 end
 
 ClosedInterval{T}(i::AbstractUnitRange{I}) where {T,I<:Integer} = ClosedInterval{T}(minimum(i), maximum(i))
