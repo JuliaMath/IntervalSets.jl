@@ -429,6 +429,7 @@ struct IncompleteInterval <: AbstractInterval{Int} end
             @test OpenInterval(i1) ∩ Interval{:closed,:open}(i2) ≡ Interval{:closed,:open}(i2) ∩ OpenInterval(i1) ≡ Interval{:closed,:open}(i2)
             @test Interval{:open,:closed}(i1) ∩ OpenInterval(i2) ≡ OpenInterval(i2) ∩ Interval{:open,:closed}(i1) ≡ OpenInterval(i2)
             @test Interval{:open,:closed}(i1) ∩ Interval{:closed,:open}(i2) ≡ Interval{:closed,:open}(i2) ∩ Interval{:open,:closed}(i1) ≡ Interval{:closed,:open}(i2)
+            @test !isdisjoint(i1, i2)
 
 
             # - union of partially overlapping intervals
@@ -468,6 +469,7 @@ struct IncompleteInterval <: AbstractInterval{Int} end
             @test OpenInterval(i1) ∩ Interval{:closed,:open}(i3) ≡ Interval{:closed,:open}(i3) ∩ OpenInterval(i1) ≡ Interval{:closed,:open}(d)
             @test Interval{:open,:closed}(i1) ∩ OpenInterval(i3) ≡ OpenInterval(i3) ∩ Interval{:open,:closed}(i1) ≡ Interval{:open,:closed}(d)
             @test Interval{:open,:closed}(i1) ∩ Interval{:closed,:open}(i3) ≡ Interval{:closed,:open}(i3) ∩ Interval{:open,:closed}(i1) ≡ d
+            @test !isdisjoint(i1, i3)
 
 
             # - union of barely overlapping intervals
@@ -530,6 +532,11 @@ struct IncompleteInterval <: AbstractInterval{Int} end
             @test isempty(OpenInterval(i1) ∩ i4)
             @test isempty(i1 ∩ OpenInterval(i4))
             @test isempty(Interval{:closed,:open}(i1) ∩ i4)
+            @test isdisjoint(i1, i4)
+            @test isdisjoint(i4, i1)
+            @test isdisjoint(OpenInterval(i1), i4)
+            @test isdisjoint(i1, OpenInterval(i4))
+            @test isdisjoint(Interval{:closed,:open}(i1), i4)
 
 
             # - intersection of almost-overlapping intervals
@@ -538,6 +545,11 @@ struct IncompleteInterval <: AbstractInterval{Int} end
             @test isempty(OpenInterval(i1) ∩ i5)
             @test isempty(i1 ∩ OpenInterval(i5))
             @test isempty(Interval{:closed,:open}(i1) ∩ i5)
+            @test isdisjoint(i1, i5)
+            @test isdisjoint(i5, i1)
+            @test isdisjoint(OpenInterval(i1), i5)
+            @test isdisjoint(i1, OpenInterval(i5))
+            @test isdisjoint(Interval{:closed,:open}(i1), i5)
 
             # - union of interval with empty
             @test i1 ∪ i_empty ≡ i_empty ∪ i1 ≡ i1
@@ -562,6 +574,11 @@ struct IncompleteInterval <: AbstractInterval{Int} end
             @test isempty(OpenInterval(i1) ∩ i_empty)
             @test isempty(i1 ∩ OpenInterval(i_empty))
             @test isempty(Interval{:closed,:open}(i1) ∩ i_empty)
+            @test isdisjoint(i1, i_empty)
+            @test isdisjoint(i_empty, i1)
+            @test isdisjoint(OpenInterval(i1), i_empty)
+            @test isdisjoint(i1, OpenInterval(i_empty))
+            @test isdisjoint(Interval{:closed,:open}(i1), i_empty)
 
             # - test matching endpoints
             @test (0..1) ∪ OpenInterval(0..1) ≡ OpenInterval(0..1) ∪ (0..1) ≡  0..1
