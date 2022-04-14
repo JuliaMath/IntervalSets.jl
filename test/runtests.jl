@@ -729,5 +729,24 @@ struct IncompleteInterval <: AbstractInterval{Int} end
         @test_throws ErrorException closedendpoints(I)
     end
 
+    @testset "float" begin
+        i1 = 1..2
+        @test i1 isa ClosedInterval{Int}
+        @test float(i1) isa ClosedInterval{Float64}
+        @test float(i1) == i1
+        i2 = big(1)..2
+        @test i2 isa ClosedInterval{BigInt}
+        @test float(i2) isa ClosedInterval{BigFloat}
+        @test float(i2) == i2
+        i3 = OpenInterval(1,2)
+        @test i3 isa OpenInterval{Int}
+        @test float(i3) isa OpenInterval{Float64}
+        @test float(i3) == i3
+        i4 = OpenInterval(1.,2.)
+        @test i4 isa OpenInterval{Float64}
+        @test float(i4) isa OpenInterval{Float64}
+        @test float(i4) == i4
+    end
+
     include("findall.jl")
 end
