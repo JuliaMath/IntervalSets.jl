@@ -27,7 +27,14 @@ mathematical notation, the constructed range is `(left, right)`.
 const OpenInterval{T} = Interval{:open,:open,T}
 
 Interval{L,R,T}(i::AbstractInterval) where {L,R,T} = Interval{L,R,T}(endpoints(i)...)
-Interval{L,R}(left, right) where {L,R} = Interval{L,R,promote_type(typeof(left), typeof(right))}(left,right)
+function Interval{L,R}(left, right) where {L,R}
+    # TODO: Replace the retrun value with `Interval{L,R}(promote(left,right)...)`. (#93)
+    T = promote_type(typeof(left), typeof(right))
+    if !isconcretetype(T)
+        Base.depwarn("`Promotion to a concrete type failed and will error in the next release; consider constructing this interval as `Interval{L,R,$(typejoin(typeof(left),typeof(right)))}(left, right)`.", :Interval)
+    end
+    Interval{L,R,T}(left,right)
+end
 Interval{L,R}(left::T, right::T) where {L,R,T} = Interval{L,R,T}(left, right)
 Interval(left, right) = ClosedInterval(left, right)
 
