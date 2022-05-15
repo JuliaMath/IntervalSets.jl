@@ -49,8 +49,6 @@ struct IncompleteInterval <: AbstractInterval{Int} end
         M = @inferred(ClosedInterval(2, 5.0))
         @test string(M) == "2.0..5.0"
         N = @inferred(ClosedInterval(UInt8(255), 300))
-        O = @inferred(CartesianIndex(1, 2, 3, 4) ± 2)
-        @test O == (-1..3, 0..4, 1..5, 2..6)
 
         x, y = CartesianIndex(1, 2, 3, 4), CartesianIndex(1, 2, 3, 4)
         O = @inferred x±y
@@ -136,10 +134,6 @@ struct IncompleteInterval <: AbstractInterval{Int} end
         @test mean(0..1) == 0.5
 
         @test promote(1..2, 1.0..2.0) === (1.0..2.0, 1.0..2.0)
-
-        @test duration(1..2) == 2
-        # duration deliberately not defined for non-integer intervals
-        @test_throws MethodError duration(1.2..2.4)
     end
 
     @testset "Unitful interval" begin
@@ -154,8 +148,6 @@ struct IncompleteInterval <: AbstractInterval{Int} end
         @test width(ClosedInterval(A, B)) == Dates.Day(59)
         @test width(ClosedInterval(B, A)) == Dates.Day(0)
         @test isempty(ClosedInterval(B, A))
-        @test duration(ClosedInterval(A, B)) ≡ 60
-        @test duration(ClosedInterval(B, A)) ≡ 0
     end
 
     @testset "Convert" begin
@@ -220,15 +212,6 @@ struct IncompleteInterval <: AbstractInterval{Int} end
 
         @test 1.0..2.0 === 1.0..2 === 1..2.0 === ClosedInterval{Float64}(1..2) ===
                 Interval(1.0,2.0)
-
-        # TODO: Remove this test in the next breaking release (#97)
-        @test convert(AbstractInterval, 1.0) ==
-                convert(AbstractInterval{Float64}, 1) ==
-                convert(TypedEndpointsInterval{:closed,:closed}, 1.0) ==
-                convert(TypedEndpointsInterval{:closed,:closed,Float64}, 1) ==
-                convert(ClosedInterval, 1.0) ==
-                convert(ClosedInterval{Float64}, 1) ==
-                1.0..1.0
 
         @test promote_type(Interval{:closed,:open,Float64}, Interval{:closed,:open,Int}) ===
                         Interval{:closed,:open,Float64}
