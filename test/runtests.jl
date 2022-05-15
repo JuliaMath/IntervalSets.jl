@@ -23,7 +23,7 @@ closedendpoints(I::MyUnitInterval) = (I.isleftclosed,I.isrightclosed)
 struct IncompleteInterval <: AbstractInterval{Int} end
 
 @testset "IntervalSets" begin
-    @test isempty(detect_ambiguities(IntervalSets, Base, Core))
+    @test isempty(detect_ambiguities(IntervalSets))
 
     @test ordered(2, 1) == (1, 2)
     @test ordered(1, 2) == (1, 2)
