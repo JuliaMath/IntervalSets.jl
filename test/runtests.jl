@@ -30,6 +30,7 @@ struct IncompleteInterval <: AbstractInterval{Int} end
 
     @testset "Basic Closed Sets" begin
         @test_throws ErrorException :a .. "b"
+        @test_throws ErrorException 1 .. missing
         I = 0..3
         @test I === ClosedInterval(0,3) === ClosedInterval{Int}(0,3) ===
                  Interval(0,3)
@@ -638,12 +639,6 @@ struct IncompleteInterval <: AbstractInterval{Int} end
         @test_throws InexactError convert(OpenInterval, I)
         @test I ∩ I === 0..1
         @test I ∩ (0.0..0.5) === 0.0..0.5
-    end
-
-    @testset "Missing endpoints" begin
-        # TODO: Remove this testset in the next breaking release (#94)
-        @test ismissing(2 in 1..missing)
-        @test_broken ismissing(2 in missing..1)  # would be fixed by julialang#31171
     end
 
     @testset "in" begin
