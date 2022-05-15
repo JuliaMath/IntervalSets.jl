@@ -32,6 +32,7 @@ struct IncompleteInterval <: AbstractInterval{Int} end
     @testset "Basic Closed Sets" begin
         @test_throws ErrorException :a .. "b"
         @test_throws ErrorException 1 .. missing
+        @test_throws ErrorException 1u"m" .. 2u"s"
         I = 0..3
         @test I === ClosedInterval(0,3) === ClosedInterval{Int}(0,3) ===
                  Interval(0,3)
