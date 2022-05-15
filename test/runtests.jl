@@ -4,6 +4,7 @@ using Dates
 using Statistics
 import Statistics: mean
 using Random
+using Unitful
 
 import IntervalSets: Domain, endpoints, closedendpoints, TypedEndpointsInterval
 
@@ -138,6 +139,13 @@ struct IncompleteInterval <: AbstractInterval{Int} end
         @test duration(1..2) == 2
         # duration deliberately not defined for non-integer intervals
         @test_throws MethodError duration(1.2..2.4)
+    end
+
+    @testset "Unitful interval" begin
+        @test 1.5u"m" in 1u"m" .. 2u"m"
+        @test 1500u"μm" in 1u"mm" .. 1u"m"
+        @test !(500u"μm" in 1u"mm" .. 1u"m")
+        @test 1u"m" .. 2u"m" == 1000u"mm" .. 2000u"mm"
     end
 
     @testset "Day interval" begin
