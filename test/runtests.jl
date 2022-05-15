@@ -4,6 +4,7 @@ using Dates
 using Statistics
 import Statistics: mean
 using Random
+using Unitful
 
 import IntervalSets: Domain, endpoints, closedendpoints, TypedEndpointsInterval
 
@@ -22,14 +23,16 @@ closedendpoints(I::MyUnitInterval) = (I.isleftclosed,I.isrightclosed)
 struct IncompleteInterval <: AbstractInterval{Int} end
 
 @testset "IntervalSets" begin
-    @test isempty(detect_ambiguities(IntervalSets, Base, Core))
+    @test isempty(detect_ambiguities(IntervalSets))
 
     @test ordered(2, 1) == (1, 2)
     @test ordered(1, 2) == (1, 2)
     @test ordered(Float16(1), 2) == (1, 2)
 
     @testset "Basic Closed Sets" begin
-        @test_throws ArgumentError :a .. "b"
+        @test_throws ErrorException :a .. "b"
+        @test_throws ErrorException 1 .. missing
+        @test_throws ErrorException 1u"m" .. 2u"s"
         I = 0..3
         @test I === ClosedInterval(0,3) === ClosedInterval{Int}(0,3) ===
                  Interval(0,3)
@@ -137,6 +140,13 @@ struct IncompleteInterval <: AbstractInterval{Int} end
         @test duration(1..2) == 2
         # duration deliberately not defined for non-integer intervals
         @test_throws MethodError duration(1.2..2.4)
+    end
+
+    @testset "Unitful interval" begin
+        @test 1.5u"m" in 1u"m" .. 2u"m"
+        @test 1500u"μm" in 1u"mm" .. 1u"m"
+        @test !(500u"μm" in 1u"mm" .. 1u"m")
+        @test 1u"m" .. 2u"m" == 1000u"mm" .. 2000u"mm"
     end
 
     @testset "Day interval" begin
@@ -638,12 +648,6 @@ struct IncompleteInterval <: AbstractInterval{Int} end
         @test_throws InexactError convert(OpenInterval, I)
         @test I ∩ I === 0..1
         @test I ∩ (0.0..0.5) === 0.0..0.5
-    end
-
-    @testset "Missing endpoints" begin
-        # TODO: Remove this testset in the next breaking release (#94)
-        @test ismissing(2 in 1..missing)
-        @test_broken ismissing(2 in missing..1)  # would be fixed by julialang#31171
     end
 
     @testset "in" begin
