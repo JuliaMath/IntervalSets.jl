@@ -49,6 +49,10 @@ struct IncompleteInterval <: AbstractInterval{Int} end
         O = @inferred(CartesianIndex(1, 2, 3, 4) ± 2)
         @test O == (-1..3, 0..4, 1..5, 2..6)
 
+        x, y = CartesianIndex(1, 2, 3, 4), CartesianIndex(1, 2, 3, 4)
+        O = @inferred x±y
+        @test O == ClosedInterval(x-y, x+y)
+
         @test eltype(I) == Int
         @test eltype(M) == Float64
 
@@ -207,6 +211,7 @@ struct IncompleteInterval <: AbstractInterval{Int} end
         @test 1.0..2.0 === 1.0..2 === 1..2.0 === ClosedInterval{Float64}(1..2) ===
                 Interval(1.0,2.0)
 
+        # TODO: Remove this test in the next breaking release (#97)
         @test convert(AbstractInterval, 1.0) ==
                 convert(AbstractInterval{Float64}, 1) ==
                 convert(TypedEndpointsInterval{:closed,:closed}, 1.0) ==
@@ -636,6 +641,7 @@ struct IncompleteInterval <: AbstractInterval{Int} end
     end
 
     @testset "Missing endpoints" begin
+        # TODO: Remove this testset in the next breaking release (#94)
         @test ismissing(2 in 1..missing)
         @test_broken ismissing(2 in missing..1)  # would be fixed by julialang#31171
     end
@@ -723,6 +729,25 @@ struct IncompleteInterval <: AbstractInterval{Int} end
         @test eltype(I) === Int
         @test_throws ErrorException endpoints(I)
         @test_throws ErrorException closedendpoints(I)
+    end
+
+    @testset "float" begin
+        i1 = 1..2
+        @test i1 isa ClosedInterval{Int}
+        @test float(i1) isa ClosedInterval{Float64}
+        @test float(i1) == i1
+        i2 = big(1)..2
+        @test i2 isa ClosedInterval{BigInt}
+        @test float(i2) isa ClosedInterval{BigFloat}
+        @test float(i2) == i2
+        i3 = OpenInterval(1,2)
+        @test i3 isa OpenInterval{Int}
+        @test float(i3) isa OpenInterval{Float64}
+        @test float(i3) == i3
+        i4 = OpenInterval(1.,2.)
+        @test i4 isa OpenInterval{Float64}
+        @test float(i4) isa OpenInterval{Float64}
+        @test float(i4) == i4
     end
 
     include("findall.jl")

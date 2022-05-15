@@ -2,7 +2,7 @@ module IntervalSets
 
 using Base: @pure
 import Base: eltype, convert, show, in, length, isempty, isequal, issubset, ==, hash,
-             union, intersect, minimum, maximum, extrema, range, clamp, ⊇, ⊊, ⊋
+             union, intersect, minimum, maximum, extrema, range, clamp, float, ⊇, ⊊, ⊋
 
 using Statistics
 import Statistics: mean
@@ -234,21 +234,47 @@ clamp(t, i::TypedEndpointsInterval{:closed,:closed}) =
 calculates the the total number of integers or dates of an integer or date
 valued interval. For example, `duration(0..1)` is 2, while `width(0..1)` is 1.
 """
-duration(A::TypedEndpointsInterval{:closed,:closed,T}) where {T<:Integer} = max(0, Int(A.right - A.left) + 1)
-duration(A::TypedEndpointsInterval{:closed,:closed,Date}) = max(0, Dates.days(A.right - A.left) + 1)
+function duration(A::TypedEndpointsInterval{:closed,:closed,T}) where {T<:Integer}
+    # TODO: Remove this method in the next breaking release
+    Base.depwarn("`duration` will be removed in the next breaking release because it is ill-defined concept. " *
+    "If you need 3 from 2..4, replace duration(2..4) with width(2..4)+1", :duration)
+    max(0, Int(A.right - A.left) + 1)
+end
+function duration(A::TypedEndpointsInterval{:closed,:closed,Date})
+    # TODO: Remove this method in the next breaking release
+    Base.depwarn("`duration` will be removed in the next breaking release because it is ill-defined concept. " *
+    "If you need 961 from A=Date(2018,08,08)..Date(2021,03,25), replace duration(A) with Dates.days(width(A))+1", :duration)
+    max(0, Dates.days(A.right - A.left) + 1)
+end
 
 include("interval.jl")
 
 # convert numbers to intervals
-convert(::Type{AbstractInterval}, x::Number) = x..x
-convert(::Type{AbstractInterval{T}}, x::Number) where T =
+# TODO: These conversions will be removed in the next breaking release (#97)
+function convert(::Type{AbstractInterval}, x::Number)
+    Base.depwarn("`The conversion number to interval will be removed; construct an interval explicitly, e.g., `x..x`.", :convert)
+    x..x
+end
+function convert(::Type{AbstractInterval{T}}, x::Number) where T
+    Base.depwarn("`The conversion number to interval will be removed; construct an interval explicitly, e.g., `x..x`.", :convert)
     convert(AbstractInterval{T}, convert(AbstractInterval, x))
-convert(::Type{TypedEndpointsInterval{:closed,:closed}}, x::Number) = x..x
-convert(::Type{TypedEndpointsInterval{:closed,:closed,T}}, x::Number) where T =
+end
+function convert(::Type{TypedEndpointsInterval{:closed,:closed}}, x::Number)
+    Base.depwarn("`The conversion number to interval will be removed; construct an interval explicitly, e.g., `x..x`.", :convert)
+    x..x
+end
+function convert(::Type{TypedEndpointsInterval{:closed,:closed,T}}, x::Number) where T
+    Base.depwarn("`The conversion number to interval will be removed; construct an interval explicitly, e.g., `x..x`.", :convert)
     convert(AbstractInterval{T}, convert(AbstractInterval, x))
-convert(::Type{ClosedInterval}, x::Number) = x..x
-convert(::Type{ClosedInterval{T}}, x::Number) where T =
+end
+function convert(::Type{ClosedInterval}, x::Number)
+    Base.depwarn("`The conversion number to interval will be removed; construct an interval explicitly, e.g., `x..x`.", :convert)
+    x..x
+end
+function convert(::Type{ClosedInterval{T}}, x::Number) where T
+    Base.depwarn("`The conversion number to interval will be removed; construct an interval explicitly, e.g., `x..x`.", :convert)
     convert(AbstractInterval{T}, convert(AbstractInterval, x))
+end
 
 include("findall.jl")
 
