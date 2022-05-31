@@ -22,7 +22,7 @@ A subtype of `Domain{T}` represents a subset of type `T`, that provides `in`.
 abstract type Domain{T} end
 
 Base.IteratorSize(::Type{<:Domain}) = Base.SizeUnknown()
-
+Base.isdisjoint(a::Domain, b::Domain) = isempty(a ∩ b)
 
 """
 A subtype of `AbstractInterval{T}` represents an interval subset of type `T`, that provides
