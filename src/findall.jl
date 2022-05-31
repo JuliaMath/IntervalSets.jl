@@ -83,3 +83,28 @@ function Base._findin(a::Union{AbstractArray, Tuple}, b::Interval)
     end
     ind
 end
+
+"""
+    searchsorted_interval(a, i::Interval)
+
+Return the range of indices of `a` which is inside of the interval `i` (using binary search), assuming that
+`a` is already sorted. Return an empty range located at the insertion point if a does not contain values in `i`.
+
+# Examples
+```jldoctest
+julia> searchsorted_interval([1,2,3,5], 2..4)
+2:3
+
+julia> searchsorted_interval([1,2,3,5], 4..1)
+4:3
+
+julia> searchsorted_interval(Float64[], 1..3)
+1:0
+```
+"""
+function searchsorted_interval end
+
+searchsorted_interval(X, i::Interval{:closed, :closed}) = searchsortedfirst(X, leftendpoint(i))     :searchsortedlast(X, rightendpoint(i))
+searchsorted_interval(X, i::Interval{:closed,   :open}) = searchsortedfirst(X, leftendpoint(i))     :(searchsortedfirst(X, rightendpoint(i)) - 1)
+searchsorted_interval(X, i::Interval{  :open, :closed}) = (searchsortedlast(X, leftendpoint(i)) + 1):searchsortedlast(X, rightendpoint(i))
+searchsorted_interval(X, i::Interval{  :open,   :open}) = (searchsortedlast(X, leftendpoint(i)) + 1):(searchsortedfirst(X, rightendpoint(i)) - 1)

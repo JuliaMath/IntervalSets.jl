@@ -14,7 +14,8 @@ export AbstractInterval, Interval, OpenInterval, ClosedInterval,
             ⊇, .., ±, ordered, width, leftendpoint, rightendpoint, endpoints,
             isopenset, isclosedset, isleftclosed, isrightclosed,
             isleftopen, isrightopen, closedendpoints,
-            infimum, supremum
+            infimum, supremum,
+            searchsorted_interval
 
 """
 A subtype of `Domain{T}` represents a subset of type `T`, that provides `in`.
