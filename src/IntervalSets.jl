@@ -6,6 +6,7 @@ import Base: eltype, convert, show, in, length, isempty, isequal, issubset, ==, 
 
 using Statistics
 import Statistics: mean
+using Random
 
 using Dates
 
