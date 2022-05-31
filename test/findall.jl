@@ -149,4 +149,33 @@ end
             assert_in_interval(reverse(x), interval)
         end
     end
+
+    @testset "searchsorted" begin
+        x = [-10, 0, 1, 1 + eps(), 1.2, 1.5, 1.9, 2 - eps(), 2]
+        @test searchsorted_interval(x, -Inf..Inf) == 1:9
+        i = Interval{:closed, :closed}(1, 2)
+        @test searchsorted_interval(x, i) == findall(in(i),x) == 3:9
+        i = Interval{:open  , :closed}(1, 2)
+        @test searchsorted_interval(x, i) == findall(in(i),x) == 4:9
+        i = Interval{:closed, :open  }(1, 2)
+        @test searchsorted_interval(x, i) == findall(in(i),x) == 3:8
+        i = Interval{:open  , :open  }(1, 2)
+        @test searchsorted_interval(x, i) == findall(in(i),x) == 4:8
+        i = Interval{:closed, :closed}(1, 1)
+        @test searchsorted_interval(x, i) == findall(in(i),x) == 3:3
+        i = Interval{:open  , :closed}(1, 1)
+        @test searchsorted_interval(x, i) == findall(in(i),x) == 3:2
+        i = Interval{:closed, :open  }(1, 1)
+        @test searchsorted_interval(x, i) == findall(in(i),x) == 3:2
+        i = Interval{:open  , :open  }(1, 1)
+        @test searchsorted_interval(x, i) == findall(in(i),x) == 3:2
+        i = Interval{:closed, :closed}(2, 1)
+        @test searchsorted_interval(x, i) == findall(in(i),x) == 9:8
+        i = Interval{:open  , :closed}(2, 1)
+        @test searchsorted_interval(x, i) == findall(in(i),x) == 9:8
+        i = Interval{:closed, :open  }(2, 1)
+        @test searchsorted_interval(x, i) == findall(in(i),x) == 9:8
+        i = Interval{:open  , :open  }(2, 1)
+        @test searchsorted_interval(x, i) == findall(in(i),x) == 9:8
+    end
 end
