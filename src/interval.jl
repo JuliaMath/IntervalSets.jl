@@ -123,76 +123,13 @@ intersect(d1::TypedEndpointsInterval{L1,R1,T}, d2::TypedEndpointsInterval{L2,R2,
 intersect(d1::AbstractInterval, d2::AbstractInterval) = intersect(Interval(d1), Interval(d2))
 
 
-union(d1::TypedEndpointsInterval{:closed,:closed},  d2::TypedEndpointsInterval{:closed,:closed}) =
-    _leq_union(d1,d2)
-union(d1::Interval{:open,:closed},                  d2::TypedEndpointsInterval{:closed,:closed}) =
-    _leq_union(d1,d2)
-union(d1::Interval{:closed,:open},                  d2::TypedEndpointsInterval{:closed,:closed}) =
-    _leq_union(d1,d2)
-union(d1::TypedEndpointsInterval{:closed,:closed},  d2::TypedEndpointsInterval{:open,:closed}) =
-    _leq_union(d1,d2)
-union(d1::TypedEndpointsInterval{:closed,:closed},  d2::TypedEndpointsInterval{:closed,:open}) =
-    _leq_union(d1,d2)
-union(d1::TypedEndpointsInterval{:open,:closed},    d2::TypedEndpointsInterval{:open,:closed}) =
-    _leq_union(d1,d2)
-union(d1::TypedEndpointsInterval{:closed,:open},    d2::TypedEndpointsInterval{:closed,:open}) =
-    _leq_union(d1,d2)
-union(d1::TypedEndpointsInterval{:closed,:closed},  d2::TypedEndpointsInterval{:open,:open}) =
-    _leq_union(d1,d2)
-union(d1::TypedEndpointsInterval{:open,:open},      d2::TypedEndpointsInterval{:closed,:closed}) =
-    _leq_union(d1,d2)
-
-
-function _leq_union(d1, d2)
+function union(d1::TypedEndpointsInterval, d2::TypedEndpointsInterval)
     isempty(d1) && return d2
     isempty(d2) && return d1
-    leftendpoint(d1) ≤ leftendpoint(d2) ≤ rightendpoint(d1)  || leftendpoint(d1) ≤ rightendpoint(d2) ≤ rightendpoint(d1) ||
-        leftendpoint(d2) ≤ leftendpoint(d1) ≤ rightendpoint(d2) || leftendpoint(d2) ≤ rightendpoint(d1) ≤ rightendpoint(d2) ||
+    any(∈(d1), endpoints(d2)) || any(∈(d2), endpoints(d1)) ||
         throw(ArgumentError("Cannot construct union of disjoint sets."))
     _union(d1, d2)
 end
-
-
-function union(d1::TypedEndpointsInterval{:open,:open}, d2::TypedEndpointsInterval{:open,:open})
-    isempty(d1) && return d2
-    isempty(d2) && return d1
-    leftendpoint(d1) ≤ leftendpoint(d2) < rightendpoint(d1)  || leftendpoint(d1) < rightendpoint(d2) ≤ rightendpoint(d1) ||
-        leftendpoint(d2) ≤ leftendpoint(d1) < rightendpoint(d2)  || leftendpoint(d2) < rightendpoint(d1) ≤ rightendpoint(d2) ||
-        throw(ArgumentError("Cannot construct union of disjoint sets."))
-    _union(d1, d2)
-end
-
-function union(d1::TypedEndpointsInterval{:open,:open}, d2::TypedEndpointsInterval{:open,:closed})
-    isempty(d1) && return d2
-    isempty(d2) && return d1
-    leftendpoint(d1) ≤ leftendpoint(d2) < rightendpoint(d1)  || leftendpoint(d1) ≤ rightendpoint(d2) ≤ rightendpoint(d1) ||
-        leftendpoint(d2) ≤ leftendpoint(d1) ≤ rightendpoint(d2)  || leftendpoint(d2) < rightendpoint(d1) ≤ rightendpoint(d2) ||
-        throw(ArgumentError("Cannot construct union of disjoint sets."))
-    _union(d1, d2)
-end
-
-function union(d1::TypedEndpointsInterval{:open,:open}, d2::TypedEndpointsInterval{:closed,:open})
-    isempty(d1) && return d2
-    isempty(d2) && return d1
-    leftendpoint(d1) ≤ leftendpoint(d2) ≤ rightendpoint(d1)  || leftendpoint(d1) < rightendpoint(d2) ≤ rightendpoint(d1) ||
-        leftendpoint(d2) ≤ leftendpoint(d1) < rightendpoint(d2)  || leftendpoint(d2) ≤ rightendpoint(d1) ≤ rightendpoint(d2) ||
-        throw(ArgumentError("Cannot construct union of disjoint sets."))
-    _union(d1, d2)
-end
-
-union(d1::TypedEndpointsInterval, d2::TypedEndpointsInterval{:open,:open}) = union(d2, d1)
-
-
-function union(d1::TypedEndpointsInterval{:closed,:open}, d2::TypedEndpointsInterval{:open,:closed})
-    isempty(d1) && return d2
-    isempty(d2) && return d1
-    leftendpoint(d1) ≤ leftendpoint(d2) < rightendpoint(d1)  || leftendpoint(d1) ≤ rightendpoint(d2) ≤ rightendpoint(d1) ||
-        leftendpoint(d2) ≤ leftendpoint(d1) ≤ rightendpoint(d2)  || leftendpoint(d2) < rightendpoint(d1) ≤ rightendpoint(d2) ||
-        throw(ArgumentError("Cannot construct union of disjoint sets."))
-    _union(d1, d2)
-end
-
-union(d1::TypedEndpointsInterval{:open,:closed}, d2::TypedEndpointsInterval{:closed,:open}) = union(d2, d1)
 
 # these assume overlap
 function _union(A::TypedEndpointsInterval{L,R}, B::TypedEndpointsInterval{L,R}) where {L,R}
