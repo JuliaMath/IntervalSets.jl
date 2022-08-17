@@ -724,6 +724,13 @@ struct IncompleteInterval <: AbstractInterval{Int} end
         @test clamp.([pi, 1.0, big(10.)], Ref(2..9.)) == [big(pi), 2, 9]
     end
 
+    @testset "mod" begin
+        @test mod(10, 0..3) === 1
+        @test mod(-10, 0..3) === 2
+        @test mod(10.5, 0..3) == 1.5
+        @test mod(10.5, 1..1) |> isnan
+    end
+
     @testset "rand" begin
         @test rand(1..2) isa Float64
         @test rand(1..2.) isa Float64

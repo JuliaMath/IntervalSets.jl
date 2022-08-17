@@ -2,7 +2,7 @@ module IntervalSets
 
 using Base: @pure
 import Base: eltype, convert, show, in, length, isempty, isequal, issubset, ==, hash,
-             union, intersect, minimum, maximum, extrema, range, clamp, float, ⊇, ⊊, ⊋
+             union, intersect, minimum, maximum, extrema, range, clamp, mod, float, ⊇, ⊊, ⊋
 
 using Statistics
 import Statistics: mean
@@ -228,6 +228,13 @@ Clamp the scalar `t` such that the result is in the interval `i`.
 """
 clamp(t, i::TypedEndpointsInterval{:closed,:closed}) =
     clamp(t, leftendpoint(i), rightendpoint(i))
+
+"""
+    mod(x, i::ClosedInterval)
+
+Find `y` in the `i` interval such that `x ≡ y (mod n)`, where `n = width(i)`.
+"""
+mod(x, i::TypedEndpointsInterval{:closed,:closed}) = mod(x - leftendpoint(i), width(i)) + leftendpoint(i)
 
 include("interval.jl")
 include("findall.jl")
