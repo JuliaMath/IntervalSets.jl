@@ -582,6 +582,10 @@ struct IncompleteInterval <: AbstractInterval{Int} end
             @test Interval{:closed,:open}(0..1) ∪ OpenInterval(0..1) ≡
                     OpenInterval(0..1) ∪ Interval{:closed,:open}(0..1) ≡
                     Interval{:closed,:open}(0..1)
+
+            # - different interval types
+            @test (1..2) ∩ OpenInterval(0.5, 1.5) ≡ Interval{:closed, :open}(1, 1.5)
+            @test (1..2) ∪ OpenInterval(0.5, 1.5) ≡ Interval{:open, :closed}(0.5, 2)
         end
     end
 
