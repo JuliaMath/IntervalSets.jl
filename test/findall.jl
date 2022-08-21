@@ -150,6 +150,12 @@ end
         end
     end
 
+    @testset "zero-step ranges" begin
+        r = range(1, 1, length=10)
+        @test findall(in(1..3),r) == 1:10
+        @test findall(in(2..3),r) |> isempty
+    end
+
     @testset "searchsorted" begin
         x = [-10, 0, 1, 1 + eps(), 1.2, 1.5, 1.9, 2 - eps(), 2]
         @test searchsorted_interval(x, -Inf..Inf) == 1:9
