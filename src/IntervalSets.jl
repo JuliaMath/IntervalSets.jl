@@ -230,7 +230,7 @@ clamp(t, i::TypedEndpointsInterval{:closed,:closed}) =
     clamp(t, leftendpoint(i), rightendpoint(i))
 
 """
-    mod(x, i::ClosedInterval)
+    mod(x, i::AbstractInterval)
 
 Find `y` in the `i` interval such that ``x ≡ y (mod w)``, where `w = width(i)`.
 
@@ -248,11 +248,26 @@ julia> mod(5.0, I)
 julia> mod(2.5, I)
 2.5
 
-julia> mod(4.5, I)  # (a in I) does not imply (a == mod(a, I))
+julia> mod(4.5, I)  # (a in I) does not imply (a == mod(a, I)) for closed intervals
 2.5
+
+julia> mod(4.5, Interval{:open, :closed}(2.5, 4.5))
+4.5
 ```
 """
 mod(x, i::TypedEndpointsInterval{:closed,:closed}) = mod(x - leftendpoint(i), width(i)) + leftendpoint(i)
+
+function mod(x, i::AbstractInterval)
+    res = mod(x - leftendpoint(i), width(i)) + leftendpoint(i)
+    if res == rightendpoint(i) && isrightopen(i)
+        isleftclosed(i) && return oftype(res, leftendpoint(i))
+    elseif res == leftendpoint(i) && isleftopen(i)
+        isrightclosed(i) && return oftype(res, rightendpoint(i))
+    else
+        return res
+    end
+    throw(DomainError(x, "mod() result is an endpoint of the open interval $i"))
+end
 
 include("interval.jl")
 include("findall.jl")
