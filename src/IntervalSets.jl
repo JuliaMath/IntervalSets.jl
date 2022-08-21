@@ -232,7 +232,25 @@ clamp(t, i::TypedEndpointsInterval{:closed,:closed}) =
 """
     mod(x, i::ClosedInterval)
 
-Find `y` in the `i` interval such that `x ≡ y (mod n)`, where `n = width(i)`.
+Find `y` in the `i` interval such that ``x ≡ y (mod w)``, where `w = width(i)`.
+
+# Examples
+
+```jldoctest
+julia> I = 2.5..4.5;
+
+julia> mod(3.0, I)
+3.0
+
+julia> mod(5.0, I)
+3.0
+
+julia> mod(2.5, I)
+2.5
+
+julia> mod(4.5, I)  # (a in I) does not imply (a == mod(a, I))
+2.5
+```
 """
 mod(x, i::TypedEndpointsInterval{:closed,:closed}) = mod(x - leftendpoint(i), width(i)) + leftendpoint(i)
 
