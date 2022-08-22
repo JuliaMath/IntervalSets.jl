@@ -728,6 +728,21 @@ struct IncompleteInterval <: AbstractInterval{Int} end
         @test clamp.([pi, 1.0, big(10.)], Ref(2..9.)) == [big(pi), 2, 9]
     end
 
+    @testset "mod" begin
+        @test mod(10, 0..3) === 1
+        @test mod(-10, 0..3) === 2
+        @test mod(10.5, 0..3) == 1.5
+        @test mod(10.5, 1..1) |> isnan
+        @test mod(10.5, Interval{:open, :open}(0, 3)) == 1.5
+        @test mod(10.5, Interval{:open, :open}(1, 1)) |> isnan
+
+        @test_throws DomainError mod(0, Interval{:open, :open}(0, 3))
+        for x in (0, 3, 0.0, -0.0, 3.0, -eps())
+            @test mod(x, Interval{:closed, :open}(0, 3))::typeof(x) == 0
+            @test mod(x, Interval{:open, :closed}(0, 3))::typeof(x) == 3
+        end
+    end
+
     @testset "rand" begin
         @test rand(1..2) isa Float64
         @test rand(1..2.) isa Float64
