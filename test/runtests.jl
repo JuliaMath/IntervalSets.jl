@@ -769,6 +769,11 @@ struct IncompleteInterval <: AbstractInterval{Int} end
             rand(i4,10) ⊆ i4
             rand(i5,10) ⊆ i5
         end
+
+        # special test to catch issue mentioned at the end of https://github.com/JuliaApproximation/DomainSets.jl/pull/112
+        struct RandTestUnitInterval <: TypedEndpointsInterval{:closed, :closed, Float64} end
+        IntervalSets.endpoints(::RandTestUnitInterval) = (-1.0, 1.0)
+        @test rand(RandTestUnitInterval()) in -1.0..1.0
     end
 
     @testset "IteratorSize" begin
