@@ -399,7 +399,7 @@ struct IncompleteInterval <: AbstractInterval{Int} end
             # - union of completely overlapping intervals
             # i1      0 ------>------ 1
             # i2         1/3 ->- 1/2
-            @test i1 ∪ i2 ≡ i2 ∪ i1 ≡ i1
+            @test (@inferred i1 ∪ i2) ≡ (@inferred i2 ∪ i1) ≡ i1
             @test Interval{:open,:closed}(i1) ∪ Interval{:open,:closed}(i2) ≡
                   Interval{:open,:closed}(i2) ∪ Interval{:open,:closed}(i1) ≡ Interval{:open,:closed}(i1)
             @test Interval{:closed,:open}(i1) ∪ Interval{:closed,:open}(i2) ≡
@@ -418,7 +418,7 @@ struct IncompleteInterval <: AbstractInterval{Int} end
             # - intersection of completely overlapping intervals
             # i1      0 ------>------ 1
             # i2         1/3 ->- 1/2
-            @test i1 ∩ i2 ≡ i2 ∩ i1 ≡ i2
+            @test (@inferred i1 ∩ i2) ≡ (@inferred i2 ∩ i1) ≡ i2
             @test Interval{:open,:closed}(i1) ∩ Interval{:open,:closed}(i2) ≡
                   Interval{:open,:closed}(i2) ∩ Interval{:open,:closed}(i1) ≡ Interval{:open,:closed}(i2)
             @test Interval{:closed,:open}(i1) ∩ Interval{:closed,:open}(i2) ≡
@@ -440,7 +440,7 @@ struct IncompleteInterval <: AbstractInterval{Int} end
             # i1      0 ------>------ 1
             # i3                 1/2 ------>------ 2
             d = zero(T) .. 2*one(T)
-            @test i1 ∪ i3 ≡ i3 ∪ i1 ≡ d
+            @test (@inferred i1 ∪ i3) ≡ (@inferred i3 ∪ i1) ≡ d
             @test Interval{:open,:closed}(i1) ∪ Interval{:open,:closed}(i3) ≡
                   Interval{:open,:closed}(i3) ∪ Interval{:open,:closed}(i1) ≡ Interval{:open,:closed}(d)
             @test Interval{:closed,:open}(i1) ∪ Interval{:closed,:open}(i3) ≡
@@ -460,7 +460,7 @@ struct IncompleteInterval <: AbstractInterval{Int} end
             # i1      0 ------>------ 1
             # i3                 1/2 ------>------ 2
             d = one(T)/2 .. one(T)
-            @test i1 ∩ i3 ≡ i3 ∩ i1 ≡ d
+            @test (@inferred i1 ∩ i3) ≡ (@inferred i3 ∩ i1) ≡ d
             @test Interval{:open,:closed}(i1) ∩ Interval{:open,:closed}(i3) ≡
                   Interval{:open,:closed}(i3) ∩ Interval{:open,:closed}(i1) ≡ Interval{:open,:closed}(d)
             @test Interval{:closed,:open}(i1) ∩ Interval{:closed,:open}(i3) ≡
@@ -482,7 +482,7 @@ struct IncompleteInterval <: AbstractInterval{Int} end
             # i2         1/3 ->- 1/2
             # i3                 1/2 ------>------ 2
             d = one(T)/3 .. 2*one(T)
-            @test i2 ∪ i3 ≡ i3 ∪ i2 ≡ d
+            @test (@inferred i2 ∪ i3) ≡ (@inferred i3 ∪ i2) ≡ d
             @test Interval{:open,:closed}(i2) ∪ Interval{:open,:closed}(i3) ≡
                   Interval{:open,:closed}(i3) ∪ Interval{:open,:closed}(i2) ≡ Interval{:open,:closed}(d)
             @test Interval{:closed,:open}(i2) ∪ Interval{:closed,:open}(i3) ≡
@@ -500,7 +500,7 @@ struct IncompleteInterval <: AbstractInterval{Int} end
             # i2         1/3 ->- 1/2
             # i3                 1/2 ------>------ 2
             d = one(T)/2 .. one(T)/2
-            @test i2 ∩ i3 ≡ i3 ∩ i2 ≡ d
+            @test (@inferred i2 ∩ i3) ≡ (@inferred i3 ∩ i2) ≡ d
             @test Interval{:open,:closed}(i2) ∩ Interval{:open,:closed}(i3) ≡
                   Interval{:open,:closed}(i3) ∩ Interval{:open,:closed}(i2) ≡ Interval{:open,:closed}(d)
             @test Interval{:closed,:open}(i2) ∩ Interval{:closed,:open}(i3) ≡
