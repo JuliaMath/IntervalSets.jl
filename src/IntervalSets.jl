@@ -74,10 +74,10 @@ convert(::Type{AbstractInterval{T}}, i::AbstractInterval{T}) where T = i
 ordered(a::T, b::T) where {T} = ifelse(a < b, (a, b), (b, a))
 ordered(a, b) = ordered(promote(a, b)...)
 
-checked_conversion(::Type{T}, a, b) where {T} = _checked_conversion(T, convert(T, a), convert(T, b))
-_checked_conversion(::Type{T}, a::T, b::T) where {T} = a, b
-_checked_conversion(::Type{Any}, a, b) = throw(ArgumentError("$a and $b promoted to type Any"))
-_checked_conversion(::Type{T}, a, b) where {T} = throw(ArgumentError("$a and $b are not both of type $T"))
+default_interval_eltype(left, right) = default_interval_eltype(typeof(left), typeof(right))
+default_interval_eltype(TL::Type, TR::Type) = default_interval_eltype(promote_type(TL, TR))
+default_interval_eltype(T::Type) = T
+default_interval_eltype(T::Type{<:Integer}) = float(T)
 
 function infimum(d::AbstractInterval{T}) where T
     a = leftendpoint(d)
