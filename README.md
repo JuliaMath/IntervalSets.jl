@@ -32,7 +32,7 @@ You can construct `ClosedInterval`s in a variety of ways:
 julia> using IntervalSets
 
 julia> ClosedInterval{Float64}(1,3)
-1.0..3.0
+1..3
 
 julia> 0.5..2.5
 0.5..2.5
@@ -44,7 +44,7 @@ julia> 1.5±1
 Similarly, you can construct `OpenInterval`s and `Interval{:open,:closed}`s, and `Interval{:closed,:open}`:
 ```julia
 julia> OpenInterval{Float64}(1,3)
-1.0..3.0 (open)
+1..3 (open)
 
 julia> OpenInterval(0.5..2.5)
 0.5..2.5 (open)

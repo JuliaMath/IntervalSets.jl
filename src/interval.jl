@@ -24,13 +24,14 @@ mathematical notation, the constructed range is `(left, right)`.
 const OpenInterval{T,TL,TR} = Interval{:open,:open,T,TL,TR}
 
 Interval{L,R,T}(i::AbstractInterval) where {L,R,T} = Interval{L,R,T}(endpoints(i)...)
+Interval{L,R,T,TL,TR}(i::AbstractInterval) where {L,R,T,TL,TR} = Interval{L,R,T,TL,TR}(endpoints(i)...)
 Interval{L,R,T}(l, r) where {L,R,T} = Interval{L,R,T,typeof(l),typeof(r)}(l, r)
 function Interval{L,R}(left, right) where {L,R} 
     T = default_interval_eltype(left, right)
-    if T = Any
-        error("Endpoints of an Interval were incompatible (inferred eltype was Any)."; left=left, right=right)
+    if T == Any
+        error("Endpoints ($left, $right) of Interval were incompatible (inferred eltype was Any).")
     end
-    Interval{L,R,}(left, right)
+    Interval{L,R,T}(left, right)
 end
 Interval(left, right) = ClosedInterval(left, right)
 
@@ -97,7 +98,12 @@ Construct a ClosedInterval `iv` spanning the region from
 ±(x, y) = ClosedInterval(x - y, x + y)
 ±(x::CartesianIndex, y::CartesianIndex) = ClosedInterval(x-y, x+y)
 
-show(io::IO, I::ClosedInterval) = print(io, leftendpoint(I), "..", rightendpoint(I))
+function show(io::IO, I::ClosedInterval)
+    print(io, leftendpoint(I), "..", rightendpoint(I))
+    if eltype(I) != default_interval_eltype(leftendpoint(I), rightendpoint(I))
+        print(io, " (", eltype(I), ")")
+    end
+end
 show(io::IO, I::OpenInterval) = print(io, leftendpoint(I), "..", rightendpoint(I), " (", eltype(I), ", open)")
 show(io::IO, I::Interval{:open,:closed}) = print(io, leftendpoint(I), "..", rightendpoint(I), " (", eltype(I), ", open–closed)")
 show(io::IO, I::Interval{:closed,:open}) = print(io, leftendpoint(I), "..", rightendpoint(I), " (", eltype(I), ", closed–open)")
@@ -173,6 +179,6 @@ end
 ClosedInterval{T}(i::AbstractUnitRange{I}) where {T,I<:Integer} = ClosedInterval{T}(minimum(i), maximum(i))
 ClosedInterval(i::AbstractUnitRange{I}) where {I<:Integer} = ClosedInterval{I}(minimum(i), maximum(i))
 
-Base.promote_rule(::Type{Interval{L,R,T1}}, ::Type{Interval{L,R,T2}}) where {L,R,T1,T2} = Interval{L,R,promote_type(T1, T2)}
+Base.promote_rule(::Type{Interval{L,R,T1,TL1,TR1}}, ::Type{Interval{L,R,T2,TL2,TR2}}) where {L,R,T1,T2,TL1,TR1,TL2,TR2} = Interval{L,R,promote_type(T1, T2),promote_type(TL1,TL2),promote_type(TR1,TR2)}
 
 float(i::Interval{L, R, T}) where {L,R,T} = Interval{L, R, float(T)}(endpoints(i)...)
