@@ -120,9 +120,10 @@ end
 intersect(d1::AbstractInterval, d2::AbstractInterval) = intersect(Interval(d1), Interval(d2))
 
 
-function union(d1::TypedEndpointsInterval, d2::TypedEndpointsInterval)
-    isempty(d1) && return d2
-    isempty(d2) && return d1
+function union(d1::TypedEndpointsInterval{L1,R1,T1}, d2::TypedEndpointsInterval{L2,R2,T2}) where {L1,R1,T1,L2,R2,T2}
+    T = promote_type(T1,T2)
+    isempty(d1) && return Interval{L1,R1,T}(d2)
+    isempty(d2) && return Interval{L1,R1,T}(d1)
     any(∈(d1), endpoints(d2)) || any(∈(d2), endpoints(d1)) ||
         throw(ArgumentError("Cannot construct union of disjoint sets."))
     _union(d1, d2)
