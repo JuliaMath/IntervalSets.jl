@@ -77,7 +77,7 @@ ordered(a, b) = ordered(promote(a, b)...)
 default_interval_eltype(left, right) = default_interval_eltype(typeof(left), typeof(right))
 default_interval_eltype(TL::Type, TR::Type) = default_interval_eltype(promote_type(TL, TR))
 default_interval_eltype(T::Type) = T
-default_interval_eltype(T::Type{<:Integer}) = float(T)
+default_interval_eltype(T::Type{<:Number}) = float(T)
 
 function infimum(d::AbstractInterval{T}) where T
     a = leftendpoint(d)

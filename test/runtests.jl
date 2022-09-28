@@ -750,7 +750,7 @@ struct IncompleteInterval <: AbstractInterval{Int} end
         @test rand(1..2)::Float64 in 1..2
         @test rand(1..2.)::Float64 in 1..2
         @test rand(1..big(2))::BigFloat in 1..2
-        @test rand(1..(3//2))::Rational in 1..3/2
+        @test rand(1..(3//2))::Float64 in 1..3/2
         @test rand(Int32(1)..Int32(2))::Float64 in 1..2
         @test rand(Float32(1)..Float32(2))::Float32 in 1..2
         @test_throws ArgumentError rand(2..1)
