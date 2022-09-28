@@ -18,9 +18,19 @@ export AbstractInterval, Interval, OpenInterval, ClosedInterval,
             searchsorted_interval
 
 """
-A subtype of `Domain{T}` represents a subset of type `T`, that provides `in`.
+A subtype of `Domain{T}` represents a set that provides `in`. `T` is a type suitable for representing elements in the domain.
 """
 abstract type Domain{T} end
+
+"""
+    eltype(::Domain{T})
+    eltype(::Type{<:Domain{T}})
+
+Return `T`. The `eltype`, `T`, of a `Domain` is the type that best represents elements of the domain according to the criteria chosen by the programmer who created the domain.
+
+Note: Objects of other types may be in the domain (as determined by the `in` function) and there may not be a unique object of type `T` for each mathematical element in the domain (e.g. a real interval may be represented by a `Domain{Float64}`, but there there are not unique `Float64`s for each real number in the interval).
+"""
+Base.eltype(::Type{<:Domain{T}}) where T = T
 
 Base.IteratorSize(::Type{<:Domain}) = Base.SizeUnknown()
 Base.isdisjoint(a::Domain, b::Domain) = isempty(a ∩ b)
@@ -63,9 +73,6 @@ isclosedset(d::AbstractInterval) = isleftclosed(d) && isrightclosed(d)
 
 "Is the interval open?"
 isopenset(d::AbstractInterval) = isleftopen(d) && isrightopen(d)
-
-eltype(::Type{AbstractInterval{T}}) where {T} = T
-@pure eltype(::Type{I}) where {I<:AbstractInterval} = eltype(supertype(I))
 
 convert(::Type{AbstractInterval}, i::AbstractInterval) = i
 convert(::Type{AbstractInterval{T}}, i::AbstractInterval{T}) where T = i
