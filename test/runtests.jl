@@ -384,6 +384,12 @@ struct IncompleteInterval <: AbstractInterval{Int} end
 
     @testset "Union and intersection" begin
         for T in (Float32,Float64)
+            # i1      0 ------>------ 1
+            # i2         1/3 ->- 1/2
+            # i3                 1/2 ------>------ 2
+            # i4                                   2 -->-- 3
+            # i5                        1.0+ -->-- 2
+            # i_empty 0 ------<------ 1
             i1 = zero(T) .. one(T)
             i2 = one(T)/3 .. one(T)/2
             i3 = one(T)/2 .. 2*one(T)
@@ -392,7 +398,9 @@ struct IncompleteInterval <: AbstractInterval{Int} end
             i_empty = one(T) ..zero(T)
 
             # - union of completely overlapping intervals
-            @test i1 ∪ i2 ≡ i2 ∪ i1 ≡ i1
+            # i1      0 ------>------ 1
+            # i2         1/3 ->- 1/2
+            @test (@inferred i1 ∪ i2) ≡ (@inferred i2 ∪ i1) ≡ i1
             @test Interval{:open,:closed}(i1) ∪ Interval{:open,:closed}(i2) ≡
                   Interval{:open,:closed}(i2) ∪ Interval{:open,:closed}(i1) ≡ Interval{:open,:closed}(i1)
             @test Interval{:closed,:open}(i1) ∪ Interval{:closed,:open}(i2) ≡
@@ -409,7 +417,9 @@ struct IncompleteInterval <: AbstractInterval{Int} end
             @test Interval{:open,:closed}(i1) ∪ Interval{:closed,:open}(i2) ≡ Interval{:closed,:open}(i2) ∪ Interval{:open,:closed}(i1) ≡ Interval{:open,:closed}(i1)
 
             # - intersection of completely overlapping intervals
-            @test i1 ∩ i2 ≡ i2 ∩ i1 ≡ i2
+            # i1      0 ------>------ 1
+            # i2         1/3 ->- 1/2
+            @test (@inferred i1 ∩ i2) ≡ (@inferred i2 ∩ i1) ≡ i2
             @test Interval{:open,:closed}(i1) ∩ Interval{:open,:closed}(i2) ≡
                   Interval{:open,:closed}(i2) ∩ Interval{:open,:closed}(i1) ≡ Interval{:open,:closed}(i2)
             @test Interval{:closed,:open}(i1) ∩ Interval{:closed,:open}(i2) ≡
@@ -428,8 +438,10 @@ struct IncompleteInterval <: AbstractInterval{Int} end
 
 
             # - union of partially overlapping intervals
+            # i1      0 ------>------ 1
+            # i3                 1/2 ------>------ 2
             d = zero(T) .. 2*one(T)
-            @test i1 ∪ i3 ≡ i3 ∪ i1 ≡ d
+            @test (@inferred i1 ∪ i3) ≡ (@inferred i3 ∪ i1) ≡ d
             @test Interval{:open,:closed}(i1) ∪ Interval{:open,:closed}(i3) ≡
                   Interval{:open,:closed}(i3) ∪ Interval{:open,:closed}(i1) ≡ Interval{:open,:closed}(d)
             @test Interval{:closed,:open}(i1) ∪ Interval{:closed,:open}(i3) ≡
@@ -445,11 +457,11 @@ struct IncompleteInterval <: AbstractInterval{Int} end
             @test Interval{:open,:closed}(i1) ∪ OpenInterval(i3) ≡ OpenInterval(i3) ∪ Interval{:open,:closed}(i1) ≡ OpenInterval(d)
             @test Interval{:open,:closed}(i1) ∪ Interval{:closed,:open}(i3) ≡ Interval{:closed,:open}(i3) ∪ Interval{:open,:closed}(i1) ≡ OpenInterval(d)
 
-
-
             # - intersection of partially overlapping intervals
+            # i1      0 ------>------ 1
+            # i3                 1/2 ------>------ 2
             d = one(T)/2 .. one(T)
-            @test i1 ∩ i3 ≡ i3 ∩ i1 ≡ d
+            @test (@inferred i1 ∩ i3) ≡ (@inferred i3 ∩ i1) ≡ d
             @test Interval{:open,:closed}(i1) ∩ Interval{:open,:closed}(i3) ≡
                   Interval{:open,:closed}(i3) ∩ Interval{:open,:closed}(i1) ≡ Interval{:open,:closed}(d)
             @test Interval{:closed,:open}(i1) ∩ Interval{:closed,:open}(i3) ≡
@@ -468,8 +480,10 @@ struct IncompleteInterval <: AbstractInterval{Int} end
 
 
             # - union of barely overlapping intervals
+            # i2         1/3 ->- 1/2
+            # i3                 1/2 ------>------ 2
             d = one(T)/3 .. 2*one(T)
-            @test i2 ∪ i3 ≡ i3 ∪ i2 ≡ d
+            @test (@inferred i2 ∪ i3) ≡ (@inferred i3 ∪ i2) ≡ d
             @test Interval{:open,:closed}(i2) ∪ Interval{:open,:closed}(i3) ≡
                   Interval{:open,:closed}(i3) ∪ Interval{:open,:closed}(i2) ≡ Interval{:open,:closed}(d)
             @test Interval{:closed,:open}(i2) ∪ Interval{:closed,:open}(i3) ≡
@@ -484,8 +498,10 @@ struct IncompleteInterval <: AbstractInterval{Int} end
             @test Interval{:open,:closed}(i2) ∪ Interval{:closed,:open}(i3) ≡ Interval{:closed,:open}(i3) ∪ Interval{:open,:closed}(i2) ≡ OpenInterval(d)
 
             # - intersection of barely overlapping intervals
+            # i2         1/3 ->- 1/2
+            # i3                 1/2 ------>------ 2
             d = one(T)/2 .. one(T)/2
-            @test i2 ∩ i3 ≡ i3 ∩ i2 ≡ d
+            @test (@inferred i2 ∩ i3) ≡ (@inferred i3 ∩ i2) ≡ d
             @test Interval{:open,:closed}(i2) ∩ Interval{:open,:closed}(i3) ≡
                   Interval{:open,:closed}(i3) ∩ Interval{:open,:closed}(i2) ≡ Interval{:open,:closed}(d)
             @test Interval{:closed,:open}(i2) ∩ Interval{:closed,:open}(i3) ≡
@@ -506,6 +522,8 @@ struct IncompleteInterval <: AbstractInterval{Int} end
             @test intersect(MyUnitInterval(true,true), OpenInterval(0,1)) == OpenInterval(0,1)
 
             # - union of non-overlapping intervals
+            # i1      0 ------>------ 1
+            # i4                                   2 -->-- 3
             @test_throws ArgumentError i1 ∪ i4
             @test_throws ArgumentError i4 ∪ i1
             @test_throws ArgumentError OpenInterval(i1) ∪ i4
@@ -514,6 +532,8 @@ struct IncompleteInterval <: AbstractInterval{Int} end
             @test_throws ArgumentError Interval{:closed,:open}(i1) ∪ OpenInterval(i4)
 
             # - union of almost-overlapping intervals
+            # i1      0 ------>------ 1
+            # i5                        1.0+ -->-- 2
             @test_throws ArgumentError i1 ∪ i5
             @test_throws ArgumentError i5 ∪ i1
             @test_throws ArgumentError OpenInterval(i1) ∪ i5
@@ -522,6 +542,8 @@ struct IncompleteInterval <: AbstractInterval{Int} end
             @test_throws ArgumentError Interval{:closed,:open}(i1) ∪ OpenInterval(i5)
 
             # - intersection of non-overlapping intervals
+            # i1      0 ------>------ 1
+            # i4                                   2 -->-- 3
             @test isempty(i1 ∩ i4)
             @test isempty(i4 ∩ i1)
             @test isempty(OpenInterval(i1) ∩ i4)
@@ -535,6 +557,8 @@ struct IncompleteInterval <: AbstractInterval{Int} end
 
 
             # - intersection of almost-overlapping intervals
+            # i1      0 ------>------ 1
+            # i5                        1.0+ -->-- 2
             @test isempty(i1 ∩ i5)
             @test isempty(i5 ∩ i1)
             @test isempty(OpenInterval(i1) ∩ i5)
@@ -547,6 +571,8 @@ struct IncompleteInterval <: AbstractInterval{Int} end
             @test isdisjoint(Interval{:closed,:open}(i1), i5)
 
             # - union of interval with empty
+            # i1      0 ------>------ 1
+            # i_empty 0 ------<------ 1
             @test i1 ∪ i_empty ≡ i_empty ∪ i1 ≡ i1
             @test Interval{:open,:closed}(i1) ∪ Interval{:open,:closed}(i_empty) ≡
                   Interval{:open,:closed}(i_empty) ∪ Interval{:open,:closed}(i1) ≡ Interval{:open,:closed}(i1)
@@ -564,6 +590,8 @@ struct IncompleteInterval <: AbstractInterval{Int} end
             @test Interval{:open,:closed}(i1) ∪ Interval{:closed,:open}(i_empty) ≡ Interval{:closed,:open}(i_empty) ∪ Interval{:open,:closed}(i1) ≡ Interval{:open,:closed}(i1)
 
             # - intersection of interval with empty
+            # i1      0 ------>------ 1
+            # i_empty 0 ------<------ 1
             @test isempty(i1 ∩ i_empty)
             @test isempty(i_empty ∩ i1)
             @test isempty(OpenInterval(i1) ∩ i_empty)
