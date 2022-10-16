@@ -76,6 +76,8 @@ convert(::Type{Domain}, d::Interval{L,R}) where {L,R} = d
 convert(::Type{AbstractInterval}, d::Interval{L,R}) where {L,R} = d
 convert(::Type{TypedEndpointsInterval{L,R}}, d::Interval{L,R}) where {L,R} = d
 
+constructorof(::Type{<:Interval{L, R}}) where {L, R} = Interval{L, R}
+
 
 """
     iv = l..r

@@ -8,6 +8,8 @@ using Statistics
 import Statistics: mean
 using Random
 
+import ConstructionBase: constructorof
+
 using Dates
 
 export AbstractInterval, Interval, OpenInterval, ClosedInterval,

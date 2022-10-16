@@ -5,6 +5,7 @@ using Statistics
 import Statistics: mean
 using Random
 using Unitful
+using ConstructionBase
 
 import IntervalSets: Domain, endpoints, closedendpoints, TypedEndpointsInterval
 
@@ -215,6 +216,11 @@ struct IncompleteInterval <: AbstractInterval{Int} end
 
         @test promote_type(Interval{:closed,:open,Float64}, Interval{:closed,:open,Int}) ===
                         Interval{:closed,:open,Float64}
+    end
+
+    @testset "constructionbase" begin
+        @test setproperties(1..2, left=0) === 0..2
+        @test setproperties(OpenInterval(1, 2), right=5) === OpenInterval(1, 5)
     end
 
 
