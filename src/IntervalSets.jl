@@ -1,7 +1,7 @@
 module IntervalSets
 
 using Base: @pure
-import Base: eltype, convert, show, in, length, isempty, isequal, issubset, ==, hash,
+import Base: eltype, convert, show, in, length, isempty, isequal, isapprox, issubset, ==, hash,
              union, intersect, minimum, maximum, extrema, range, clamp, mod, float, ⊇, ⊊, ⊋
 
 using Statistics
@@ -141,6 +141,13 @@ isequal(A::TypedEndpointsInterval, B::TypedEndpointsInterval) = isempty(A) & ise
 
 ==(A::TypedEndpointsInterval{L,R}, B::TypedEndpointsInterval{L,R}) where {L,R} = (leftendpoint(A) == leftendpoint(B) && rightendpoint(A) == rightendpoint(B)) || (isempty(A) && isempty(B))
 ==(A::TypedEndpointsInterval, B::TypedEndpointsInterval) = isempty(A) && isempty(B)
+
+function isapprox(A::AbstractInterval, B::AbstractInterval; atol=0, rtol=Base.rtoldefault(eltype(A), eltype(B), atol), kwargs...)
+    maxabs = max(maximum(abs, endpoints(A)), maximum(abs, endpoints(B)))
+    let atol = max(atol, rtol * maxabs)
+        isapprox(leftendpoint(A), leftendpoint(B); atol, rtol, kwargs...) && isapprox(rightendpoint(A), rightendpoint(B); atol, rtol, kwargs...)
+    end
+end
 
 function issubset(A::TypedEndpointsInterval, B::TypedEndpointsInterval)
     Al, Ar = endpoints(A)

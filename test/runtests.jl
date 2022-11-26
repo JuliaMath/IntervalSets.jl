@@ -150,6 +150,18 @@ struct IncompleteInterval <: AbstractInterval{Int} end
         @test isempty(ClosedInterval(B, A))
     end
 
+    @testset "isapprox" begin
+        @test 1..2 ≈ 1..2
+        @test 1..2 ≈ (1+1e-10)..2
+        @test 1..2 ≉ 1..2.01
+        @test 10..11 ≈ 10.1..10.9  rtol=0.01
+        @test 10..11 ≈ 10.1..10.9  atol=0.1
+        @test 10..11 ≉ 10.1..10.9  rtol=0.005
+        @test 10..11 ≉ 10.1..10.9  atol=0.05
+        @test 0..1 ≈ eps()..1
+        @test OpenInterval(0, 1) ≈ ClosedInterval(0, 1)
+    end
+
     @testset "Convert" begin
         I = 0..3
         @test @inferred(convert(ClosedInterval{Float64}, I))         ===
