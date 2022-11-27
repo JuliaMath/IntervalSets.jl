@@ -6,29 +6,33 @@ is an interval set containg `x` such that
 3. `left ≤ x < right` if `L == :closed` and `R == :open`, or
 4. `left < x < right` if `L == R == :open`
 """
-struct Interval{L,R,T}  <: TypedEndpointsInterval{L,R,T}
-    left::T
-    right::T
-
-    Interval{L,R,T}(l, r) where {L,R,T} = ((a, b) = checked_conversion(T, l, r); new{L,R,T}(a, b))
+struct Interval{L,R,T,TL,TR}  <: TypedEndpointsInterval{L,R,T}
+    left::TL
+    right::TR
 end
-
 
 """
 A `ClosedInterval(left, right)` is an interval set that includes both its upper and lower bounds. In
 mathematical notation, the constructed range is `[left, right]`.
 """
-const ClosedInterval{T} = Interval{:closed,:closed,T}
+const ClosedInterval{T,TL,TR} = Interval{:closed,:closed,T,TL,TR}
 
 """
 An `TypedEndpointsInterval{:open,:open}(left, right)` is an interval set that includes both its upper and lower bounds. In
 mathematical notation, the constructed range is `(left, right)`.
 """
-const OpenInterval{T} = Interval{:open,:open,T}
+const OpenInterval{T,TL,TR} = Interval{:open,:open,T,TL,TR}
 
 Interval{L,R,T}(i::AbstractInterval) where {L,R,T} = Interval{L,R,T}(endpoints(i)...)
-Interval{L,R}(left, right) where {L,R} = Interval{L,R}(promote(left,right)...)
-Interval{L,R}(left::T, right::T) where {L,R,T} = Interval{L,R,T}(left, right)
+Interval{L,R,T,TL,TR}(i::AbstractInterval) where {L,R,T,TL,TR} = Interval{L,R,T,TL,TR}(endpoints(i)...)
+Interval{L,R,T}(l, r) where {L,R,T} = Interval{L,R,T,typeof(l),typeof(r)}(l, r)
+function Interval{L,R}(left, right) where {L,R} 
+    T = default_interval_eltype(left, right)
+    if T == Any
+        error("Endpoints ($left, $right) of Interval were incompatible (inferred eltype was Any).")
+    end
+    Interval{L,R,T}(left, right)
+end
 Interval(left, right) = ClosedInterval(left, right)
 
 
@@ -94,10 +98,15 @@ Construct a ClosedInterval `iv` spanning the region from
 ±(x, y) = ClosedInterval(x - y, x + y)
 ±(x::CartesianIndex, y::CartesianIndex) = ClosedInterval(x-y, x+y)
 
-show(io::IO, I::ClosedInterval) = print(io, leftendpoint(I), "..", rightendpoint(I))
-show(io::IO, I::OpenInterval) = print(io, leftendpoint(I), "..", rightendpoint(I), " (open)")
-show(io::IO, I::Interval{:open,:closed}) = print(io, leftendpoint(I), "..", rightendpoint(I), " (open–closed)")
-show(io::IO, I::Interval{:closed,:open}) = print(io, leftendpoint(I), "..", rightendpoint(I), " (closed–open)")
+function show(io::IO, I::ClosedInterval)
+    print(io, leftendpoint(I), "..", rightendpoint(I))
+    if eltype(I) != default_interval_eltype(leftendpoint(I), rightendpoint(I))
+        print(io, " (", eltype(I), ")")
+    end
+end
+show(io::IO, I::OpenInterval) = print(io, leftendpoint(I), "..", rightendpoint(I), " (", eltype(I), ", open)")
+show(io::IO, I::Interval{:open,:closed}) = print(io, leftendpoint(I), "..", rightendpoint(I), " (", eltype(I), ", open–closed)")
+show(io::IO, I::Interval{:closed,:open}) = print(io, leftendpoint(I), "..", rightendpoint(I), " (", eltype(I), ", closed–open)")
 
 # The following are not typestable for mixed endpoint types
 _left_intersect_type(::Type{Val{:open}}, ::Type{Val{L2}}, a1, a2) where L2 = a1 < a2 ? (a2,L2) : (a1,:open)
@@ -159,18 +168,18 @@ function _union(A::TypedEndpointsInterval{L1,R1}, B::TypedEndpointsInterval{L2,R
 end
 
 # random sampling from interval
-Random.gentype(::Type{Interval{L,R,T}}) where {L,R,T} = float(T)
+Random.gentype(::Type{Interval{L,R,T}}) where {L,R,T} = T
 function Random.rand(rng::AbstractRNG, i::Random.SamplerTrivial{<:TypedEndpointsInterval{:closed, :closed, T}}) where T<:Real
     _i = i[]
     isempty(_i) && throw(ArgumentError("The interval should be non-empty."))
     a,b = endpoints(_i)
     t = rand(rng, float(T)) # technically this samples from [0, 1), but we still allow it with TypedEndpointsInterval{:closed, :closed} for convenience
-    return clamp(t*a+(1-t)*b, _i)
+    return convert(T, clamp(t*a+(1-t)*b, _i))
 end
 
 ClosedInterval{T}(i::AbstractUnitRange{I}) where {T,I<:Integer} = ClosedInterval{T}(minimum(i), maximum(i))
 ClosedInterval(i::AbstractUnitRange{I}) where {I<:Integer} = ClosedInterval{I}(minimum(i), maximum(i))
 
-Base.promote_rule(::Type{Interval{L,R,T1}}, ::Type{Interval{L,R,T2}}) where {L,R,T1,T2} = Interval{L,R,promote_type(T1, T2)}
+Base.promote_rule(::Type{Interval{L,R,T1,TL1,TR1}}, ::Type{Interval{L,R,T2,TL2,TR2}}) where {L,R,T1,T2,TL1,TR1,TL2,TR2} = Interval{L,R,promote_type(T1, T2),promote_type(TL1,TL2),promote_type(TR1,TR2)}
 
 float(i::Interval{L, R, T}) where {L,R,T} = Interval{L, R, float(T)}(endpoints(i)...)
