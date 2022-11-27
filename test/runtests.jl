@@ -159,7 +159,9 @@ struct IncompleteInterval <: AbstractInterval{Int} end
         @test 10..11 ≉ 10.1..10.9  rtol=0.005
         @test 10..11 ≉ 10.1..10.9  atol=0.05
         @test 0..1 ≈ eps()..1
-        @test OpenInterval(0, 1) ≈ ClosedInterval(0, 1)
+        @test 100.0..100.0 ≉ nextfloat(100.0)..100.0
+        @test 3..1 ≈ 5..1
+        @test_throws Exception OpenInterval(0, 1) ≈ ClosedInterval(0, 1)
     end
 
     @testset "Convert" begin
