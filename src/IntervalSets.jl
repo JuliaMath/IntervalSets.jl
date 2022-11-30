@@ -117,21 +117,22 @@ closedendpoints(d::TypedEndpointsInterval{:closed,:open}) = (true,false)
 closedendpoints(d::TypedEndpointsInterval{:open,:closed}) = (false,true)
 closedendpoints(d::TypedEndpointsInterval{:open,:open}) = (false,false)
 
+# We dispatch to _in to avoid ambiguities if packages define in(v::CustomType, I::TypedEndpointsInterval)
+in(v, I::TypedEndpointsInterval) = _in(v, I)
+_in(v, I::TypedEndpointsInterval{:closed,:closed}) = leftendpoint(I) ≤ v ≤ rightendpoint(I)
+_in(v, I::TypedEndpointsInterval{:open,:open}) = leftendpoint(I) < v < rightendpoint(I)
+_in(v, I::TypedEndpointsInterval{:closed,:open}) = leftendpoint(I) ≤ v < rightendpoint(I)
+_in(v, I::TypedEndpointsInterval{:open,:closed}) = leftendpoint(I) < v ≤ rightendpoint(I)
 
-in(v, I::TypedEndpointsInterval{:closed,:closed}) = leftendpoint(I) ≤ v ≤ rightendpoint(I)
-in(v, I::TypedEndpointsInterval{:open,:open}) = leftendpoint(I) < v < rightendpoint(I)
-in(v, I::TypedEndpointsInterval{:closed,:open}) = leftendpoint(I) ≤ v < rightendpoint(I)
-in(v, I::TypedEndpointsInterval{:open,:closed}) = leftendpoint(I) < v ≤ rightendpoint(I)
+_in(v::Complex, I::TypedEndpointsInterval{:closed,:closed}) = isreal(v) && in(real(v), I)
+_in(v::Complex, I::TypedEndpointsInterval{:open,:open}) = isreal(v) && in(real(v), I)
+_in(v::Complex, I::TypedEndpointsInterval{:closed,:open}) = isreal(v) && in(real(v), I)
+_in(v::Complex, I::TypedEndpointsInterval{:open,:closed}) = isreal(v) && in(real(v), I)
 
-in(v::Complex, I::TypedEndpointsInterval{:closed,:closed}) = isreal(v) && in(real(v), I)
-in(v::Complex, I::TypedEndpointsInterval{:open,:open}) = isreal(v) && in(real(v), I)
-in(v::Complex, I::TypedEndpointsInterval{:closed,:open}) = isreal(v) && in(real(v), I)
-in(v::Complex, I::TypedEndpointsInterval{:open,:closed}) = isreal(v) && in(real(v), I)
-
-in(::Missing, I::TypedEndpointsInterval{:closed,:closed}) = !isempty(I) && missing
-in(::Missing, I::TypedEndpointsInterval{:open,:open}) = !isempty(I) && missing
-in(::Missing, I::TypedEndpointsInterval{:closed,:open}) = !isempty(I) && missing
-in(::Missing, I::TypedEndpointsInterval{:open,:closed}) = !isempty(I) && missing
+_in(::Missing, I::TypedEndpointsInterval{:closed,:closed}) = !isempty(I) && missing
+_in(::Missing, I::TypedEndpointsInterval{:open,:open}) = !isempty(I) && missing
+_in(::Missing, I::TypedEndpointsInterval{:closed,:open}) = !isempty(I) && missing
+_in(::Missing, I::TypedEndpointsInterval{:open,:closed}) = !isempty(I) && missing
 
 isempty(A::TypedEndpointsInterval{:closed,:closed}) = leftendpoint(A) > rightendpoint(A)
 isempty(A::TypedEndpointsInterval) = leftendpoint(A) ≥ rightendpoint(A)
