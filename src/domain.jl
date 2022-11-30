@@ -142,3 +142,6 @@ approx_indomain(x, d::Domain, tol) = in(x, d)
 isapprox(d1::Domain, d2::Domain; kwds...) = d1 == d2
 
 Base.isreal(d::Domain) = isreal(eltype(d))
+
+infimum(d::Domain) = minimum(d)  # if the minimum exists, then it is also the infimum
+supremum(d::Domain) = maximum(d)  # if the maximum exists, then it is also the supremum
