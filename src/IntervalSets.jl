@@ -9,6 +9,8 @@ import Statistics: mean
 using Random
 
 using Dates
+using StaticArraysCore: StaticVector, SVector
+using CompositeTypes
 
 export AbstractInterval, Interval, OpenInterval, ClosedInterval,
             ⊇, .., ±, ordered, width, leftendpoint, rightendpoint, endpoints,
@@ -17,10 +19,7 @@ export AbstractInterval, Interval, OpenInterval, ClosedInterval,
             infimum, supremum,
             searchsorted_interval
 
-"""
-A subtype of `Domain{T}` represents a subset of type `T`, that provides `in`.
-"""
-abstract type Domain{T} end
+include("domain.jl")
 
 Base.IteratorSize(::Type{<:Domain}) = Base.SizeUnknown()
 Base.isdisjoint(a::Domain, b::Domain) = isempty(a ∩ b)
