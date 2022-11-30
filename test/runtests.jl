@@ -827,6 +827,7 @@ struct IncompleteInterval <: AbstractInterval{Int} end
         @test eltype(I) === Int
         @test_throws ErrorException endpoints(I)
         @test_throws ErrorException closedendpoints(I)
+        @test_throws MethodError 2 in I
     end
 
     @testset "float" begin
