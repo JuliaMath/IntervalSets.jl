@@ -143,8 +143,13 @@ isequal(A::TypedEndpointsInterval, B::TypedEndpointsInterval) = isempty(A) & ise
 ==(A::TypedEndpointsInterval{L,R}, B::TypedEndpointsInterval{L,R}) where {L,R} = (leftendpoint(A) == leftendpoint(B) && rightendpoint(A) == rightendpoint(B)) || (isempty(A) && isempty(B))
 ==(A::TypedEndpointsInterval, B::TypedEndpointsInterval) = isempty(A) && isempty(B)
 
+@noinline function throw_closednesserror(A, B)
+    errstr = "comparing intervals with different closedness is not defined (received $A and $B)"
+    throw(ArgumentError(errstr))
+end
+
 function isapprox(A::AbstractInterval, B::AbstractInterval; atol=0, rtol=Base.rtoldefault(eltype(A), eltype(B), atol), kwargs...)
-    closedendpoints(A) != closedendpoints(B) && error("Comparing intervals with different closedness is not defined")
+    closedendpoints(A) != closedendpoints(B) && throw_closednesserror(A, B)
     isempty(A) != isempty(B) && return false
     isempty(A) && isempty(B) && return true
     maxabs = max(maximum(abs, endpoints(A)), maximum(abs, endpoints(B)))
