@@ -2,7 +2,8 @@ module IntervalSets
 
 using Base: @pure
 import Base: eltype, convert, show, in, length, isempty, isequal, isapprox, issubset, ==, hash,
-             union, intersect, minimum, maximum, extrema, range, clamp, mod, float, ⊇, ⊊, ⊋
+             union, intersect, minimum, maximum, extrema, range, clamp, mod, float, ⊇, ⊊, ⊋,
+             angle, sign
 
 using Statistics
 import Statistics: mean
@@ -94,6 +95,10 @@ function supremum(d::AbstractInterval{T}) where T
 end
 
 mean(d::AbstractInterval) = (leftendpoint(d) + rightendpoint(d))/2
+
+complexlength(d::AbstractInterval) = rightendpoint(d)-leftendpoint(d)
+angle(d::AbstractInterval) = angle(complexlength(d))
+sign(d::AbstractInterval) = sign(complexlength(d))
 
 """
     w = width(iv)

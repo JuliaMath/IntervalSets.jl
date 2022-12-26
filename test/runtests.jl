@@ -849,5 +849,11 @@ struct IncompleteInterval <: AbstractInterval{Int} end
         @test float(i4) == i4
     end
 
+    @testset "phase for complex intervals" begin
+        iv = 0..2im
+        @test angle(iv) ≈ pi/2
+        @test sign(iv) ≈ cis(pi/2)
+    end
+
     include("findall.jl")
 end
