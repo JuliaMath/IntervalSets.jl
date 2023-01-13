@@ -94,10 +94,10 @@ Construct a ClosedInterval `iv` spanning the region from
 ±(x, y) = ClosedInterval(x - y, x + y)
 ±(x::CartesianIndex, y::CartesianIndex) = ClosedInterval(x-y, x+y)
 
-show(io::IO, I::ClosedInterval) = print(io, leftendpoint(I), "..", rightendpoint(I))
-show(io::IO, I::OpenInterval) = print(io, leftendpoint(I), "..", rightendpoint(I), " (open)")
-show(io::IO, I::Interval{:open,:closed}) = print(io, leftendpoint(I), "..", rightendpoint(I), " (open–closed)")
-show(io::IO, I::Interval{:closed,:open}) = print(io, leftendpoint(I), "..", rightendpoint(I), " (closed–open)")
+show(io::IO, I::ClosedInterval) = print(io, leftendpoint(I), " .. ", rightendpoint(I))
+show(io::IO, I::OpenInterval) = print(io, leftendpoint(I), " .. ", rightendpoint(I), " (open)")
+show(io::IO, I::Interval{:open,:closed}) = print(io, leftendpoint(I), " .. ", rightendpoint(I), " (open-closed)")
+show(io::IO, I::Interval{:closed,:open}) = print(io, leftendpoint(I), " .. ", rightendpoint(I), " (closed-open)")
 
 # The following are not typestable for mixed endpoint types
 _left_intersect_type(::Type{Val{:open}}, ::Type{Val{L2}}, a1, a2) where L2 = a1 < a2 ? (a2,L2) : (a1,:open)
