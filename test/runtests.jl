@@ -94,18 +94,17 @@ struct IncompleteInterval <: AbstractInterval{Int} end
 
         @test 1.5 ∉ 0..1
         @test 1.5 ∉ 2..3
-        # even though A and B contain all Float32s between their extrema,
-        # union should not return an interval as there exists a Float64
-        # inbetween
+        # Throw error if the union is not an interval.
+        @test_throws ArgumentError (0..1) ∪ (2..3)
+        # Even though A and B contain all Float16s between their extrema,
+        # union should not defined because there exists a Float64 inbetween.
+        @test_throws ArgumentError A ∪ B
         x32 = nextfloat(rightendpoint(A))
         x64 = nextfloat(Float64(rightendpoint(A)))
         @test x32 ∉ A
         @test x32 ∈ B
         @test x64 ∉ A
         @test x64 ∉ B
-        # these tests
-        @test_broken x32 ∈ A ∪ B
-        @test_broken x64 ∉ A ∪ B
 
         @test J ⊆ L
         @test (L ⊆ J) == false
