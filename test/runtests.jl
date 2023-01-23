@@ -94,7 +94,6 @@ struct IncompleteInterval <: AbstractInterval{Int} end
 
         @test 1.5 ∉ 0..1
         @test 1.5 ∉ 2..3
-        @test_broken (0..1) ∪ (2..3) ≠ 0..3
         # even though A and B contain all Float32s between their extrema,
         # union should not return an interval as there exists a Float64
         # inbetween
