@@ -4,8 +4,6 @@ using Base: @pure
 import Base: eltype, convert, show, in, length, isempty, isequal, isapprox, issubset, ==, hash,
              union, intersect, minimum, maximum, extrema, range, clamp, mod, float, ⊇, ⊊, ⊋
 
-using Statistics
-import Statistics: mean
 using Random
 
 using Dates
@@ -282,5 +280,9 @@ end
 
 include("interval.jl")
 include("findall.jl")
+
+if !isdefined(Base, :get_extension)
+    include("../ext/IntervalSetsStatisticsExt.jl")
+end
 
 end # module
