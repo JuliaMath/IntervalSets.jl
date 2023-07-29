@@ -36,7 +36,7 @@ struct IncompleteInterval <: AbstractInterval{Int} end
         I = 0..3
         @test I === ClosedInterval(0,3) === ClosedInterval{Int}(0,3) ===
                  Interval(0,3)
-        @test string(I) == "0 .. 3"
+        @test string(I) == "0..3"
         @test @inferred(UnitRange(I)) === 0:3
         @test @inferred(range(I)) === 0:3
         @test @inferred(UnitRange{Int16}(I)) === Int16(0):Int16(3)
@@ -47,7 +47,7 @@ struct IncompleteInterval <: AbstractInterval{Int} end
         K = 5..4
         L = 3 ± 2
         M = @inferred(ClosedInterval(2, 5.0))
-        @test string(M) == "2.0 .. 5.0"
+        @test string(M) == "2.0..5.0"
         N = @inferred(ClosedInterval(UInt8(255), 300))
 
         x, y = CartesianIndex(1, 2, 3, 4), CartesianIndex(1, 2, 3, 4)
