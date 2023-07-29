@@ -8,12 +8,6 @@ This package represents intervals of an ordered set. For an interval
 spanning from `a` to `b`, all values `x` that lie between `a` and `b`
 are defined as being members of the interval.
 
-This package is intended to implement a "minimal" foundation for
-intervals upon which other packages might build. In particular, we
-*encourage* [type-piracy](https://docs.julialang.org/en/v1/manual/style-guide/#Avoid-type-piracy)
-for the reason that only one interval package can
-unambiguously define the `..` and `±` operators (see below).
-
 Currently this package defines one concrete type, `Interval`.
 These define the set spanning from `a` to `b`, meaning the
 interval is defined as the set `{x}` satisfying `a ≤ x ≤ b`. This is
