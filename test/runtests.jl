@@ -6,7 +6,7 @@ import Statistics: mean
 using Random
 using Unitful
 
-import IntervalSets: Domain, endpoints, closedendpoints, TypedEndpointsInterval
+import IntervalSets: Domain, endpoints, closedendpoints, TypedEndpointsInterval, boundstype
 
 struct MyClosedUnitInterval <: TypedEndpointsInterval{:closed,:closed,Int} end
 endpoints(::MyClosedUnitInterval) = (0,1)
@@ -54,8 +54,8 @@ struct IncompleteInterval <: AbstractInterval{Int} end
         O = @inferred x±y
         @test O == ClosedInterval(x-y, x+y)
 
-        @test eltype(I) == Int
-        @test eltype(M) == Float64
+        @test boundstype(I) == Int
+        @test boundstype(M) == Float64
 
         @test !isempty(I)
         @test isempty(J)
@@ -642,7 +642,7 @@ struct IncompleteInterval <: AbstractInterval{Int} end
 
     @testset "Custom intervals" begin
         I = MyUnitInterval(true,true)
-        @test eltype(I) == eltype(typeof(I)) == Int
+        @test boundstype(I) == boundstype(typeof(I)) == Int
         @test leftendpoint(I) == 0
         @test rightendpoint(I) == 1
         @test isleftclosed(I)
@@ -822,7 +822,7 @@ struct IncompleteInterval <: AbstractInterval{Int} end
 
     @testset "IncompleteInterval" begin
         I = IncompleteInterval()
-        @test eltype(I) === Int
+        @test boundstype(I) === Int
         @test_throws ErrorException endpoints(I)
         @test_throws ErrorException closedendpoints(I)
         @test_throws MethodError 2 in I
