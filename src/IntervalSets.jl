@@ -63,7 +63,7 @@ isclosedset(d::AbstractInterval) = isleftclosed(d) && isrightclosed(d)
 isopenset(d::AbstractInterval) = isleftopen(d) && isrightopen(d)
 
 eltype(::Type{AbstractInterval{T}}) where {T} = T
-@pure eltype(::Type{I}) where {I<:AbstractInterval} = eltype(supertype(I))
+eltype(::Type{I}) where {I<:AbstractInterval{T}} where T = T
 
 convert(::Type{AbstractInterval}, i::AbstractInterval) = i
 convert(::Type{AbstractInterval{T}}, i::AbstractInterval{T}) where T = i
