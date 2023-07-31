@@ -48,7 +48,7 @@ function Base._findin(a::Union{AbstractArray, Tuple}, b::Interval)
 end
 
 """
-    searchsorted_interval(a, i::Interval)
+    searchsorted_interval(a, i::Interval; [rev=false])
 
 Return the range of indices of `a` which is inside of the interval `i` (using binary search), assuming that
 `a` is already sorted. Return an empty range located at the insertion point if a does not contain values in `i`.
@@ -65,24 +65,15 @@ julia> searchsorted_interval(Float64[], 1..3)
 1:0
 ```
 """
-function searchsorted_interval end
-
 function searchsorted_interval(X, i::Interval{L, R}; rev=false) where {L, R}
-    if rev
+    if rev === true
         _searchsorted_begin(X, rightendpoint(i), Val(R); rev):_searchsorted_end(X, leftendpoint(i), Val(L); rev)
     else
         _searchsorted_begin(X, leftendpoint(i), Val(L); rev):_searchsorted_end(X, rightendpoint(i), Val(R); rev)
     end
 end
 
-_searchsorted_begin(X, x, ::Val{:closed}; rev) = searchsortedfirst(X, x; rev)
-_searchsorted_begin(X, x, ::Val{:open  }; rev) = searchsortedlast( X, x; rev) + 1
-_searchsorted_end(  X, x, ::Val{:closed}; rev) = searchsortedlast( X, x; rev)
-_searchsorted_end(  X, x, ::Val{:open  }; rev) = searchsortedfirst(X, x; rev) - 1
-
-# Base searchsorted functions use the `isless` comparator, while interval membership uses `<`.
-# They differ for floating point zeros. Here, we change the zero sign when needed, so that the searchsorted result agrees with `<`.
-_searchsorted_begin(X, x::AbstractFloat, ::Val{:closed}; rev) = searchsortedfirst(X, iszero(x) && (x < zero(x)) == rev ? -x : x; rev)
-_searchsorted_begin(X, x::AbstractFloat, ::Val{:open  }; rev) = searchsortedlast( X, iszero(x) && (x < zero(x)) != rev ? -x : x; rev) + 1
-_searchsorted_end(  X, x::AbstractFloat, ::Val{:closed}; rev) = searchsortedlast( X, iszero(x) && (x < zero(x)) != rev ? -x : x; rev)
-_searchsorted_end(  X, x::AbstractFloat, ::Val{:open  }; rev) = searchsortedfirst(X, iszero(x) && (x < zero(x)) == rev ? -x : x; rev) - 1
+_searchsorted_begin(X, x, ::Val{:closed}; rev) = searchsortedfirst(X, x; rev, lt=<)
+_searchsorted_begin(X, x,   ::Val{:open}; rev) =  searchsortedlast(X, x; rev, lt=<) + 1
+  _searchsorted_end(X, x, ::Val{:closed}; rev) =  searchsortedlast(X, x; rev, lt=<)
+  _searchsorted_end(X, x,   ::Val{:open}; rev) = searchsortedfirst(X, x; rev, lt=<) - 1
