@@ -63,7 +63,15 @@ isopenset(d::AbstractInterval) = isleftopen(d) && isrightopen(d)
 
 boundstype(i::AbstractInterval) = boundstype(typeof(i))
 boundstype(::Type{I}) where {I<:AbstractInterval{T}} where T = T
-@deprecate Base.eltype(I::Type{<:AbstractInterval}) boundstype(I) false
+
+@static if VERSION < v"1.9"
+    function Base.eltype(I::Type{<:AbstractInterval})
+        Base.depwarn("`eltype` for `AbstractInterval` will be replaced with `boundstype` in the next breaking release (v0.8.0).", :eltype)
+        boundstype(I)
+    end
+else
+    @deprecate Base.eltype(I::Type{<:AbstractInterval}) boundstype(I) false
+end
 
 convert(::Type{AbstractInterval}, i::AbstractInterval) = i
 convert(::Type{AbstractInterval{T}}, i::AbstractInterval{T}) where T = i
