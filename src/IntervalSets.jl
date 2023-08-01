@@ -62,8 +62,8 @@ isclosedset(d::AbstractInterval) = isleftclosed(d) && isrightclosed(d)
 isopenset(d::AbstractInterval) = isleftopen(d) && isrightopen(d)
 
 boundstype(i::AbstractInterval) = boundstype(typeof(i))
-boundstype(::Type{AbstractInterval{T}}) where {T} = T
 boundstype(::Type{I}) where {I<:AbstractInterval{T}} where T = T
+@deprecate Base.eltype(I::Type{<:AbstractInterval}) boundstype(I) false
 
 convert(::Type{AbstractInterval}, i::AbstractInterval) = i
 convert(::Type{AbstractInterval{T}}, i::AbstractInterval{T}) where T = i
