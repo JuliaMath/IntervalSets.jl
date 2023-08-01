@@ -56,6 +56,8 @@ struct IncompleteInterval <: AbstractInterval{Int} end
 
         @test boundstype(I) == Int
         @test boundstype(M) == Float64
+        @test eltype(I) == Int
+        @test eltype(M) == Float64
 
         @test !isempty(I)
         @test isempty(J)
@@ -643,6 +645,7 @@ struct IncompleteInterval <: AbstractInterval{Int} end
     @testset "Custom intervals" begin
         I = MyUnitInterval(true,true)
         @test boundstype(I) == boundstype(typeof(I)) == Int
+        @test eltype(I) == eltype(typeof(I)) == Int
         @test leftendpoint(I) == 0
         @test rightendpoint(I) == 1
         @test isleftclosed(I)
@@ -823,6 +826,7 @@ struct IncompleteInterval <: AbstractInterval{Int} end
     @testset "IncompleteInterval" begin
         I = IncompleteInterval()
         @test boundstype(I) === Int
+        @test eltype(I) === Int
         @test_throws ErrorException endpoints(I)
         @test_throws ErrorException closedendpoints(I)
         @test_throws MethodError 2 in I
