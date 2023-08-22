@@ -4,6 +4,7 @@ using Base: @pure
 import Base: eltype, convert, show, in, length, isempty, isequal, isapprox, issubset, ==, hash,
              union, intersect, minimum, maximum, extrema, range, clamp, mod, float, ⊇, ⊊, ⊋
 
+using DomainSetsCore
 using Random
 
 using Dates
@@ -16,18 +17,14 @@ export AbstractInterval, Interval, OpenInterval, ClosedInterval,
             searchsorted_interval
 
 """
-A subtype of `Domain{T}` represents a subset of type `T`, that provides `in`.
-"""
-abstract type Domain{T} end
-
-Base.IteratorSize(::Type{<:Domain}) = Base.SizeUnknown()
-Base.isdisjoint(a::Domain, b::Domain) = isempty(a ∩ b)
-
-"""
 A subtype of `AbstractInterval{T}` represents an interval subset of type `T`, that provides
 `endpoints`, `closedendpoints`.
 """
-abstract type AbstractInterval{T} <: Domain{T} end
+abstract type AbstractInterval{T} <: DomainSetsCore.Domain{T} end
+
+Base.IteratorSize(::Type{<:AbstractInterval}) = Base.SizeUnknown()
+Base.isdisjoint(a::AbstractInterval, b::AbstractInterval) = isempty(a ∩ b)
+
 
 
 "A tuple containing the left and right endpoints of the interval."
