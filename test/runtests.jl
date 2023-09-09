@@ -408,6 +408,10 @@ struct IncompleteInterval <: AbstractInterval{Int} end
             i5 = nextfloat(one(T)) .. 2one(T)
             i_empty = one(T) ..zero(T)
 
+            # - union of multiple intervals
+            # issue #103
+            @test i1 ∪ i2 ∪ i3 ∪ i4 ∪ i5 ∪ i_empty == 0..3
+
             # - union of completely overlapping intervals
             # i1      0 ------>------ 1
             # i2         1/3 ->- 1/2

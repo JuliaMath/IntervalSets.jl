@@ -119,14 +119,36 @@ end
 
 intersect(d1::AbstractInterval, d2::AbstractInterval) = intersect(Interval(d1), Interval(d2))
 
+union(I::TypedEndpointsInterval...) = unioninterval(intervalunion!([I...]))
+unioninterval(x) = isone(length(x)) ? x[1] : throw(ArgumentError("Cannot construct union of disjoint sets."))
+function intervalunion!(I::Vector{<:TypedEndpointsInterval})
+    sort!(I, by = leftendpoint)
 
-function union(d1::TypedEndpointsInterval{L1,R1,T1}, d2::TypedEndpointsInterval{L2,R2,T2}) where {L1,R1,T1,L2,R2,T2}
-    T = promote_type(T1,T2)
-    isempty(d1) && return Interval{L2,R2,T}(d2)
-    isempty(d2) && return Interval{L1,R1,T}(d1)
-    any(∈(d1), endpoints(d2)) || any(∈(d2), endpoints(d1)) ||
-        throw(ArgumentError("Cannot construct union of disjoint sets."))
-    _union(d1, d2)
+    # filter out empty sets
+    k = 1
+    while k <= length(I)
+        if isempty(I[k])
+            popat!(I,k)
+        else
+            k += 1
+        end
+    end
+
+    # merge intervals
+    k = 2
+    while k <= length(I)
+        x = leftendpoint(I[k])
+        y = rightendpoint(I[k-1])
+        if x > y
+            k += 1
+        elseif x < y || x ∈ I[k] || x ∈ I[k-1]
+            I[k-1] = _union(I[k-1],I[k])
+            popat!(I,k)
+        else
+            k += 1
+        end
+    end
+    I
 end
 
 # these assume overlap
