@@ -410,7 +410,10 @@ struct IncompleteInterval <: AbstractInterval{Int} end
 
             # - union of multiple intervals
             # issue #103
-            @test i1 ∪ i2 ∪ i3 ∪ i4 ∪ i5 ∪ i_empty == 0..3
+            @test i1 ∪ i3 ∪ i4 == 0..3  # Equivalent to (i1 ∪ i3) ∪ i4
+            @test_throws ArgumentError i1 ∪ i4 ∪ i3  # The order of union matters
+            @test ∪(i1, i3, i4) == 0..3
+            @test ∪(i1, i4, i3) == 0..3
 
             # - union of completely overlapping intervals
             # i1      0 ------>------ 1
