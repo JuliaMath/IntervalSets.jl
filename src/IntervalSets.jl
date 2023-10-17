@@ -7,6 +7,8 @@ import Base: eltype, convert, show, in, length, isempty, isequal, isapprox, issu
 using Random
 
 using Dates
+using StaticArraysCore: StaticVector, SVector
+using CompositeTypes, CompositeTypes.Display
 
 export AbstractInterval, Interval, OpenInterval, ClosedInterval,
             ⊇, .., ±, ordered, width, leftendpoint, rightendpoint, endpoints,
@@ -15,10 +17,7 @@ export AbstractInterval, Interval, OpenInterval, ClosedInterval,
             infimum, supremum,
             searchsorted_interval
 
-"""
-A subtype of `Domain{T}` represents a subset of type `T`, that provides `in`.
-"""
-abstract type Domain{T} end
+include("domain.jl")
 
 Base.IteratorSize(::Type{<:Domain}) = Base.SizeUnknown()
 Base.isdisjoint(a::Domain, b::Domain) = isempty(a ∩ b)
@@ -103,6 +102,14 @@ function width(A::AbstractInterval)
     _width = rightendpoint(A) - leftendpoint(A)
     max(zero(_width), _width)   # this works when T is a Date
 end
+
+"Apply the `hash` function recursively to the given arguments."
+hashrec(x) = hash(x)
+hashrec(x, args...) = hash(x, hashrec(args...))
+Base.hash(d::AbstractInterval, h::UInt) =
+    hashrec(isleftopen(d), isrightopen(d), leftendpoint(d), rightendpoint(d), h)
+
+Display.object_parentheses(::AbstractInterval) = true
 
 """
 A subtype of `TypedEndpointsInterval{L,R,T}` where `L` and `R` are `:open` or `:closed`,
