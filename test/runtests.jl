@@ -8,6 +8,9 @@ using Unitful
 
 import IntervalSets: Domain, endpoints, closedendpoints, TypedEndpointsInterval
 
+using Aqua
+Aqua.test_all(IntervalSets)
+
 struct MyClosedUnitInterval <: TypedEndpointsInterval{:closed,:closed,Int} end
 endpoints(::MyClosedUnitInterval) = (0,1)
 Base.promote_rule(::Type{MyClosedUnitInterval}, ::Type{ClosedInterval{T}}) where T =
