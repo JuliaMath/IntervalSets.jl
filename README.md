@@ -28,25 +28,25 @@ You can construct `ClosedInterval`s in a variety of ways:
 julia> using IntervalSets
 
 julia> ClosedInterval{Float64}(1,3)
-1.0..3.0
+1.0 .. 3.0
 
 julia> 0.5..2.5
-0.5..2.5
+0.5 .. 2.5
 
 julia> 1.5±1
-0.5..2.5
+0.5 .. 2.5
 ```
 
 Similarly, you can construct `OpenInterval`s and `Interval{:open,:closed}`s, and `Interval{:closed,:open}`:
 ```julia
 julia> OpenInterval{Float64}(1,3)
-1.0..3.0 (open)
+1.0 .. 3.0 (open)
 
 julia> OpenInterval(0.5..2.5)
-0.5..2.5 (open)
+0.5 .. 2.5 (open)
 
 julia> Interval{:open,:closed}(1,3)
-1..3 (open–closed)
+1 .. 3 (open-closed)
 ```
 
 The `±` operator may be typed as `\pm<TAB>` (using Julia's LaTeX
@@ -65,13 +65,13 @@ julia> 1 ∈ OpenInterval(0..1)
 false
 
 julia> intersect(1..5, 3..7)   # can also use `a ∩ b`, where the symbol is \cap<TAB>
-3..5
+3 .. 5
 
 julia> isempty(intersect(1..5, 10..11))
 true
 
 julia> (0.25..5) ∪ (3..7.4)    # \cup<TAB>; can also use union()
-0.25..7.4
+0.25 .. 7.4
 
 julia> isclosedset(0.5..2.0)
 true
@@ -92,3 +92,7 @@ julia> (0.25..5) ∪ (6..7.4)
 
 ArgumentError: Cannot construct union of disjoint sets.
 ```
+
+### Importing the .. operator
+
+To import the `..` operator, use `import IntervalSets: (..)`. The parantheses are necessary to avoid parsing issues.
