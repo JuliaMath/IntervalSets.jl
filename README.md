@@ -86,11 +86,12 @@ false
 When computing the union, the result must also be an interval:
 ```julia
 julia> (0.25..5) ∪ (6..7.4)
------- ArgumentError ------------------- Stacktrace (most recent call last)
-
- [1] — union(::IntervalSets.ClosedInterval{Float64}, ::IntervalSets.ClosedInterval{Float64}) at closed.jl:34
-
-ArgumentError: Cannot construct union of disjoint sets.
+ERROR: ArgumentError: Cannot construct union of disjoint sets.
+Stacktrace:
+ [1] union(d1::ClosedInterval{Float64}, d2::ClosedInterval{Float64})
+   @ IntervalSets ~/.julia/dev/IntervalSets/src/interval.jl:127
+ [2] top-level scope
+   @ REPL[2]:1
 ```
 
 ### Importing the .. operator
