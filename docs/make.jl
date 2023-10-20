@@ -11,6 +11,7 @@ makedocs(;
         prettyurls=get(ENV, "CI", "false") == "true",
         canonical="https://JuliaMath.github.io/IntervalSets.jl",
         assets = ["assets/custom.css", "assets/favicon.ico"],
+        repolink="https://github.com/JuliaMath/IntervalSets.jl",
     ),
     pages=[
         "Home" => "index.md",
