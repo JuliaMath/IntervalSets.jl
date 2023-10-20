@@ -5,6 +5,7 @@ Interval Sets for Julia
 [![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://JuliaMath.github.io/IntervalSets.jl/dev)
 [![Build Status](https://github.com/JuliaMath/IntervalSets.jl/workflows/CI/badge.svg)](https://github.com/JuliaMath/IntervalSets.jl/actions)
 [![Coverage](https://codecov.io/gh/JuliaMath/IntervalSets.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/JuliaMath/IntervalSets.jl)
+[![Aqua QA](https://raw.githubusercontent.com/JuliaTesting/Aqua.jl/master/badge.svg)](https://github.com/JuliaTesting/Aqua.jl)
 
 This package represents intervals of an ordered set. For an interval
 spanning from `a` to `b`, all values `x` that lie between `a` and `b`
