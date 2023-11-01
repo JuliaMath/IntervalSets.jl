@@ -241,7 +241,7 @@ clamp(t, i::TypedEndpointsInterval{:closed,:closed}) =
 """
     mod(x, i::AbstractInterval)
 
-Find `y` in the `i` interval such that ``x ≡ y (mod w)``, where `w = width(i)`.
+Find `y` in the `i` interval such that ``x ≡ y \\pmod w``, where `w = width(i)`.
 
 # Examples
 
