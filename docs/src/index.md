@@ -1,6 +1,6 @@
 # IntervalSets.jl
 
-A Julia package implementing [IntervalSets](https://en.wikipedia.org/wiki/Quaternion).
+A Julia package implementing [interval sets](https://en.wikipedia.org/wiki/Interval_(mathematics)).
 
 !!! note "Documentation"
     The documentation is still work in progress.
