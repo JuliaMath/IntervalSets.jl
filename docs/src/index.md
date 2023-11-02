@@ -61,7 +61,7 @@ The [`±`](@ref) operator may be typed as `\pm<TAB>` (using Julia's LaTeX syntax
 
 ### Set operations
 
-```@repl
+```@repl more
 1.75 ∈ 1.5±1  # \in<TAB>; can also use `in`
 0 ∈ 1.5±1
 1 ∈ OpenInterval(0..1)
@@ -78,3 +78,8 @@ isleftopen(2..3)
 
 To import the [`..`](@ref) operator, use `import IntervalSets: (..)`.
 The parantheses are necessary to avoid parsing issues.
+
+```@repl
+import IntervalSets: (..)
+import IntervalSets.(..)  # This is also okay
+```
