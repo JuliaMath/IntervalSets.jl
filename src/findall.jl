@@ -34,8 +34,50 @@ julia> findall(in(Interval{:open,:closed}(1,6)), y) # (1,6], does not include 1
 5:14
 ```
 """
-Base.findall(interval_d::Base.Fix2{typeof(in), <:Interval}, x::AbstractRange) =
-    searchsorted_interval(x, interval_d.x; rev=step(x) < zero(step(x)))
+if VERSION < v"1.11-"
+    function Base.findall(interval_d::Base.Fix2{typeof(in),Interval{L,R,T}}, x::AbstractRange)  where {L,R,T}
+        isempty(x) && return 1:0
+    
+        interval = interval_d.x
+        il, ir = firstindex(x), lastindex(x)
+        δx = step(x)
+        a,b = if δx < zero(δx)
+            rev = findall(in(interval), reverse(x))
+            isempty(rev) && return rev
+    
+            a = (il+ir)-last(rev)
+            b = (il+ir)-first(rev)
+    
+            a,b
+        else
+            lx, rx = first(x), last(x)
+            l = max(leftendpoint(interval), lx - oneunit(δx))
+            r = min(rightendpoint(interval), rx + oneunit(δx))
+    
+            (l > rx || r < lx) && return 1:0
+    
+            a = il + max(0, round(Int, cld(l-lx, δx)))
+            a += (a ≤ ir && (x[a] == l && L == :open || x[a] < l))
+    
+            b = min(ir, round(Int, cld(r-lx, δx)) + il)
+            b -= (b ≥ il && (x[b] == r && R == :open || x[b] > r))
+    
+            a,b
+        end
+        # Reversing a range could change sign of values close to zero (cf
+        # sign of the smallest element in x and reverse(x), where x =
+        # range(BigFloat(-0.5),stop=BigFloat(1.0),length=10)), or more
+        # generally push elements in or out of the interval (as can cld),
+        # so we need to check once again.
+        a += +(a < ir && x[a] ∉ interval) - (il < a && x[a-1] ∈ interval)
+        b += -(il < b && x[b] ∉ interval) + (b < ir && x[b+1] ∈ interval)
+    
+        a:b
+    end
+else
+    Base.findall(interval_d::Base.Fix2{typeof(in), <:Interval}, x::AbstractRange) =
+        searchsorted_interval(x, interval_d.x; rev=step(x) < zero(step(x)))
+end
 
 # We overload Base._findin to avoid an ambiguity that arises with
 # Base.findall(interval_d::Base.Fix2{typeof(in),Interval{L,R,T}}, x::AbstractArray)
@@ -65,15 +107,24 @@ julia> searchsorted_interval(Float64[], 1..3)
 1:0
 ```
 """
-function searchsorted_interval(X, i::Interval{L, R}; rev=false) where {L, R}
-    if rev === true
-        _searchsorted_begin(X, rightendpoint(i), Val(R); rev):_searchsorted_end(X, leftendpoint(i), Val(L); rev)
-    else
-        _searchsorted_begin(X, leftendpoint(i), Val(L); rev):_searchsorted_end(X, rightendpoint(i), Val(R); rev)
-    end
-end
+function searchsorted_interval end
 
-_searchsorted_begin(X, x, ::Val{:closed}; rev) = searchsortedfirst(X, x; rev, lt=<)
-_searchsorted_begin(X, x,   ::Val{:open}; rev) =  searchsortedlast(X, x; rev, lt=<) + 1
-  _searchsorted_end(X, x, ::Val{:closed}; rev) =  searchsortedlast(X, x; rev, lt=<)
-  _searchsorted_end(X, x,   ::Val{:open}; rev) = searchsortedfirst(X, x; rev, lt=<) - 1
+if VERSION < v"1.11-"
+    searchsorted_interval(X, i::Interval{:closed, :closed}) = searchsortedfirst(X, leftendpoint(i))     :searchsortedlast(X, rightendpoint(i))
+    searchsorted_interval(X, i::Interval{:closed,   :open}) = searchsortedfirst(X, leftendpoint(i))     :(searchsortedfirst(X, rightendpoint(i)) - 1)
+    searchsorted_interval(X, i::Interval{  :open, :closed}) = (searchsortedlast(X, leftendpoint(i)) + 1):searchsortedlast(X, rightendpoint(i))
+    searchsorted_interval(X, i::Interval{  :open,   :open}) = (searchsortedlast(X, leftendpoint(i)) + 1):(searchsortedfirst(X, rightendpoint(i)) - 1)
+else
+    function searchsorted_interval(X, i::Interval{L, R}; rev=false) where {L, R}
+        if rev === true
+            _searchsorted_begin(X, rightendpoint(i), Val(R); rev):_searchsorted_end(X, leftendpoint(i), Val(L); rev)
+        else
+            _searchsorted_begin(X, leftendpoint(i), Val(L); rev):_searchsorted_end(X, rightendpoint(i), Val(R); rev)
+        end
+    end
+
+    _searchsorted_begin(X, x, ::Val{:closed}; rev) = searchsortedfirst(X, x; rev, lt=<)
+    _searchsorted_begin(X, x,   ::Val{:open}; rev) =  searchsortedlast(X, x; rev, lt=<) + 1
+    _searchsorted_end(X, x, ::Val{:closed}; rev) =  searchsortedlast(X, x; rev, lt=<)
+    _searchsorted_end(X, x,   ::Val{:open}; rev) = searchsortedfirst(X, x; rev, lt=<) - 1
+end
