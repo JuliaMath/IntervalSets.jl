@@ -34,8 +34,8 @@ julia> findall(in(Interval{:open,:closed}(1,6)), y) # (1,6], does not include 1
 5:14
 ```
 """
-if VERSION < v"1.11-"
-    function Base.findall(interval_d::Base.Fix2{typeof(in),Interval{L,R,T}}, x::AbstractRange)  where {L,R,T}
+function Base.findall(interval_d::Base.Fix2{typeof(in),Interval{L,R,T}}, x::AbstractRange)  where {L,R,T}
+    @static if VERSION < v"1.11-"
         isempty(x) && return 1:0
     
         interval = interval_d.x
@@ -73,10 +73,9 @@ if VERSION < v"1.11-"
         b += -(il < b && x[b] ∉ interval) + (b < ir && x[b+1] ∈ interval)
     
         a:b
-    end
-else
-    Base.findall(interval_d::Base.Fix2{typeof(in), <:Interval}, x::AbstractRange) =
+    else
         searchsorted_interval(x, interval_d.x; rev=step(x) < zero(step(x)))
+    end
 end
 
 # We overload Base._findin to avoid an ambiguity that arises with
