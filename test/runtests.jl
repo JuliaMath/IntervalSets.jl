@@ -6,7 +6,7 @@ import Statistics: mean
 using Random
 using Unitful
 
-import IntervalSets: Domain, endpoints, closedendpoints, TypedEndpointsInterval
+import IntervalSets: Domain, endpoints, closedendpoints, TypedEndpointsInterval, boundstype
 
 using Aqua
 if VERSION ≥ v"1.7.0-"
@@ -60,6 +60,8 @@ struct IncompleteInterval <: AbstractInterval{Int} end
         O = @inferred x±y
         @test O == ClosedInterval(x-y, x+y)
 
+        @test boundstype(I) == Int
+        @test boundstype(M) == Float64
         @test eltype(I) == Int
         @test eltype(M) == Float64
 
@@ -648,6 +650,7 @@ struct IncompleteInterval <: AbstractInterval{Int} end
 
     @testset "Custom intervals" begin
         I = MyUnitInterval(true,true)
+        @test boundstype(I) == boundstype(typeof(I)) == Int
         @test eltype(I) == eltype(typeof(I)) == Int
         @test leftendpoint(I) == 0
         @test rightendpoint(I) == 1
@@ -828,6 +831,7 @@ struct IncompleteInterval <: AbstractInterval{Int} end
 
     @testset "IncompleteInterval" begin
         I = IncompleteInterval()
+        @test boundstype(I) === Int
         @test eltype(I) === Int
         @test_throws ErrorException endpoints(I)
         @test_throws ErrorException closedendpoints(I)

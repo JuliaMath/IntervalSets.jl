@@ -1,7 +1,6 @@
 module IntervalSets
 
-using Base: @pure
-import Base: eltype, convert, show, in, length, isempty, isequal, isapprox, issubset, ==, hash,
+import Base: convert, show, in, length, isempty, isequal, isapprox, issubset, ==, hash,
              union, intersect, minimum, maximum, extrema, range, clamp, mod, float, ⊇, ⊊, ⊋
 
 using Random
@@ -62,8 +61,17 @@ isclosedset(d::AbstractInterval) = isleftclosed(d) && isrightclosed(d)
 "Is the interval open?"
 isopenset(d::AbstractInterval) = isleftopen(d) && isrightopen(d)
 
-eltype(::Type{AbstractInterval{T}}) where {T} = T
-@pure eltype(::Type{I}) where {I<:AbstractInterval} = eltype(supertype(I))
+boundstype(i::AbstractInterval) = boundstype(typeof(i))
+boundstype(::Type{I}) where {I<:AbstractInterval{T}} where T = T
+
+@static if VERSION < v"1.9"
+    function Base.eltype(I::Type{<:AbstractInterval})
+        Base.depwarn("`eltype` for `AbstractInterval` will be replaced with `boundstype` in the next breaking release (v0.8.0).", :eltype)
+        boundstype(I)
+    end
+else
+    @deprecate Base.eltype(I::Type{<:AbstractInterval}) boundstype(I) false
+end
 
 convert(::Type{AbstractInterval}, i::AbstractInterval) = i
 convert(::Type{AbstractInterval{T}}, i::AbstractInterval{T}) where T = i
@@ -141,7 +149,7 @@ isequal(A::TypedEndpointsInterval, B::TypedEndpointsInterval) = isempty(A) & ise
 ==(A::TypedEndpointsInterval{L,R}, B::TypedEndpointsInterval{L,R}) where {L,R} = (leftendpoint(A) == leftendpoint(B) && rightendpoint(A) == rightendpoint(B)) || (isempty(A) && isempty(B))
 ==(A::TypedEndpointsInterval, B::TypedEndpointsInterval) = isempty(A) && isempty(B)
 
-function isapprox(A::AbstractInterval, B::AbstractInterval; atol=0, rtol=Base.rtoldefault(eltype(A), eltype(B), atol), kwargs...)
+function isapprox(A::AbstractInterval, B::AbstractInterval; atol=0, rtol=Base.rtoldefault(boundstype(A), boundstype(B), atol), kwargs...)
     closedendpoints(A) != closedendpoints(B) && error("Comparing intervals with different closedness is not defined")
     isempty(A) != isempty(B) && return false
     isempty(A) && isempty(B) && return true
