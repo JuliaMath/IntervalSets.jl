@@ -158,16 +158,6 @@ function _union(A::TypedEndpointsInterval{L1,R1}, B::TypedEndpointsInterval{L2,R
     Interval{L,R}(left, right)
 end
 
-# random sampling from interval
-Random.gentype(::Type{Interval{L,R,T}}) where {L,R,T} = float(T)
-function Random.rand(rng::AbstractRNG, i::Random.SamplerTrivial{<:TypedEndpointsInterval{:closed, :closed, T}}) where T<:Real
-    _i = i[]
-    isempty(_i) && throw(ArgumentError("The interval should be non-empty."))
-    a,b = endpoints(_i)
-    t = rand(rng, float(T)) # technically this samples from [0, 1), but we still allow it with TypedEndpointsInterval{:closed, :closed} for convenience
-    return clamp(t*a+(1-t)*b, _i)
-end
-
 ClosedInterval{T}(i::AbstractUnitRange{I}) where {T,I<:Integer} = ClosedInterval{T}(minimum(i), maximum(i))
 ClosedInterval(i::AbstractUnitRange{I}) where {I<:Integer} = ClosedInterval{I}(minimum(i), maximum(i))
 

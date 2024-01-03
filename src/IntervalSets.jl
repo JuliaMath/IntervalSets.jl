@@ -4,8 +4,6 @@ using Base: @pure
 import Base: eltype, convert, show, in, length, isempty, isequal, isapprox, issubset, ==, hash,
              union, intersect, minimum, maximum, extrema, range, clamp, mod, float, ⊇, ⊊, ⊋
 
-using Random
-
 export AbstractInterval, Interval, OpenInterval, ClosedInterval,
             ⊇, .., ±, ordered, width, leftendpoint, rightendpoint, endpoints,
             isopenset, isclosedset, isleftclosed, isrightclosed,
@@ -281,6 +279,7 @@ include("findall.jl")
 
 if !isdefined(Base, :get_extension)
     include("../ext/IntervalSetsStatisticsExt.jl")
+    include("../ext/IntervalSetRandomExt.jl")
 end
 
 end # module
