@@ -6,8 +6,6 @@ import Base: eltype, convert, show, in, length, isempty, isequal, isapprox, issu
 
 using Random
 
-using Dates
-
 export AbstractInterval, Interval, OpenInterval, ClosedInterval,
             ⊇, .., ±, ordered, width, leftendpoint, rightendpoint, endpoints,
             isopenset, isclosedset, isleftclosed, isrightclosed,
