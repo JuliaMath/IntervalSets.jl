@@ -1,4 +1,4 @@
-module IntervalSetRandomExt
+module IntervalSetsRandomExt
 
 using IntervalSets
 using IntervalSets: TypedEndpointsInterval
