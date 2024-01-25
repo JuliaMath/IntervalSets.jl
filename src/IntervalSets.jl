@@ -279,7 +279,9 @@ include("findall.jl")
 
 if !isdefined(Base, :get_extension)
     include("../ext/IntervalSetsStatisticsExt.jl")
-    include("../ext/IntervalSetRandomExt.jl")
+    include("../ext/IntervalSetsRandomExt.jl")
+    # We don't support the extension with StatsBase.jl before Julia v1.9.
+    # include("../ext/IntervalSetsStatsBaseExt.jl")
 end
 
 end # module
