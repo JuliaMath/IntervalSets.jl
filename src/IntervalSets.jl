@@ -4,10 +4,6 @@ using Base: @pure
 import Base: eltype, convert, show, in, length, isempty, isequal, isapprox, issubset, ==, hash,
              union, intersect, minimum, maximum, extrema, range, clamp, mod, float, ⊇, ⊊, ⊋
 
-using Random
-
-using Dates
-
 export AbstractInterval, Interval, OpenInterval, ClosedInterval,
             ⊇, .., ±, ordered, width, leftendpoint, rightendpoint, endpoints,
             isopenset, isclosedset, isleftclosed, isrightclosed,
@@ -283,6 +279,9 @@ include("findall.jl")
 
 if !isdefined(Base, :get_extension)
     include("../ext/IntervalSetsStatisticsExt.jl")
+    include("../ext/IntervalSetsRandomExt.jl")
+    # We don't support the extension with StatsBase.jl before Julia v1.9.
+    # include("../ext/IntervalSetsStatsBaseExt.jl")
 end
 
 end # module
