@@ -1,7 +1,6 @@
 using IntervalSets
 using Test
 using Dates
-using StatsBase: geomean
 using Statistics
 import Statistics: mean
 using Random
@@ -137,7 +136,6 @@ struct IncompleteInterval <: AbstractInterval{Int} end
         @test width(ClosedInterval(4.0,8.0)) ≡ 4.0
 
         @test mean(0..1) == 0.5
-        VERSION ≥ v"1.9" && @test geomean(1..100) == 10
 
         @test promote(1..2, 1.0..2.0) === (1.0..2.0, 1.0..2.0)
     end
