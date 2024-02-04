@@ -168,9 +168,7 @@ function issubset(A::TypedEndpointsInterval{:closed,:closed}, B::TypedEndpointsI
     return isempty(A) | ( (Bl < Al) & (Ar < Br) )
 end
 
-⊇(A::AbstractInterval, B::AbstractInterval) = issubset(B, A)
 ⊊(A::AbstractInterval, B::AbstractInterval) = (A ≠ B) & (A ⊆ B)
-⊋(A::AbstractInterval, B::AbstractInterval) = (A ≠ B) & (A ⊇ B)
 
 const _interval_hash = UInt == UInt64 ? 0x1588c274e0a33ad4 : 0x1e3f7252
 
