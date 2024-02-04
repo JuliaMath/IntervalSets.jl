@@ -36,6 +36,22 @@ struct IncompleteInterval <: AbstractInterval{Int} end
     @test ordered(1, 2) == (1, 2)
     @test ordered(Float16(1), 2) == (1, 2)
 
+    @testset "iv_str macro" begin
+        @test iv"[1,2]" == 1..2
+        @test iv"[1,2)" == Interval{:closed, :open}(1, 2)
+        @test iv"(1,2]" == Interval{:open, :closed}(1, 2)
+        @test iv"(1,2)" == OpenInterval(1, 2)
+        @test_throws Exception iv"[(1,2)]"
+        @test_throws Exception iv"[1,2,]"
+        @test_throws Exception iv"[(1,2]"
+        @test_throws Exception iv"[(1,,2]"
+        @test_throws Exception iv"[1..2]"
+        @test_throws Exception iv"(1..2)"
+        @test_throws Exception iv"[1...2]"
+        @test_throws Exception iv"(1...2)"
+        @test_throws Exception iv"1..2"
+    end
+
     @testset "Basic Closed Sets" begin
         @test_throws ErrorException :a .. "b"
         @test_throws ErrorException 1 .. missing
