@@ -4,7 +4,7 @@ using Base: @pure
 import Base: eltype, convert, show, in, length, isempty, isequal, isapprox, issubset, ==, hash,
              union, intersect, minimum, maximum, extrema, range, clamp, mod, float, ⊇, ⊊, ⊋
 
-export AbstractInterval, Interval, OpenInterval, ClosedInterval,
+export AbstractInterval, Interval, OpenInterval, ClosedInterval, @iv_str,
             ⊇, .., ±, ordered, width, leftendpoint, rightendpoint, endpoints,
             isopenset, isclosedset, isleftclosed, isrightclosed,
             isleftopen, isrightopen, closedendpoints,

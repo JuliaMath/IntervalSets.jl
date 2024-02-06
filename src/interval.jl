@@ -38,6 +38,33 @@ Interval(i::AbstractInterval) = Interval{isleftclosed(i) ? (:closed) : (:open),
                                          isrightclosed(i) ? (:closed) : (:open)}(i)
 Interval(i::TypedEndpointsInterval{L,R}) where {L,R} = Interval{L,R}(i)
 
+macro iv_str(s)
+    msg = "Invalid expresson `$s`"
+    for (reg, f) ∈ (
+        (r"^\[(.*)\)$", Interval{:closed, :open}),
+        (r"^\((.*)\)$", Interval{:open, :open}),
+        (r"^\((.*)\]$", Interval{:open, :closed}),
+        (r"^\[(.*)\]$", Interval{:closed, :closed}),
+    )
+        m = match(reg, s)
+        if !isnothing(m)
+            try
+                args = Meta.parse("("*m.captures[1]*",)")
+                if args.head === :incomplete
+                    return :(throw(ErrorException("$($msg)")))
+                elseif length(args.args) ≠ 2
+                    return :(throw(ErrorException("$($msg)")))
+                else
+                    return :($f($(esc(args))...))
+                end
+            catch
+                return :(throw(ErrorException("$($msg)")))
+            end
+        end
+    end
+    return :(throw(ErrorException("$($msg)")))
+end
+
 endpoints(i::Interval) = (i.left, i.right)
 
 for L in (:(:open),:(:closed)), R in (:(:open),:(:closed))
