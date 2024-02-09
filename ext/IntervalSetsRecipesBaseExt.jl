@@ -3,7 +3,7 @@ module IntervalSetsRecipesBaseExt
 using IntervalSets
 using RecipesBase
 
-@recipe function f(I::AbstractInterval)
+@recipe function f(I::AbstractInterval; offset=0.0)
     a, b = Float64.(extrema(I))
     c = get(plotattributes, :background_color, :white)
     w = get(plotattributes, :linewidth, 3)
@@ -15,7 +15,7 @@ using RecipesBase
         markerstrokewidth := 0
         markersize := r
         linewidth := w
-        [a,b], [0.0, 0.0]
+        [a,b], [offset, offset]
     end
     if isleftopen(I)
         @series begin
@@ -24,7 +24,7 @@ using RecipesBase
             markerstrokewidth := 0
             markersize := r-w
             markercolor := c
-            [a], [0.0]
+            [a], [offset]
         end
     end
     if isrightopen(I)
@@ -34,7 +34,7 @@ using RecipesBase
             markerstrokewidth := 0
             markersize := r-w
             markercolor := c
-            [b], [0.0]
+            [b], [offset]
         end
     end
 end
