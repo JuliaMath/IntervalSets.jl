@@ -278,6 +278,7 @@ include("findall.jl")
 if !isdefined(Base, :get_extension)
     include("../ext/IntervalSetsStatisticsExt.jl")
     include("../ext/IntervalSetsRandomExt.jl")
+    include("../ext/IntervalSetsRecipesBaseExt.jl")
 end
 
 end # module
