@@ -5,6 +5,7 @@ using Statistics
 import Statistics: mean
 using Random
 using Unitful
+using Plots
 
 import IntervalSets: Domain, endpoints, closedendpoints, TypedEndpointsInterval
 
@@ -878,4 +879,5 @@ struct IncompleteInterval <: AbstractInterval{Int} end
     end
 
     include("findall.jl")
+    include("plots.jl")
 end
