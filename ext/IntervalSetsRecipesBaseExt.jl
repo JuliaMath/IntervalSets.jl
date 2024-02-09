@@ -3,7 +3,7 @@ module IntervalSetsRecipesBaseExt
 using IntervalSets
 using RecipesBase
 
-@recipe function f(I::AbstractInterval{L,R,<:Real}) where {L,R}
+@recipe function f(I::AbstractInterval)
     a, b = Float64.(extrema(I))
     c = get(plotattributes, :background_color, :white)
     w = get(plotattributes, :linewidth, 3)
