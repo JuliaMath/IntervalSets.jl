@@ -10,10 +10,7 @@ using Plots
 import IntervalSets: Domain, endpoints, closedendpoints, TypedEndpointsInterval
 
 using Aqua
-if VERSION ≥ v"1.7.0-"
-    # The verison specification can be removed when https://github.com/JuliaTesting/Aqua.jl/issues/208 is resolved.
-    Aqua.test_all(IntervalSets)
-end
+Aqua.test_all(IntervalSets)
 
 struct MyClosedUnitInterval <: TypedEndpointsInterval{:closed,:closed,Int} end
 endpoints(::MyClosedUnitInterval) = (0,1)
