@@ -63,8 +63,9 @@ struct IncompleteInterval <: AbstractInterval{Int} end
         @test_throws ErrorException 1 .. missing
         @test_throws ErrorException 1u"m" .. 2u"s"
         I = 0..3
-        @test I === ClosedInterval(0,3) === ClosedInterval{Int}(0,3) ===
-                 Interval(0,3)
+        @test I === ClosedInterval(0,3)
+        @test I === ClosedInterval{Int}(0,3)
+        @test I === Interval(0,3)
         @test string(I) == "0 .. 3"
         @test @inferred(UnitRange(I)) === 0:3
         @test @inferred(range(I)) === 0:3
@@ -193,21 +194,20 @@ struct IncompleteInterval <: AbstractInterval{Int} end
 
     @testset "Convert" begin
         I = 0..3
-        @test @inferred(convert(ClosedInterval{Float64}, I))         ===
-                @inferred(convert(AbstractInterval{Float64}, I))     ===
-                @inferred(convert(Domain{Float64}, I))  ===
-                @inferred(ClosedInterval{Float64}(I))                ===
-                @inferred(convert(TypedEndpointsInterval{:closed,:closed,Float64},I)) ===
-                0.0..3.0
-        @test @inferred(convert(ClosedInterval, I))                  ===
-                @inferred(convert(Interval, I))                      ===
-                @inferred(ClosedInterval(I))                         ===
-                @inferred(Interval(I))                               ===
-                @inferred(convert(AbstractInterval, I))              ===
-                @inferred(convert(Domain, I))           ===
-                @inferred(convert(TypedEndpointsInterval{:closed,:closed}, I)) ===
-                @inferred(convert(TypedEndpointsInterval{:closed,:closed,Int}, I)) ===
-                @inferred(convert(ClosedInterval{Int}, I)) === I
+        @test 0.0..3.0 === @inferred(convert(ClosedInterval{Float64}, I))
+        @test 0.0..3.0 === @inferred(convert(AbstractInterval{Float64}, I))
+        @test 0.0..3.0 === @inferred(convert(Domain{Float64}, I))
+        @test 0.0..3.0 === @inferred(ClosedInterval{Float64}(I))
+        @test 0.0..3.0 === @inferred(convert(TypedEndpointsInterval{:closed,:closed,Float64},I))
+        @test I === @inferred(convert(ClosedInterval, I))
+        @test I === @inferred(convert(Interval, I))
+        @test I === @inferred(ClosedInterval(I))
+        @test I === @inferred(Interval(I))
+        @test I === @inferred(convert(AbstractInterval, I))
+        @test I === @inferred(convert(Domain, I))
+        @test I === @inferred(convert(TypedEndpointsInterval{:closed,:closed}, I))
+        @test I === @inferred(convert(TypedEndpointsInterval{:closed,:closed,Int}, I))
+        @test I === @inferred(convert(ClosedInterval{Int}, I))
         @test_throws InexactError convert(OpenInterval, I)
         @test_throws InexactError convert(Interval{:open,:closed}, I)
         @test_throws InexactError convert(Interval{:closed,:open}, I)
@@ -215,47 +215,47 @@ struct IncompleteInterval <: AbstractInterval{Int} end
         @test ClosedInterval{Float64}(1,3) === 1.0..3.0
         @test ClosedInterval(0.5..2.5) === 0.5..2.5
         @test ClosedInterval{Int}(1.0..3.0) === 1..3
+
         J = OpenInterval(I)
         @test_throws InexactError convert(ClosedInterval, J)
-        @test @inferred(convert(OpenInterval{Float64}, J))         ===
-                @inferred(convert(AbstractInterval{Float64}, J))     ===
-                @inferred(convert(Domain{Float64}, J)) ===
-                @inferred(OpenInterval{Float64}(J))                === OpenInterval(0.0..3.0)
-        @test @inferred(convert(OpenInterval, J))                ===
-                @inferred(convert(Interval, J))                      ===
-                @inferred(convert(AbstractInterval, J))              ===
-                @inferred(convert(Domain, J))           ===
-                @inferred(OpenInterval(J))                          ===
-                @inferred(OpenInterval{Int}(J)) ===
-                @inferred(convert(OpenInterval{Int},J)) === OpenInterval(J)
+        @test OpenInterval(0.0..3.0) === @inferred(convert(OpenInterval{Float64}, J))
+        @test OpenInterval(0.0..3.0) === @inferred(convert(AbstractInterval{Float64}, J))
+        @test OpenInterval(0.0..3.0) === @inferred(convert(Domain{Float64}, J))
+        @test OpenInterval(0.0..3.0) === @inferred(OpenInterval{Float64}(J))
+        @test OpenInterval(J) === @inferred(convert(OpenInterval, J))
+        @test OpenInterval(J) === @inferred(convert(Interval, J))
+        @test OpenInterval(J) === @inferred(convert(AbstractInterval, J))
+        @test OpenInterval(J) === @inferred(convert(Domain, J))
+        @test OpenInterval(J) === @inferred(OpenInterval(J))
+        @test OpenInterval(J) === @inferred(OpenInterval{Int}(J))
+        @test OpenInterval(J) === @inferred(convert(OpenInterval{Int},J))
+
         J = Interval{:open,:closed}(I)
         @test_throws InexactError convert(Interval{:closed,:open}, J)
-        @test @inferred(convert(Interval{:open,:closed,Float64}, J))         ===
-                @inferred(convert(AbstractInterval{Float64}, J))     ===
-                @inferred(convert(Domain{Float64}, J)) ===
-                @inferred(Interval{:open,:closed,Float64}(J))                === Interval{:open,:closed}(0.0..3.0)
-        @test @inferred(convert(Interval{:open,:closed}, J))                ===
-                @inferred(convert(Interval, J))                      ===
-                @inferred(convert(AbstractInterval, J))              ===
-                @inferred(convert(Domain, J))           ===
-                @inferred(Interval{:open,:closed}(J))                          === Interval{:open,:closed}(J)
+        @test Interval{:open,:closed}(0.0..3.0) === @inferred(convert(Interval{:open,:closed,Float64}, J))
+        @test Interval{:open,:closed}(0.0..3.0) === @inferred(convert(AbstractInterval{Float64}, J))
+        @test Interval{:open,:closed}(0.0..3.0) === @inferred(convert(Domain{Float64}, J))
+        @test Interval{:open,:closed}(0.0..3.0) === @inferred(Interval{:open,:closed,Float64}(J))
+        @test Interval{:open,:closed}(J) === @inferred(convert(Interval{:open,:closed}, J))
+        @test Interval{:open,:closed}(J) === @inferred(convert(Interval, J))
+        @test Interval{:open,:closed}(J) === @inferred(convert(AbstractInterval, J))
+        @test Interval{:open,:closed}(J) === @inferred(convert(Domain, J))
+        @test Interval{:open,:closed}(J) === @inferred(Interval{:open,:closed}(J))
+
         J = Interval{:closed,:open}(I)
         @test_throws InexactError convert(Interval{:open,:closed}, J)
-        @test @inferred(convert(Interval{:closed,:open,Float64}, J))         ===
-                @inferred(convert(AbstractInterval{Float64}, J))     ===
-                @inferred(convert(Domain{Float64}, J)) ===
-                @inferred(Interval{:closed,:open,Float64}(J))                === Interval{:closed,:open}(0.0..3.0)
-        @test @inferred(convert(Interval{:closed,:open}, J))                ===
-                @inferred(convert(Interval, J))                      ===
-                @inferred(convert(AbstractInterval, J))              ===
-                @inferred(convert(Domain, J))           ===
-                @inferred(Interval{:closed,:open}(J))                          === Interval{:closed,:open}(J)
+        @test Interval{:closed,:open}(0.0..3.0) === @inferred(convert(Interval{:closed,:open,Float64}, J))
+        @test Interval{:closed,:open}(0.0..3.0) === @inferred(convert(AbstractInterval{Float64}, J))
+        @test Interval{:closed,:open}(0.0..3.0) === @inferred(convert(Domain{Float64}, J))
+        @test Interval{:closed,:open}(0.0..3.0) === @inferred(Interval{:closed,:open,Float64}(J))
+        @test Interval{:closed,:open}(J) === @inferred(convert(Interval{:closed,:open}, J))
+        @test Interval{:closed,:open}(J) === @inferred(convert(Interval, J))
+        @test Interval{:closed,:open}(J) === @inferred(convert(AbstractInterval, J))
+        @test Interval{:closed,:open}(J) === @inferred(convert(Domain, J))
+        @test Interval{:closed,:open}(J) === @inferred(Interval{:closed,:open}(J))
 
-        @test 1.0..2.0 === 1.0..2 === 1..2.0 === ClosedInterval{Float64}(1..2) ===
-                Interval(1.0,2.0)
-
-        @test promote_type(Interval{:closed,:open,Float64}, Interval{:closed,:open,Int}) ===
-                        Interval{:closed,:open,Float64}
+        @test 1.0..2.0 === 1.0..2 === 1..2.0 === ClosedInterval{Float64}(1..2) === Interval(1.0,2.0)
+        @test promote_type(Interval{:closed,:open,Float64}, Interval{:closed,:open,Int}) === Interval{:closed,:open,Float64}
     end
 
 
