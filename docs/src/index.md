@@ -38,7 +38,7 @@ Optionally, `Interval{L,R}` can represent open and half-open intervals.
 The type parameters `L` and `R` correspond to the left and right endpoint respectively.
 The notation [`ClosedInterval`](@ref) is short for `Interval{:closed,:closed}`,
 while [`OpenInterval`](@ref) is short for `Interval{:open,:open}`.
-For example, the interval `Interval{:open,:closed}` corresponds to the set ``\{x \ | \ a < x ≤ b\}``.
+For example, the interval `Interval{:open,:closed}` corresponds to the set ``(a,b] = \{x \ | \ a < x ≤ b\}``.
 
 ## More examples
 
