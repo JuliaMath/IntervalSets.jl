@@ -38,6 +38,26 @@ Interval(i::AbstractInterval) = Interval{isleftclosed(i) ? (:closed) : (:open),
                                          isrightclosed(i) ? (:closed) : (:open)}(i)
 Interval(i::TypedEndpointsInterval{L,R}) where {L,R} = Interval{L,R}(i)
 
+"""
+    @iv_str -> Interval
+
+Construct an interval with mathematical notation such as `iv"(1,2]"`.
+
+# Examples
+```jldoctest
+julia> iv"[1,2]"
+1 .. 2
+
+julia> iv"[1,2)"
+1 .. 2 (closed-open)
+
+julia> iv"(1,2]"
+1 .. 2 (open-closed)
+
+julia> iv"(1,2)"
+1 .. 2 (open)
+```
+"""
 macro iv_str(s)
     msg = "Invalid expresson `$s`"
     for (reg, f) ∈ (
