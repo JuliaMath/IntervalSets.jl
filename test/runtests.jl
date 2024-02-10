@@ -500,16 +500,16 @@ struct IncompleteInterval <: AbstractInterval{Int} end
         i4 = typemin(Float64)..typemax(Float64)
         i5 = typemin(Float64)..1
         for _ in 1:100
-            rand(i1) in i1
-            rand(i2) in i2
-            rand(i3) in i3
-            rand(i4) in i4
-            rand(i5) in i5
-            rand(i1,10) ⊆ i1
-            rand(i2,10) ⊆ i2
-            rand(i3,10) ⊆ i3
-            rand(i4,10) ⊆ i4
-            rand(i5,10) ⊆ i5
+            @test rand(i1) in i1
+            @test rand(i2) in i2
+            @test rand(i3) in i3
+            @test rand(i4) in i4
+            @test rand(i5) in i5
+            @test rand(i1,10) ⊆ i1
+            @test rand(i2,10) ⊆ i2
+            @test rand(i3,10) ⊆ i3
+            @test rand(i4,10) ⊆ i4
+            @test rand(i5,10) ⊆ i5
         end
 
         # special test to catch issue mentioned at the end of https://github.com/JuliaApproximation/DomainSets.jl/pull/112
