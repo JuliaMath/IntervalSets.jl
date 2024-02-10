@@ -189,6 +189,8 @@ struct IncompleteInterval <: AbstractInterval{Int} end
         @test 0..1 ≈ eps()..1
         @test 100.0..100.0 ≉ nextfloat(100.0)..100.0
         @test 3..1 ≈ 5..1
+
+        # See discussion in https://github.com/JuliaMath/IntervalSets.jl/pull/129
         @test_throws Exception OpenInterval(0, 1) ≈ ClosedInterval(0, 1)
     end
 
