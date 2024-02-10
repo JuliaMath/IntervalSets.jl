@@ -85,6 +85,31 @@ isleftopen(2..3)
 (0.25..5) ∪ (6..7.4)  # union of interval must be an interval
 ```
 
+### Visualization
+`Interval`s can be visulalized with `Plots.plot` function.
+
+```@example plot
+using IntervalSets, Plots
+plot(iv"(1,2)")
+plot!(iv"[3,6)")
+plot!(iv"[5,7)")
+savefig("plot-intervals.png") # hide
+nothing # hide
+```
+
+![](plot-intervals.png)
+
+The `offset` keyword argument is useful for avoid duplication.
+
+```@example plot
+plot(iv"[1,3]")
+plot!(iv"(2,4)"; offset=-0.1, ylims=(-1,1))
+savefig("plot-intervals-offset.png") # hide
+nothing # hide
+```
+
+![](plot-intervals-offset.png)
+
 ### Importing the `..` operator
 
 To import the [`..`](@ref) operator, use `import IntervalSets: (..)`.
