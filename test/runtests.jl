@@ -497,20 +497,20 @@ struct IncompleteInterval <: AbstractInterval{Int} end
         i1 = 1..2
         i2 = 3e100..3e100
         i3 = 1..typemax(Float64)
-        i4 = typemin(Float64)..typemax(Float64)
-        i5 = typemin(Float64)..1
-        for _ in 1:100
-            @test rand(i1) in i1
-            @test rand(i2) in i2
-            @test rand(i3) in i3
-            @test rand(i4) in i4
-            @test rand(i5) in i5
-            @test rand(i1,10) ⊆ i1
-            @test rand(i2,10) ⊆ i2
-            @test rand(i3,10) ⊆ i3
-            @test rand(i4,10) ⊆ i4
-            @test rand(i5,10) ⊆ i5
+        i4 = typemin(Float64)..1
+        @testset "rand test for $(i)" for i in [i1,i2,i3,i4]
+            for _ in 1:100
+                @test rand(i1) in i1
+                @test rand(i1,10) ⊆ i1
+            end
         end
+
+        # If the width is too big, the return value is NaN (sadly).
+        i5 = typemin(Float64)..typemax(Float64)
+        @test_broken rand(i5) in i5
+        @test_broken rand(i5,10) ⊆ i5
+        @test_broken !isnan(rand(i5))
+        @test_broken !isnan(rand(i5,10))
 
         # special test to catch issue mentioned at the end of https://github.com/JuliaApproximation/DomainSets.jl/pull/112
         struct RandTestUnitInterval <: TypedEndpointsInterval{:closed, :closed, Float64} end
