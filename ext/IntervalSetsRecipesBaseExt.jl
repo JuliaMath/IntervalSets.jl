@@ -8,6 +8,9 @@ using RecipesBase
     c = get(plotattributes, :background_color, :white)
     w = get(plotattributes, :linewidth, 3)
     r = get(plotattributes, :markersize, 8)
+    openpoints = Float64[]
+    isleftopen(I) && push!(openpoints, a)
+    isrightopen(I) && push!(openpoints, b)
     @series begin
         seriestype := :line
         primary := true
@@ -17,25 +20,13 @@ using RecipesBase
         linewidth := w
         [a,b], [offset, offset]
     end
-    if isleftopen(I)
-        @series begin
-            seriestype := :scatter
-            primary := false
-            markerstrokewidth := 0
-            markersize := r-w
-            markercolor := c
-            [a], [offset]
-        end
-    end
-    if isrightopen(I)
-        @series begin
-            seriestype := :scatter
-            primary := false
-            markerstrokewidth := 0
-            markersize := r-w
-            markercolor := c
-            [b], [offset]
-        end
+    @series begin
+        seriestype := :scatter
+        primary := false
+        markerstrokewidth := 0
+        markersize := r-w
+        markercolor := c
+        openpoints, fill(offset, length(openpoints))
     end
 end
 
