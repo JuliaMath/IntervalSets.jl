@@ -25,37 +25,184 @@ A subtype of `AbstractInterval{T}` represents an interval subset of type `T`, th
 """
 abstract type AbstractInterval{T} <: Domain{T} end
 
+"""
+    endpoints(d::AI) where AI<:AbstractInterval
 
-"A tuple containing the left and right endpoints of the interval."
+A tuple containing the left and right endpoints of the interval.
+
+# Examples
+```jldoctest
+julia> endpoints(iv"[1,2]")
+(1, 2)
+
+julia> endpoints(iv"(2,1)")
+(2, 1)
+```
+"""
 endpoints(d::AI) where AI<:AbstractInterval = error("Override endpoints(::$(AI))")
 
-"The left endpoint of the interval."
+"""
+    leftendpoint(d::AbstractInterval)
+
+The left endpoint of the interval.
+
+# Examples
+```jldoctest
+julia> leftendpoint(iv"[1,2]")
+1
+
+julia> leftendpoint(iv"(2,1)")
+2
+```
+"""
 leftendpoint(d::AbstractInterval) = endpoints(d)[1]
 
-"The right endpoint of the interval."
+"""
+    rightendpoint(d::AbstractInterval)
+
+The right endpoint of the interval.
+
+# Examples
+```jldoctest
+julia> rightendpoint(iv"[1,2]")
+2
+
+julia> rightendpoint(iv"(2,1)")
+1
+```
+"""
 rightendpoint(d::AbstractInterval) = endpoints(d)[2]
 
-"A tuple of `Bool`'s encoding whether the left/right endpoints are closed."
+"""
+    closedendpoints(d::AI) where AI<:AbstractInterval
+
+A tuple of `Bool`'s encoding whether the left/right endpoints are closed.
+
+# Examples
+```jldoctest
+julia> closedendpoints(iv"[1,2]")
+(true, true)
+
+julia> closedendpoints(iv"(1,2]")
+(false, true)
+
+julia> closedendpoints(iv"[2,1)")
+(true, false)
+
+julia> closedendpoints(iv"(2,1)")
+(false, false)
+```
+"""
 closedendpoints(d::AI) where AI<:AbstractInterval = error("Override closedendpoints(::$(AI))")
 
-"Is the interval closed at the left endpoint?"
+"""
+    isleftclosed(d::AbstractInterval)
+
+Is the interval closed at the left endpoint?
+
+# Examples
+```jldoctest
+julia> isleftclosed(iv"[1,2]")
+true
+
+julia> isleftclosed(iv"(2,1)")
+false
+```
+"""
 isleftclosed(d::AbstractInterval) = closedendpoints(d)[1]
 
-"Is the interval closed at the right endpoint?"
+"""
+    isrightclosed(d::AbstractInterval)
+
+Is the interval closed at the right endpoint?
+
+# Examples
+```jldoctest
+julia> isrightclosed(iv"[1,2]")
+true
+
+julia> isrightclosed(iv"(2,1)")
+false
+```
+"""
 isrightclosed(d::AbstractInterval) = closedendpoints(d)[2]
 
 # open_left and open_right are implemented in terms of closed_* above, so those
 # are the only ones that should be implemented for specific intervals
-"Is the interval open at the left endpoint?"
+"""
+    isleftopen(d::AbstractInterval)
+
+Is the interval open at the left endpoint?
+
+# Examples
+```jldoctest
+julia> isleftopen(iv"[1,2]")
+false
+
+julia> isleftopen(iv"(2,1)")
+true
+```
+"""
 isleftopen(d::AbstractInterval) = !isleftclosed(d)
 
-"Is the interval open at the right endpoint?"
+"""
+    isrightopen(d::AbstractInterval)
+
+Is the interval open at the right endpoint?
+
+# Examples
+```jldoctest
+julia> isrightopen(iv"[1,2]")
+false
+
+julia> isrightopen(iv"(2,1)")
+true
+```
+"""
 isrightopen(d::AbstractInterval) = !isrightclosed(d)
 
-# Only closed if closed at both endpoints, and similar for open
+"""
+    isclosedset(d::AbstractInterval)
+
+Is the interval closed set?
+
+# Examples
+```jldoctest
+julia> isclosedset(iv"[1,2]")
+true
+
+julia> isclosedset(iv"(1,2]")
+false
+
+julia> isclosedset(iv"[1,2)")
+false
+
+julia> isclosedset(iv"(1,2)")
+false
+```
+"""
 isclosedset(d::AbstractInterval) = isleftclosed(d) && isrightclosed(d)
 
-"Is the interval open?"
+"""
+    isopenset(d::AbstractInterval)
+
+Is the interval open set?
+
+# Examples
+```jldoctest
+julia> isopenset(iv"[1,2]")
+false
+
+julia> isopenset(iv"(1,2]")
+false
+
+julia> isopenset(iv"[1,2)")
+false
+
+julia> isopenset(iv"(1,2)")
+true
+```
+"""
 isopenset(d::AbstractInterval) = isleftopen(d) && isrightopen(d)
 
 eltype(::Type{AbstractInterval{T}}) where {T} = T
@@ -94,6 +241,15 @@ mean(d::AbstractInterval) = (leftendpoint(d) + rightendpoint(d))/2
 
 Calculate the width (max-min) of interval `iv`. Note that for integers
 `l` and `r`, `width(l..r) = length(l:r) - 1`.
+
+# Examples
+```jldoctest
+julia> width(2..7)
+5
+
+julia> length(2:7)
+6
+```
 """
 function width(A::AbstractInterval)
     _width = rightendpoint(A) - leftendpoint(A)
@@ -206,28 +362,61 @@ range(i::TypedEndpointsInterval{:closed,:closed,I}) where {I<:Integer} = UnitRan
 
 """
     range(i::ClosedInterval; step, length)
-    range(i::ClosedInterval, len::Integer)
+    range(i::ClosedInterval, length::Integer)
 
 Constructs a range of a specified step or length.
+
+# Examples
+```jldoctest
+julia> range(1..2, 8)
+1.0:0.14285714285714285:2.0
+
+julia> range(1, 2, 8)
+1.0:0.14285714285714285:2.0
+
+julia> range(1..2, step=0.2)
+1.0:0.2:2.0
+
+julia> range(1, 2, step=0.2)
+1.0:0.2:2.0
+```
 """
 range(i::TypedEndpointsInterval{:closed,:closed}; step=nothing, length=nothing) =
     range(leftendpoint(i); stop=rightendpoint(i), step=step, length=length)
-range(i::TypedEndpointsInterval{:closed,:closed}, len::Integer) = range(i; length=len)
+range(i::TypedEndpointsInterval{:closed,:closed}, length::Integer) = range(i; length=length)
 
 """
     range(i::Interval{:closed,:open}; length)
-    range(i::Interval{:closed,:open}, len::Integer)
+    range(i::Interval{:closed,:open}, length::Integer)
 
 Constructs a range of a specified length with `step=width(i)/length`.
+
+# Examples
+```jldoctest
+julia> range(iv"[1, 2)", 7)  # Does not contain right endpoint
+1.0:0.14285714285714285:1.8571428571428572
+
+julia> range(1, 2, 8)
+1.0:0.14285714285714285:2.0
+```
 """
 range(i::TypedEndpointsInterval{:closed,:open}; length::Integer) =
     range(leftendpoint(i); step=width(i)/length, length=length)
-range(i::TypedEndpointsInterval{:closed,:open}, len::Integer) = range(i; length=len)
+range(i::TypedEndpointsInterval{:closed,:open}, length::Integer) = range(i; length=length)
 
 """
     clamp(t, i::ClosedInterval)
 
 Clamp the scalar `t` such that the result is in the interval `i`.
+
+# Examples
+```jldoctest
+julia> clamp(1.2, 1..2)
+1.2
+
+julia> clamp(2.2, 1..2)
+2.0
+```
 """
 clamp(t, i::TypedEndpointsInterval{:closed,:closed}) =
     clamp(t, leftendpoint(i), rightendpoint(i))
