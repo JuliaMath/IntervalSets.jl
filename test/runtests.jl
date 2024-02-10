@@ -28,9 +28,11 @@ struct IncompleteInterval <: AbstractInterval{Int} end
 
 @testset "IntervalSets" begin
 
-    @test ordered(2, 1) == (1, 2)
-    @test ordered(1, 2) == (1, 2)
-    @test ordered(Float16(1), 2) == (1, 2)
+    @testset "ordered" begin
+        @test ordered(2, 1) == (1, 2)
+        @test ordered(1, 2) == (1, 2)
+        @test ordered(Float16(1), 2) == (1, 2)
+    end
 
     @testset "iv_str macro" begin
         @test iv"[1,2]" === 1..2
