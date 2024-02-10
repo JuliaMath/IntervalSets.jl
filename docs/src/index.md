@@ -51,13 +51,24 @@ using IntervalSets
 ClosedInterval{Float64}(1,3)
 OpenInterval{Float64}(1,3)
 Interval{:open, :closed}(1,3)
-0.5..2.5
-1.5 ± 1
-Interval{:open,:closed}(1,3)
 OpenInterval(0.5..2.5)  # construct `OpenInterval` from `ClosedInterval`
 ```
 
-The [`±`](@ref) operator may be typed as `\pm<TAB>` (using Julia's LaTeX syntax tab-completion).
+The [`±`](@ref) operator and [`..`](@ref) creates [`ClosedInterval`](@ref) instance.
+
+```@repl more
+0.5..2.5
+1.5 ± 1  # \pm<TAB>
+```
+
+There is also a useful string macro [`@iv_str`](@ref) to define an interval with mathematical notations such as ``(a,b]``.
+
+```@repl more
+iv"[1,2]"
+iv"[1,2)"
+iv"(1,2]"
+iv"(1,2)"
+```
 
 ### Set operations
 
