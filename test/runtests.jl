@@ -396,34 +396,48 @@ struct IncompleteInterval <: AbstractInterval{Int} end
         @test !isleftopen(I)
         @test isrightclosed(I)
         @test !isrightopen(I)
-        @test ClosedInterval(I) === convert(ClosedInterval, I) ===
-                ClosedInterval{Int}(I) === convert(ClosedInterval{Int}, I)  ===
-                convert(Interval, I) === Interval(I) === 0..1
+        @test 0..1 === ClosedInterval(I)
+        @test 0..1 === convert(ClosedInterval, I)
+        @test 0..1 === ClosedInterval{Int}(I)
+        @test 0..1 === convert(ClosedInterval{Int}, I)
+        @test 0..1 === convert(Interval, I)
+        @test 0..1 === Interval(I)
         @test_throws InexactError convert(OpenInterval, I)
+
         I = MyUnitInterval(false,false)
         @test leftendpoint(I) == 0
         @test rightendpoint(I) == 1
         @test !isleftclosed(I)
         @test !isrightclosed(I)
-        @test OpenInterval(I) === convert(OpenInterval, I) ===
-                OpenInterval{Int}(I) === convert(OpenInterval{Int}, I)  ===
-                convert(Interval, I) === Interval(I) === OpenInterval(0..1)
+        @test iv"(0,1)" === OpenInterval(I)
+        @test iv"(0,1)" === convert(OpenInterval, I)
+        @test iv"(0,1)" === OpenInterval{Int}(I)
+        @test iv"(0,1)" === convert(OpenInterval{Int}, I)
+        @test iv"(0,1)" === convert(Interval, I)
+
         I = MyUnitInterval(false,true)
         @test leftendpoint(I) == 0
         @test rightendpoint(I) == 1
         @test isleftclosed(I) == false
         @test isrightclosed(I) == true
-        @test Interval{:open,:closed}(I) === convert(Interval{:open,:closed}, I) ===
-                Interval{:open,:closed,Int}(I) === convert(Interval{:open,:closed,Int}, I)  ===
-                convert(Interval, I) === Interval(I) === Interval{:open,:closed}(0..1)
+        @test iv"(0,1]" === Interval{:open,:closed}(I)
+        @test iv"(0,1]" === convert(Interval{:open,:closed}, I)
+        @test iv"(0,1]" === Interval{:open,:closed,Int}(I)
+        @test iv"(0,1]" === convert(Interval{:open,:closed,Int}, I)
+        @test iv"(0,1]" === convert(Interval, I)
+        @test iv"(0,1]" === Interval(I)
+
         I = MyUnitInterval(true,false)
         @test leftendpoint(I) == 0
         @test rightendpoint(I) == 1
         @test isleftclosed(I) == true
         @test isrightclosed(I) == false
-        @test Interval{:closed,:open}(I) === convert(Interval{:closed,:open}, I) ===
-                Interval{:closed,:open,Int}(I) === convert(Interval{:closed,:open,Int}, I)  ===
-                convert(Interval, I) === Interval(I) === Interval{:closed,:open}(0..1)
+        @test iv"[0,1)" === Interval{:closed,:open}(I)
+        @test iv"[0,1)" === convert(Interval{:closed,:open}, I)
+        @test iv"[0,1)" === Interval{:closed,:open,Int}(I)
+        @test iv"[0,1)" === convert(Interval{:closed,:open,Int}, I)
+        @test iv"[0,1)" === convert(Interval, I)
+        @test iv"[0,1)" === Interval(I)
         @test convert(AbstractInterval, I) === convert(AbstractInterval{Int}, I) === I
     end
 
