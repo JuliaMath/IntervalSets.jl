@@ -38,6 +38,26 @@ Interval(i::AbstractInterval) = Interval{isleftclosed(i) ? (:closed) : (:open),
                                          isrightclosed(i) ? (:closed) : (:open)}(i)
 Interval(i::TypedEndpointsInterval{L,R}) where {L,R} = Interval{L,R}(i)
 
+"""
+    @iv_str -> Interval
+
+Construct an interval with mathematical notation such as `iv"(1,2]"`.
+
+# Examples
+```jldoctest
+julia> iv"[1,2]"
+1 .. 2
+
+julia> iv"[1,2)"
+1 .. 2 (closed-open)
+
+julia> iv"(1,2]"
+1 .. 2 (open-closed)
+
+julia> iv"(1,2)"
+1 .. 2 (open)
+```
+"""
 macro iv_str(s)
     msg = "Invalid expresson `$s`"
     for (reg, f) ∈ (
@@ -108,15 +128,30 @@ convert(::Type{TypedEndpointsInterval{L,R}}, d::Interval{L,R}) where {L,R} = d
     iv = l..r
 
 Construct a ClosedInterval `iv` spanning the region from `l` to `r`.
+
+# Examples
+```jldoctest
+julia> 1..2
+1 .. 2
+
+julia> 3..1  # Empty interval set can be defined
+3 .. 1
+```
 """
 ..(x, y) = ClosedInterval(x, y)
 
 
 """
-    iv = center±halfwidth
+    iv = center ± halfwidth
 
 Construct a ClosedInterval `iv` spanning the region from
 `center - halfwidth` to `center + halfwidth`.
+
+# Examples
+```jldoctest
+julia> 3 ± 2
+1 .. 5
+```
 """
 ±(x, y) = ClosedInterval(x - y, x + y)
 ±(x::CartesianIndex, y::CartesianIndex) = ClosedInterval(x-y, x+y)

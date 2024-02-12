@@ -2,5 +2,5 @@
 
 ```@autodocs
 Modules = [IntervalSets]
-Order   = [:type, :function]
+Order   = [:type, :function, :macro]
 ```
