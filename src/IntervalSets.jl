@@ -337,6 +337,12 @@ maximum(d::TypedEndpointsInterval{L,:open}) where L = throw(ArgumentError("$d is
 
 extrema(I::TypedEndpointsInterval) = (infimum(I), supremum(I))
 
+minimum(::typeof(abs), I::TypedEndpointsInterval{:closed,:closed}) =
+    minimum(I) < 0 < maximum(I) ?
+        zero(minimum(I)) :
+        minimum(abs, endpoints(I))
+maximum(::typeof(abs), I::TypedEndpointsInterval{:closed,:closed}) = maximum(abs, endpoints(I))
+
 # Open and closed at endpoints
 isleftclosed(d::TypedEndpointsInterval{:closed}) = true
 isleftclosed(d::TypedEndpointsInterval{:open}) = false
