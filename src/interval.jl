@@ -38,6 +38,53 @@ Interval(i::AbstractInterval) = Interval{isleftclosed(i) ? (:closed) : (:open),
                                          isrightclosed(i) ? (:closed) : (:open)}(i)
 Interval(i::TypedEndpointsInterval{L,R}) where {L,R} = Interval{L,R}(i)
 
+"""
+    @iv_str -> Interval
+
+Construct an interval with mathematical notation such as `iv"(1,2]"`.
+
+# Examples
+```jldoctest
+julia> iv"[1,2]"
+1 .. 2
+
+julia> iv"[1,2)"
+1 .. 2 (closed-open)
+
+julia> iv"(1,2]"
+1 .. 2 (open-closed)
+
+julia> iv"(1,2)"
+1 .. 2 (open)
+```
+"""
+macro iv_str(s)
+    msg = "Invalid expresson `$s`"
+    for (reg, f) ∈ (
+        (r"^\[(.*)\)$", Interval{:closed, :open}),
+        (r"^\((.*)\)$", Interval{:open, :open}),
+        (r"^\((.*)\]$", Interval{:open, :closed}),
+        (r"^\[(.*)\]$", Interval{:closed, :closed}),
+    )
+        m = match(reg, s)
+        if !isnothing(m)
+            try
+                args = Meta.parse("("*m.captures[1]*",)")
+                if args.head === :incomplete
+                    return :(throw(ErrorException("$($msg)")))
+                elseif length(args.args) ≠ 2
+                    return :(throw(ErrorException("$($msg)")))
+                else
+                    return :($f($(esc(args))...))
+                end
+            catch
+                return :(throw(ErrorException("$($msg)")))
+            end
+        end
+    end
+    return :(throw(ErrorException("$($msg)")))
+end
+
 endpoints(i::Interval) = (i.left, i.right)
 
 for L in (:(:open),:(:closed)), R in (:(:open),:(:closed))
@@ -81,15 +128,30 @@ convert(::Type{TypedEndpointsInterval{L,R}}, d::Interval{L,R}) where {L,R} = d
     iv = l..r
 
 Construct a ClosedInterval `iv` spanning the region from `l` to `r`.
+
+# Examples
+```jldoctest
+julia> 1..2
+1 .. 2
+
+julia> 3..1  # Empty interval set can be defined
+3 .. 1
+```
 """
 ..(x, y) = ClosedInterval(x, y)
 
 
 """
-    iv = center±halfwidth
+    iv = center ± halfwidth
 
 Construct a ClosedInterval `iv` spanning the region from
 `center - halfwidth` to `center + halfwidth`.
+
+# Examples
+```jldoctest
+julia> 3 ± 2
+1 .. 5
+```
 """
 ±(x, y) = ClosedInterval(x - y, x + y)
 ±(x::CartesianIndex, y::CartesianIndex) = ClosedInterval(x-y, x+y)
@@ -178,16 +240,6 @@ function _union(A::TypedEndpointsInterval{L1,R1}, B::TypedEndpointsInterval{L2,R
     right = max(rightendpoint(A), rightendpoint(B))
 
     Interval{L,R}(left, right)
-end
-
-# random sampling from interval
-Random.gentype(::Type{Interval{L,R,T}}) where {L,R,T} = float(T)
-function Random.rand(rng::AbstractRNG, i::Random.SamplerTrivial{<:TypedEndpointsInterval{:closed, :closed, T}}) where T<:Real
-    _i = i[]
-    isempty(_i) && throw(ArgumentError("The interval should be non-empty."))
-    a,b = endpoints(_i)
-    t = rand(rng, float(T)) # technically this samples from [0, 1), but we still allow it with TypedEndpointsInterval{:closed, :closed} for convenience
-    return clamp(t*a+(1-t)*b, _i)
 end
 
 ClosedInterval{T}(i::AbstractUnitRange{I}) where {T,I<:Integer} = ClosedInterval{T}(minimum(i), maximum(i))
