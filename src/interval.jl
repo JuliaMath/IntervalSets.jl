@@ -161,11 +161,18 @@ show(io::IO, I::OpenInterval) = print(io, leftendpoint(I), " .. ", rightendpoint
 show(io::IO, I::Interval{:open,:closed}) = print(io, leftendpoint(I), " .. ", rightendpoint(I), " (open-closed)")
 show(io::IO, I::Interval{:closed,:open}) = print(io, leftendpoint(I), " .. ", rightendpoint(I), " (closed-open)")
 
+leftendpointtype(::TypedEndpointsInterval{L,R}) where {L,R} = L
+rightendpointtype(::TypedEndpointsInterval{L,R}) where {L,R} = R
+
 # The following are not typestable for mixed endpoint types
 _left_intersect_type(::Type{Val{:open}}, ::Type{Val{L2}}, a1, a2) where L2 = a1 < a2 ? (a2,L2) : (a1,:open)
 _left_intersect_type(::Type{Val{:closed}}, ::Type{Val{L2}}, a1, a2) where L2 = a1 ≤ a2 ? (a2,L2) : (a1,:closed)
 _right_intersect_type(::Type{Val{:open}}, ::Type{Val{R2}}, b1, b2) where R2 = b1 > b2 ? (b2,R2) : (b1,:open)
 _right_intersect_type(::Type{Val{:closed}}, ::Type{Val{R2}}, b1, b2) where R2 = b1 ≥ b2 ? (b2,R2) : (b1,:closed)
+_left_union_type(::Type{Val{:open}}, ::Type{Val{L2}}, a1, a2) where L2 = a1 < a2 ? (a1,:open) : (a2,L2)
+_left_union_type(::Type{Val{:closed}}, ::Type{Val{L2}}, a1, a2) where L2 = a1 ≤ a2 ? (a1,:closed) : (a2,L2)
+_right_union_type(::Type{Val{:open}}, ::Type{Val{R2}}, b1, b2) where R2 = b1 > b2 ? (b1,:open) : (b2,R2)
+_right_union_type(::Type{Val{:closed}}, ::Type{Val{R2}}, b1, b2) where R2 = b1 ≥ b2 ? (b1,:closed) : (b2,R2)
 
 function intersect(d1::TypedEndpointsInterval{L1,R1}, d2::TypedEndpointsInterval{L2,R2}) where {L1,R1,L2,R2}
     a1, b1 = endpoints(d1); a2, b2 = endpoints(d2)
@@ -181,37 +188,12 @@ end
 
 intersect(d1::AbstractInterval, d2::AbstractInterval) = intersect(Interval(d1), Interval(d2))
 
-union(I::TypedEndpointsInterval...) = unioninterval(intervalunion!([I...]))
-unioninterval(x) = isone(length(x)) ? x[1] : throw(ArgumentError("Cannot construct union of disjoint sets."))
-function intervalunion!(I::Vector{<:TypedEndpointsInterval})
-    sort!(I, by = leftendpoint)
+include("unionalgorithms.jl")
 
-    # filter out empty sets
-    k = 1
-    while k <= length(I)
-        if isempty(I[k])
-            popat!(I,k)
-        else
-            k += 1
-        end
-    end
-
-    # merge intervals
-    k = 2
-    while k <= length(I)
-        x = leftendpoint(I[k])
-        y = rightendpoint(I[k-1])
-        if x > y
-            k += 1
-        elseif x < y || x ∈ I[k] || x ∈ I[k-1]
-            I[k-1] = _union(I[k-1],I[k])
-            popat!(I,k)
-        else
-            k += 1
-        end
-    end
-    I
-end
+union(d::TypedEndpointsInterval) = d # 1 interval
+union(d1::TypedEndpointsInterval, d2::TypedEndpointsInterval) = union2(d1, d2) # 2 intervals
+Base.@nexprs(23,N -> union(I::Vararg{TypedEndpointsInterval,N+2}) = tupleunion(swapsort(I))) # 3 to 25 intervals
+union(I::TypedEndpointsInterval...) = tupleunion(sort(SVector(I); lt = leftof)) # ≥26 intervals
 
 # these assume overlap
 function _union(A::TypedEndpointsInterval{L,R}, B::TypedEndpointsInterval{L,R}) where {L,R}
