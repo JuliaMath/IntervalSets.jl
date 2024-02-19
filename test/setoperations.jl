@@ -240,7 +240,7 @@
     for _ in 1:10
         @test_throws ArgumentError union(shuffle!(intervals)...)
     end
-    intervals = [OpenInterval(n-0.5,n+0.5) for n in 1:50]
+    intervals = [OpenInterval(n+0.5,n-0.5) for n in 1:50]
     for _ in 1:10
         @test ∪(shuffle!(intervals)...) == 1..0
     end
