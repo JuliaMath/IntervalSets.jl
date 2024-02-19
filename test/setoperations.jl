@@ -230,6 +230,12 @@
     # - different interval types
     @test (1..2) ∩ OpenInterval(0.5, 1.5) ≡ Interval{:closed, :open}(1, 1.5)
     @test (1..2) ∪ OpenInterval(0.5, 1.5) ≡ Interval{:open, :closed}(0.5, 2)
+
+    # union of multiple intervals
+    intervals = [i1, i2, i3, i4, i5, i_empty]
+    for _ in 1:10
+        @test ∪(shuffle!(intervals)...) == 0..3
+    end
 end
 
 @testset "in" begin

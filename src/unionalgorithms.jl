@@ -25,21 +25,21 @@ Returns if `d1 ∪ d2` is a single interval.
 """
 @inline canunion(d1, d2) = any(∈(d1), endpoints(d2)) || any(∈(d2), endpoints(d1))
 
-function tupleunion(I::Tuple{Vararg{TypedEndpointsInterval,N}}) where N
-    T = promote_type(map(eltype, I))
-    next = iterate(I)
+function iterunion(iter)
+    T = promote_type(map(eltype, iter)...)
+    next = iterate(iter)
     while !isnothing(next)
         (item, state) = next
         # find the first non-empty interval
         if isempty(item)
-            next = iterate(I, state)
+            next = iterate(iter, state)
             continue
         end
         L = leftendpointtype(item)
         R = rightendpointtype(item)
         l = leftendpoint(item)
         r = rightendpoint(item)
-        next = iterate(I, state)
+        next = iterate(iter, state)
         while !isnothing(next)
             (item, state) = next
             if isempty(item)
@@ -50,7 +50,7 @@ function tupleunion(I::Tuple{Vararg{TypedEndpointsInterval,N}}) where N
             else
                 (r,R) = _right_union_type(Val{R}, Val{rightendpointtype(item)}, r, rightendpoint(item))
             end
-            next = iterate(I, state)
+            next = iterate(iter, state)
         end
         return Interval{L,R,T}(l,r)
     end
