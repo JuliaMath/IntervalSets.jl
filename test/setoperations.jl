@@ -236,6 +236,14 @@
     for _ in 1:10
         @test ∪(shuffle!(intervals)...) == 0..3
     end
+    intervals = [i1, i2, i4, i5, i_empty]
+    for _ in 1:10
+        @test_throws ArgumentError ∪(shuffle!(intervals)...)
+    end
+    intervals = [OpenInterval(n-0.5,n+0.5) for n in 1:50]
+    for _ in 1:10
+        @test ∪(shuffle!(intervals)...) == 1..0
+    end
 end
 
 @testset "in" begin
