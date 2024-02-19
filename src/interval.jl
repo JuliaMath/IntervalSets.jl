@@ -193,7 +193,7 @@ include("unionalgorithms.jl")
 union(d::TypedEndpointsInterval) = d # 1 interval
 union(d1::TypedEndpointsInterval, d2::TypedEndpointsInterval) = union2(d1, d2) # 2 intervals
 Base.@nexprs(23,N -> union(I::Vararg{TypedEndpointsInterval,N+2}) = iterunion(swapsort(I))) # 3 to 25 intervals
-union(I::TypedEndpointsInterval...) = iterunion(sort!(SVector(I); lt = leftof)) # ≥26 intervals
+union(I::TypedEndpointsInterval...) = iterunion(sort(SVector(I); lt = leftof)) # ≥26 intervals
 
 # these assume overlap
 function _union(A::TypedEndpointsInterval{L,R}, B::TypedEndpointsInterval{L,R}) where {L,R}
