@@ -1,4 +1,4 @@
-using SortingNetworks # not a permanent solution as the package is not maintained. However it's really fast
+import TupleTools
 import StaticArrays: SVector
 
 """
@@ -44,7 +44,7 @@ function iterunion(iter)
             (item, state) = next
             if isempty(item)
             elseif leftendpoint(item) > r
-                throw(ArgumentError("IntervalSets doesn't support union of disjoint intervals, while the interval $r..$(leftendpoint(item)) is not covered. Try using DomainSets.UnionDomain for disjoint intervals or ∪(a,b,c...) if the intervals are not sorted."))
+                throw(ArgumentError("IntervalSets doesn't support union of disjoint intervals, while the interval $r..$(leftendpoint(item)) (open) is not covered. Try using DomainSets.UnionDomain for disjoint intervals or ∪(a,b,c...) if the intervals are not sorted."))
             elseif R==:open && leftendpoint(item)==r && leftendpointtype(item)==:open
                 throw(ArgumentError("IntervalSets doesn't support union of disjoint intervals, while the point $r is not covered. Try using DomainSets.UnionDomain for disjoint intervals or ∪(a,b,c...) if the intervals are not sorted."))
             else
@@ -56,15 +56,12 @@ function iterunion(iter)
     end
     return one(T)..zero(T) # can't find the first non-empty interval. return an empty interval.
 end
-# workaround since SortingNetworks.jl doesn't support `lt` keyword argument
-Base.minmax(I1::TypedEndpointsInterval, I2::TypedEndpointsInterval) = leftof(I1,I2) ? (I1,I2) : (I2,I1)
 
 # good old union
 function union2(d1::TypedEndpointsInterval{L1,R1,T1}, d2::TypedEndpointsInterval{L2,R2,T2}) where {L1,R1,T1,L2,R2,T2}
     T = promote_type(T1,T2)
     isempty(d1) && return Interval{L2,R2,T}(d2)
     isempty(d2) && return Interval{L1,R1,T}(d1)
-    any(∈(d1), endpoints(d2)) || any(∈(d2), endpoints(d1)) ||
-        throw(ArgumentError("Cannot construct union of disjoint sets."))
-    _union(d1, d2)
+    canunion(d1, d2) && return _union(d1, d2)
+    throw(ArgumentError("Cannot construct union of disjoint sets."))
 end
