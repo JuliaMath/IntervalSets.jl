@@ -265,7 +265,9 @@ function test_multipleunion(intervals)
             return
         end
         @test all(v -> v ⊆ u, intervals)
-        # due to an issue from DomainSets.jl, setdiff is currently unreliable. See github.com/JuliaApproximation/DomainSets.jl/issues/151
+        # The following codes rigorously tests the correctness of u. 
+        # However, the `setdiff` is only implemented in `DomainSets.jl`
+        # which introduces piracies. See https://github.com/JuliaMath/IntervalSets.jl/pull/156#discussion_r1497829695
         # as a result, the correctness of interval union is not thoroughly tested.
         #= v = u
         for i in intervals
