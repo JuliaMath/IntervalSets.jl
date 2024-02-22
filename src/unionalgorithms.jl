@@ -54,7 +54,7 @@ function iterunion(iter)
         end
         return Interval{L,R,T}(l,r)
     end
-    return one(T)..zero(T) # can't find the first non-empty interval. return an empty interval.
+    return first(iter) # can't find the first non-empty interval. return the first one.
 end
 
 # good old union
