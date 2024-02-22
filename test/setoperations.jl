@@ -244,7 +244,7 @@ end
 randinterval(s) = Interval{rand([:closed,:open]),rand([:closed,:open])}(rand(s), rand(s))
 function test_multipleunion(intervals)
     if all(isempty, intervals)
-        @test ∪(intervals...) == 1 .. 0
+        @test isempty(∪(intervals...))
     else
         u = nothing
         try
