@@ -1,5 +1,4 @@
 import TupleTools
-import StaticArraysCore: SVector
 
 """
     leftof(I1::TypedEndpointsInterval, I2::TypedEndpointsInterval)
@@ -64,4 +63,11 @@ function union2(d1::TypedEndpointsInterval{L1,R1,T1}, d2::TypedEndpointsInterval
     isempty(d2) && return Interval{L1,R1,T}(d1)
     canunion(d1, d2) && return _union(d1, d2)
     throw(ArgumentError("Cannot construct union of disjoint sets."))
+end
+
+# this is not typestable
+function _union(A::TypedEndpointsInterval{L1,R1}, B::TypedEndpointsInterval{L2,R2}) where {L1,R1,L2,R2}
+    l, L = _left_union_type(Val{L1}, Val{L2}, leftendpoint(A), leftendpoint(B))
+    r, R = _right_union_type(Val{R1}, Val{R2}, rightendpoint(A), rightendpoint(B))
+    Interval{L,R}(l, r)
 end

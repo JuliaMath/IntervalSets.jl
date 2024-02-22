@@ -192,37 +192,8 @@ include("unionalgorithms.jl")
 
 union(d::TypedEndpointsInterval) = d # 1 interval
 union(d1::TypedEndpointsInterval, d2::TypedEndpointsInterval) = union2(d1, d2) # 2 intervals
-Base.@nexprs(4,N -> union(I::Vararg{TypedEndpointsInterval,N+2}) = iterunion(TupleTools.sort(I; lt = leftof))) # 3 to 6 intervals
-union(I::TypedEndpointsInterval...) = iterunion(sort(SVector(I); lt = leftof).data) # ≥7 intervals
-
-# these assume overlap
-function _union(A::TypedEndpointsInterval{L,R}, B::TypedEndpointsInterval{L,R}) where {L,R}
-    left = min(leftendpoint(A), leftendpoint(B))
-    right = max(rightendpoint(A), rightendpoint(B))
-    Interval{L,R}(left, right)
-end
-
-# this is not typestable
-function _union(A::TypedEndpointsInterval{L1,R1}, B::TypedEndpointsInterval{L2,R2}) where {L1,R1,L2,R2}
-    if leftendpoint(A) == leftendpoint(B)
-        L = L1 == :closed ? :closed : L2
-    elseif leftendpoint(A) < leftendpoint(B)
-        L = L1
-    else
-        L = L2
-    end
-    if rightendpoint(A) == rightendpoint(B)
-        R = R1 == :closed ? :closed : R2
-    elseif rightendpoint(A) > rightendpoint(B)
-        R = R1
-    else
-        R = R2
-    end
-    left = min(leftendpoint(A), leftendpoint(B))
-    right = max(rightendpoint(A), rightendpoint(B))
-
-    Interval{L,R}(left, right)
-end
+Base.@nexprs(18,N -> union(I::Vararg{TypedEndpointsInterval,N+2}) = iterunion(TupleTools.sort(I; lt = leftof))) # 3 to 20 intervals
+union(I::TypedEndpointsInterval...) = iterunion(sort!(collect(I); lt = leftof)) # ≥21 intervals
 
 ClosedInterval{T}(i::AbstractUnitRange{I}) where {T,I<:Integer} = ClosedInterval{T}(minimum(i), maximum(i))
 ClosedInterval(i::AbstractUnitRange{I}) where {I<:Integer} = ClosedInterval{I}(minimum(i), maximum(i))
