@@ -1,5 +1,5 @@
 import TupleTools
-import StaticArrays: SVector
+import StaticArraysCore: SVector
 
 """
     leftof(I1::TypedEndpointsInterval, I2::TypedEndpointsInterval)
