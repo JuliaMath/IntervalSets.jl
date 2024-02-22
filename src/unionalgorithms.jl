@@ -21,7 +21,7 @@ end
 """
     canunion(d1, d2)
 
-Returns if `d1 ∪ d2` is a single interval.
+Returns if `d1 ∪ d2` is a single interval. `d1` and `d2` have to be non-empty. Note that `canunion` is not always `!isdisjoint`. For example, ``[0,1)`` and ``[1,2]`` are disjoint, but the union of them is a single interval.
 """
 @inline canunion(d1, d2) = any(∈(d1), endpoints(d2)) || any(∈(d2), endpoints(d1))
 
