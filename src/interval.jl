@@ -161,11 +161,18 @@ show(io::IO, I::OpenInterval) = print(io, leftendpoint(I), " .. ", rightendpoint
 show(io::IO, I::Interval{:open,:closed}) = print(io, leftendpoint(I), " .. ", rightendpoint(I), " (open-closed)")
 show(io::IO, I::Interval{:closed,:open}) = print(io, leftendpoint(I), " .. ", rightendpoint(I), " (closed-open)")
 
+leftendpointtype(::TypedEndpointsInterval{L,R}) where {L,R} = L
+rightendpointtype(::TypedEndpointsInterval{L,R}) where {L,R} = R
+
 # The following are not typestable for mixed endpoint types
 _left_intersect_type(::Type{Val{:open}}, ::Type{Val{L2}}, a1, a2) where L2 = a1 < a2 ? (a2,L2) : (a1,:open)
 _left_intersect_type(::Type{Val{:closed}}, ::Type{Val{L2}}, a1, a2) where L2 = a1 ≤ a2 ? (a2,L2) : (a1,:closed)
 _right_intersect_type(::Type{Val{:open}}, ::Type{Val{R2}}, b1, b2) where R2 = b1 > b2 ? (b2,R2) : (b1,:open)
 _right_intersect_type(::Type{Val{:closed}}, ::Type{Val{R2}}, b1, b2) where R2 = b1 ≥ b2 ? (b2,R2) : (b1,:closed)
+_left_union_type(::Type{Val{:open}}, ::Type{Val{L2}}, a1, a2) where L2 = a1 < a2 ? (a1,:open) : (a2,L2)
+_left_union_type(::Type{Val{:closed}}, ::Type{Val{L2}}, a1, a2) where L2 = a1 ≤ a2 ? (a1,:closed) : (a2,L2)
+_right_union_type(::Type{Val{:open}}, ::Type{Val{R2}}, b1, b2) where R2 = b1 > b2 ? (b1,:open) : (b2,R2)
+_right_union_type(::Type{Val{:closed}}, ::Type{Val{R2}}, b1, b2) where R2 = b1 ≥ b2 ? (b1,:closed) : (b2,R2)
 
 function intersect(d1::TypedEndpointsInterval{L1,R1}, d2::TypedEndpointsInterval{L2,R2}) where {L1,R1,L2,R2}
     a1, b1 = endpoints(d1); a2, b2 = endpoints(d2)
@@ -181,44 +188,12 @@ end
 
 intersect(d1::AbstractInterval, d2::AbstractInterval) = intersect(Interval(d1), Interval(d2))
 
+include("unionalgorithms.jl")
 
-function union(d1::TypedEndpointsInterval{L1,R1,T1}, d2::TypedEndpointsInterval{L2,R2,T2}) where {L1,R1,T1,L2,R2,T2}
-    T = promote_type(T1,T2)
-    isempty(d1) && return Interval{L2,R2,T}(d2)
-    isempty(d2) && return Interval{L1,R1,T}(d1)
-    any(∈(d1), endpoints(d2)) || any(∈(d2), endpoints(d1)) ||
-        throw(ArgumentError("Cannot construct union of disjoint sets."))
-    _union(d1, d2)
-end
-
-# these assume overlap
-function _union(A::TypedEndpointsInterval{L,R}, B::TypedEndpointsInterval{L,R}) where {L,R}
-    left = min(leftendpoint(A), leftendpoint(B))
-    right = max(rightendpoint(A), rightendpoint(B))
-    Interval{L,R}(left, right)
-end
-
-# this is not typestable
-function _union(A::TypedEndpointsInterval{L1,R1}, B::TypedEndpointsInterval{L2,R2}) where {L1,R1,L2,R2}
-    if leftendpoint(A) == leftendpoint(B)
-        L = L1 == :closed ? :closed : L2
-    elseif leftendpoint(A) < leftendpoint(B)
-        L = L1
-    else
-        L = L2
-    end
-    if rightendpoint(A) == rightendpoint(B)
-        R = R1 == :closed ? :closed : R2
-    elseif rightendpoint(A) > rightendpoint(B)
-        R = R1
-    else
-        R = R2
-    end
-    left = min(leftendpoint(A), leftendpoint(B))
-    right = max(rightendpoint(A), rightendpoint(B))
-
-    Interval{L,R}(left, right)
-end
+union(d::TypedEndpointsInterval) = d # 1 interval
+union(d1::TypedEndpointsInterval, d2::TypedEndpointsInterval) = union2(d1, d2) # 2 intervals
+Base.@nexprs(18,N -> union(I::Vararg{TypedEndpointsInterval,N+2}) = iterunion(TupleTools.sort(I; lt = leftof))) # 3 to 20 intervals
+union(I::TypedEndpointsInterval...) = iterunion(sort!(collect(I); lt = leftof)) # ≥21 intervals
 
 ClosedInterval{T}(i::AbstractUnitRange{I}) where {T,I<:Integer} = ClosedInterval{T}(minimum(i), maximum(i))
 ClosedInterval(i::AbstractUnitRange{I}) where {I<:Integer} = ClosedInterval{I}(minimum(i), maximum(i))
