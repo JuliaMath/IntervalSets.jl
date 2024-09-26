@@ -388,6 +388,8 @@ range(i::TypedEndpointsInterval{:closed,:closed}, length::Integer) = range(i; le
 """
     range(i::Interval{:closed,:open}; length)
     range(i::Interval{:closed,:open}, length::Integer)
+    range(i::Interval{:open,:closed}; length)
+    range(i::Interval{:open,:closed}, length::Integer)
 
 Constructs a range of a specified length with `step=width(i)/length`.
 
@@ -396,6 +398,9 @@ Constructs a range of a specified length with `step=width(i)/length`.
 julia> range(iv"[1, 2)", 7)  # Does not contain right endpoint
 1.0:0.14285714285714285:1.8571428571428572
 
+julia> range(iv"(1, 2]", 7)  # Does not contain left endpoint
+1.1428571428571428:0.14285714285714285:2.0
+
 julia> range(1, 2, 8)
 1.0:0.14285714285714285:2.0
 ```
@@ -403,6 +408,32 @@ julia> range(1, 2, 8)
 range(i::TypedEndpointsInterval{:closed,:open}; length::Integer) =
     range(leftendpoint(i); step=width(i)/length, length=length)
 range(i::TypedEndpointsInterval{:closed,:open}, length::Integer) = range(i; length=length)
+
+range(i::TypedEndpointsInterval{:open,:closed}; length::Integer) =
+    range(; stop = rightendpoint(i), step = width(i)/length, length)
+range(i::TypedEndpointsInterval{:open,:closed}, length::Integer) = range(i; length)
+
+"""
+    range(i::OpenInterval; length)
+    range(i::OpenInterval, length::Integer)
+
+Constructs a range of a specified length with `step = width(i) / (length + 1)`.
+
+# Examples
+```jldoctest
+julia> range(iv"(1, 4)", 5)  # Does not contain the endpoints
+1.5:0.5:3.5
+
+julia> range(1, 4, 7)
+1.0:0.5:4.0
+```
+"""
+function range(i::TypedEndpointsInterval{:open,:open}; length::Integer)
+    step = width(i) / (length + 1)
+    range(leftendpoint(i) + step; step, length)
+end
+
+range(i::TypedEndpointsInterval{:open,:open}, length::Integer) = range(i; length)
 
 """
     clamp(t, i::ClosedInterval)
