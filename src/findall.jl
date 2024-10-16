@@ -66,14 +66,15 @@ julia> searchsorted_interval(Float64[], 1..3)
 ```
 """
 function searchsorted_interval(X, i::Interval{L, R}; rev=false) where {L, R}
+    ord = Base.Order.ord(<, identity, rev)
     if rev === true
-        _searchsorted_begin(X, rightendpoint(i), Val(R); rev):_searchsorted_end(X, leftendpoint(i), Val(L); rev)
+        _searchsorted_begin(X, rightendpoint(i), Val(R), ord):_searchsorted_end(X, leftendpoint(i), Val(L), ord)
     else
-        _searchsorted_begin(X, leftendpoint(i), Val(L); rev):_searchsorted_end(X, rightendpoint(i), Val(R); rev)
+        _searchsorted_begin(X, leftendpoint(i), Val(L), ord):_searchsorted_end(X, rightendpoint(i), Val(R), ord)
     end
 end
 
-_searchsorted_begin(X, x, ::Val{:closed}; rev) = searchsortedfirst(X, x; rev, lt=<)
-_searchsorted_begin(X, x,   ::Val{:open}; rev) =  searchsortedlast(X, x; rev, lt=<) + 1
-  _searchsorted_end(X, x, ::Val{:closed}; rev) =  searchsortedlast(X, x; rev, lt=<)
-  _searchsorted_end(X, x,   ::Val{:open}; rev) = searchsortedfirst(X, x; rev, lt=<) - 1
+_searchsorted_begin(X, x, ::Val{:closed}, ord) = searchsortedfirst(X, x, ord)
+_searchsorted_begin(X, x,   ::Val{:open}, ord) =  searchsortedlast(X, x, ord) + 1
+  _searchsorted_end(X, x, ::Val{:closed}, ord) =  searchsortedlast(X, x, ord)
+  _searchsorted_end(X, x,   ::Val{:open}, ord) = searchsortedfirst(X, x, ord) - 1
