@@ -337,11 +337,46 @@ maximum(d::TypedEndpointsInterval{L,:open}) where L = throw(ArgumentError("$d is
 
 extrema(I::TypedEndpointsInterval) = (infimum(I), supremum(I))
 
-minimum(::typeof(abs), I::TypedEndpointsInterval{:closed,:closed}) =
-    minimum(I) < 0 < maximum(I) ?
-        zero(minimum(I)) :
-        minimum(abs, endpoints(I))
-maximum(::typeof(abs), I::TypedEndpointsInterval{:closed,:closed}) = maximum(abs, endpoints(I))
+function minimum(::typeof(abs), I::AbstractInterval)
+    a, b = abs.(endpoints(I))
+    z = zero(promote_type(typeof(a), typeof(b)))
+    ac, bc = closedendpoints(I)
+    if isempty(I)
+        throw(ArgumentError("minimum(abs, $I) is undefined for empty intervals"))
+    elseif z ∈ I
+        return z
+    elseif a < b
+        ac && return a
+        throw(ArgumentError("$I is open on the left, no minimum(abs)"))
+    elseif a > b
+        bc && return b
+        throw(ArgumentError("$I is open on the right, no minimum(abs)"))
+    else
+        throw(ArgumentError("cannot determine minimum(abs, $I)"))
+    end
+end
+
+function maximum(::typeof(abs), I::AbstractInterval)
+    a, b = abs.(endpoints(I))
+    ac, bc = closedendpoints(I)
+    if isempty(I)
+        throw(ArgumentError("maximum(abs, $I) is undefined for empty intervals"))
+    elseif a == b
+        ac && return a
+        bc && return b
+        throw(ArgumentError("$I is open on both sides, no maximum(abs)"))
+    elseif a > b
+        ac && return a
+        throw(ArgumentError("$I is open on the left, no maximum(abs)"))
+    elseif a < b
+        bc && return b
+        throw(ArgumentError("$I is open on the right, no maximum(abs)"))
+    else
+        throw(ArgumentError("cannot determine maximum(abs, $I)"))
+    end
+end
+
+extrema(::typeof(abs), I::AbstractInterval) = (minimum(abs, I), maximum(abs, I))
 
 # Open and closed at endpoints
 isleftclosed(d::TypedEndpointsInterval{:closed}) = true

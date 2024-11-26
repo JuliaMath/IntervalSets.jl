@@ -102,3 +102,23 @@ end
     IntervalSets.endpoints(::RandTestUnitInterval) = (-1.0, 1.0)
     @test rand(RandTestUnitInterval()) in -1.0..1.0
 end
+
+@testset "min/maximum(abs)" begin
+    @test maximum(abs, 1..2) == 2
+    @test maximum(abs, -3..2) == 3
+    @test minimum(abs, 1..2) == 1
+    @test minimum(abs, -3..2) == 0
+    @test_throws Exception maximum(abs, iv"[1, 2)")
+    @test minimum(abs, iv"[1, 2)") == 1
+    @test minimum(abs, iv"(-3, 2)") == 0
+
+    @test maximum(abs, 1u"m"..2u"m") == 2u"m"
+    @test maximum(abs, -3u"m"..2u"m") == 3u"m"
+    @test minimum(abs, 1u"m"..2u"m") == 1u"m"
+    @test minimum(abs, -3u"m"..2u"m") == 0u"m"
+
+    @test extrema(abs, 1..2) == (1, 2)
+    @test extrema(abs, -3..2) == (0, 3)
+    @test_throws Exception extrema(abs, iv"[1, 2)")
+    @test extrema(abs, iv"[-3, 2)") == (0, 3)
+end
