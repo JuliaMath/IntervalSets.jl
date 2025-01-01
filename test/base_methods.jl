@@ -30,6 +30,10 @@ end
     @test range(0..1; step=1/10) == range(0; stop=1, step=1/10)
     @test range(Interval{:closed,:open}(0..1), 10) == range(0; step=1/10, length=10)
     @test range(Interval{:closed,:open}(0..1); length=10) == range(0; step=1/10, length=10)
+    @test range(Interval{:open,:closed}(0..1), 10) == range(; stop=1, step=1/10, length=10)
+    @test range(Interval{:open,:closed}(0..1); length=10) == range(1/10; step=1/10, length=10)
+    @test range(OpenInterval(0..1), 7) == range(; stop=7/8, step=1/8, length=7)
+    @test range(OpenInterval(0..1); length=7) == range(1/8; step=1/8, length=7)
 end
 
 @testset "clamp" begin
