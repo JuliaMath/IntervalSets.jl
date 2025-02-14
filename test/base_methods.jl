@@ -121,4 +121,14 @@ end
     @test extrema(abs, -3..2) == (0, 3)
     @test_throws Exception extrema(abs, iv"[1, 2)")
     @test extrema(abs, iv"[-3, 2)") == (0, 3)
+
+    @test_throws ArgumentError minimum(abs, 2..1)
+    @test_throws ArgumentError minimum(abs, iv"(1,2)")
+    @test_throws ArgumentError minimum(abs, iv"[-3,-1)")
+    @test_throws ArgumentError minimum(abs, iv"(1,3]")
+
+    @test_throws ArgumentError maximum(abs, 2..1)
+    @test_throws ArgumentError maximum(abs, iv"(1,2)")
+    @test_throws ArgumentError maximum(abs, iv"(-3,-1]")
+    @test_throws ArgumentError maximum(abs, iv"[1,3)")
 end
