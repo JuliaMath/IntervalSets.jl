@@ -356,8 +356,8 @@ function Base.OneTo{T}(i::TypedEndpointsInterval{:closed,:closed,I}) where {T<:I
 end
 Base.OneTo(i::TypedEndpointsInterval{:closed,:closed,I}) where {I<:Integer} =
     Base.OneTo{I}(i)
-UnitRange{T}(i::TypedEndpointsInterval{:closed,:closed,I}) where {T<:Integer,I<:Integer} = UnitRange{T}(minimum(i), maximum(i))
-UnitRange(i::TypedEndpointsInterval{:closed,:closed,I}) where {I<:Integer} = UnitRange{I}(i)
+Base.UnitRange{T}(i::TypedEndpointsInterval{:closed,:closed,I}) where {T<:Integer,I<:Integer} = UnitRange{T}(minimum(i), maximum(i))
+Base.UnitRange(i::TypedEndpointsInterval{:closed,:closed,I}) where {I<:Integer} = UnitRange{I}(i)
 range(i::TypedEndpointsInterval{:closed,:closed,I}) where {I<:Integer} = UnitRange{I}(i)
 
 """
