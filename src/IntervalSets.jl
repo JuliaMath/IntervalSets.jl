@@ -2,7 +2,8 @@ module IntervalSets
 
 using Base: @pure
 import Base: eltype, convert, show, in, length, isempty, isequal, isapprox, issubset, ==, hash,
-             union, intersect, minimum, maximum, extrema, range, clamp, mod, float, ⊇, ⊊, ⊋
+             union, intersect, minimum, maximum, extrema, range, clamp, mod, float, ⊇, ⊊, ⊋,
+             UnitRange
 
 export AbstractInterval, Interval, OpenInterval, ClosedInterval, @iv_str,
             ⊇, .., ±, ordered, width, leftendpoint, rightendpoint, endpoints,
