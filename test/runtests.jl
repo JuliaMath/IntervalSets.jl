@@ -6,6 +6,7 @@ import Statistics: mean
 using Random
 using Unitful
 using Plots
+using Scanf
 
 import IntervalSets: Domain, endpoints, closedendpoints, TypedEndpointsInterval
 
