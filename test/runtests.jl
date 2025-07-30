@@ -444,7 +444,7 @@ struct IncompleteInterval <: AbstractInterval{Int} end
         @test_throws MethodError 2 in I
     end
 
-    @testset "stringify" begin
+    VERSION ≥ v"1.9" && @testset "stringify" begin
         @test string(0..1) == "0 .. 1"
         @test string(iv"[0,1)") == "0 .. 1 (closed-open)"
         @test @sprintf("%d", 0..1) == "0 .. 1"
