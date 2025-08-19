@@ -230,6 +230,67 @@
     # - different interval types
     @test (1..2) ∩ OpenInterval(0.5, 1.5) ≡ Interval{:closed, :open}(1, 1.5)
     @test (1..2) ∪ OpenInterval(0.5, 1.5) ≡ Interval{:open, :closed}(0.5, 2)
+
+    intervals = [i1, i2, i3, i4, i5, i_empty]
+    for _ in 1:10
+        @test ∪(shuffle!(intervals)...) == 0..3
+    end
+    intervals = [i1, i2, i4, i5, i_empty]
+    for _ in 1:10
+        @test_throws ArgumentError union(shuffle!(intervals)...)
+    end
+end
+
+randinterval(s) = Interval{rand([:closed,:open]),rand([:closed,:open])}(rand(s), rand(s))
+function test_multipleunion(intervals)
+    if all(isempty, intervals)
+        @test isempty(∪(intervals...))
+    else
+        u = nothing
+        try
+            u = ∪(intervals...)
+        catch e
+            @test e isa ArgumentError
+            s = e.msg
+            ind = findfirst("while the ", s)[end] + 1
+            if startswith(s[ind:end], "interval")
+                u = OpenInterval(@scanf(s[ind+9:end], "%d..%d", Int, Int)[2:3]...)
+                @test all(v -> isempty(u ∩ v), intervals)
+            elseif startswith(s[ind:end], "point")
+                x = @scanf(s[ind+6:end], "%d", Int)[2]
+                @test all(v -> x ∉ v, intervals)
+            else
+                error("have you touched the error message?")
+            end
+            return
+        end
+        @test all(v -> v ⊆ u, intervals)
+        # The following codes rigorously tests the correctness of u. 
+        # However, the `setdiff` is only implemented in `DomainSets.jl`
+        # which introduces piracies. See https://github.com/JuliaMath/IntervalSets.jl/pull/156#discussion_r1497829695
+        # as a result, the correctness of interval union is not thoroughly tested.
+        #= v = u
+        for i in intervals
+            try
+                v = setdiff(v, i)
+            catch
+                println("setdiff($v, $i) was not successful. The union was $u and the components are $intervals.")
+                @test false
+            end
+        end
+        @test isempty(v) =#
+    end
+end
+
+@testset "general union" begin
+    for _ in 1:500
+        intervals = [randinterval(0:10) for _ in 1:5]
+        test_multipleunion(intervals)
+    end
+    for _ in 1:50
+        intervals = [randinterval(0:100) for _ in 1:100]
+        test_multipleunion(intervals)
+    end
 end
 
 @testset "in" begin
