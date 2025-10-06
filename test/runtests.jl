@@ -6,6 +6,7 @@ import Statistics: mean
 using Random
 using Unitful
 using Plots
+using Printf
 
 import IntervalSets: Domain, endpoints, closedendpoints, TypedEndpointsInterval
 
@@ -441,6 +442,15 @@ struct IncompleteInterval <: AbstractInterval{Int} end
         @test_throws ErrorException endpoints(I)
         @test_throws ErrorException closedendpoints(I)
         @test_throws MethodError 2 in I
+    end
+
+    VERSION ≥ v"1.9" && @testset "stringify" begin
+        @test string(0..1) == "0 .. 1"
+        @test string(iv"[0,1)") == "0 .. 1 (closed-open)"
+        @test @sprintf("%d", 0..1) == "0 .. 1"
+        @test @sprintf("%.2f", 0..1) == "0.00 .. 1.00"
+        @test @sprintf("%.2f", iv"[0,1)") == "0.00 .. 1.00 (closed-open)"
+        @test @sprintf("%.2f", 0u"m"..1u"m") == "0.00 m .. 1.00 m"
     end
 
     include("base_methods.jl")
