@@ -36,6 +36,14 @@ end
     @test range(OpenInterval(0..1); length=7) == range(1/8; step=1/8, length=7)
 end
 
+@testset "LinRange" begin
+    @test @inferred(LinRange(0..1, 10)) === LinRange(0, 1, 10)
+    @test LinRange(Interval{:closed,:open}(0..1), 10) === LinRange(range(Interval{:closed,:open}(0..1), 10))
+    @test LinRange(Interval{:open,:closed}(0..1), 10) === LinRange(range(Interval{:open,:closed}(0..1), 10))
+    @test LinRange(OpenInterval(0..1), 7) === LinRange(range(OpenInterval(0..1), 7))
+    @test_throws MethodError LinRange(0..3)
+end
+
 @testset "clamp" begin
     @test clamp(1, 0..3) == 1
     @test clamp(1.0, 1.5..3) == 1.5

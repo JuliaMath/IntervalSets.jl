@@ -3,7 +3,7 @@ module IntervalSets
 using Base: @pure
 import Base: eltype, convert, show, in, length, isempty, isequal, isapprox, issubset, ==, hash,
              union, intersect, minimum, maximum, extrema, range, clamp, mod, float, ⊇, ⊊, ⊋,
-             UnitRange
+             UnitRange, LinRange
 
 export AbstractInterval, Interval, OpenInterval, ClosedInterval, @iv_str,
             ⊇, .., ±, ordered, width, leftendpoint, rightendpoint, endpoints,
@@ -435,6 +435,8 @@ function range(i::TypedEndpointsInterval{:open,:open}; length::Integer)
 end
 
 range(i::TypedEndpointsInterval{:open,:open}, length::Integer) = range(i; length)
+
+LinRange(i::TypedEndpointsInterval, length::Integer) = LinRange(range(i, length))
 
 """
     clamp(t, i::ClosedInterval)
