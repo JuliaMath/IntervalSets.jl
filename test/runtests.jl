@@ -6,6 +6,7 @@ import Statistics: mean
 using Random
 using Unitful
 using Plots
+import Makie # not using, as Plots and Makie both export plot
 
 import IntervalSets: Domain, endpoints, closedendpoints, TypedEndpointsInterval
 
@@ -448,4 +449,5 @@ struct IncompleteInterval <: AbstractInterval{Int} end
     include("findall.jl")
     include("nonreal_interval.jl")
     include("plots.jl")
+    include("makie.jl")
 end

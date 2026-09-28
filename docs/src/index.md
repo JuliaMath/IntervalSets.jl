@@ -110,6 +110,16 @@ nothing # hide
 
 ![](plot-intervals-offset.png)
 
+`Interval`s can also be plotted with [Makie](https://docs.makie.org), with the same `offset` keyword argument, as well as `color`, `linewidth` and `markersize`.
+
+```julia
+using IntervalSets, CairoMakie
+fig, ax, _ = plot(iv"(1,2)")
+plot!(ax, iv"[3,6)")
+plot!(ax, iv"[5,7)"; offset=-0.1)
+fig
+```
+
 ### Importing the `..` operator
 
 To import the [`..`](@ref) operator, use `import IntervalSets: (..)`.
