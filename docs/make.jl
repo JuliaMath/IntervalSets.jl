@@ -9,6 +9,9 @@ DocMeta.setdocmeta!(IntervalSets, :DocTestSetup, :(using IntervalSets); recursiv
 
 makedocs(;
     modules=[IntervalSets],
+    # Julia ≥ 1.13 shows empty ranges as, e.g., 4:3 (empty range). A filter only applies if it matches both the
+    # expected and the evaluated output, so this also matches the empty string at the end
+    doctestfilters=[r"( \(empty range\))?$"],
     repo="https://github.com/JuliaMath/IntervalSets.jl/blob/{commit}{path}#{line}",
     sitename="IntervalSets.jl",
     format=Documenter.HTML(;
