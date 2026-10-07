@@ -6,7 +6,12 @@ import Statistics: mean
 using Random
 using Unitful
 using Plots
-import Makie # not using, as Plots and Makie both export plot
+# Makie does not yet support IntervalSets v1, so it is not a test dependency
+# and its tests only run when Makie happens to be available
+const HAS_MAKIE = Base.find_package("Makie") !== nothing
+if HAS_MAKIE
+    import Makie # not using, as Plots and Makie both export plot
+end
 
 import IntervalSets: Domain, endpoints, closedendpoints, TypedEndpointsInterval
 
@@ -449,5 +454,5 @@ struct IncompleteInterval <: AbstractInterval{Int} end
     include("findall.jl")
     include("nonreal_interval.jl")
     include("plots.jl")
-    include("makie.jl")
+    HAS_MAKIE && include("makie.jl")
 end
