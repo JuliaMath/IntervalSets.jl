@@ -21,7 +21,7 @@ IntervalSetsStatisticsExt = "Statistics"
 
 [compat]
 Aqua = "0.8"
-Dates = "1"
+Dates = "<0.0.1, 1"
 Makie = "0.21, 0.22, 0.23, 0.24"
 OffsetArrays = "1"
 Plots = "1"
